@@ -60,4 +60,4 @@ class Solution {
             
             return maxStone(1, 0);
         }
-}
+};
