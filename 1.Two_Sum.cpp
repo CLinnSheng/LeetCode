@@ -4,6 +4,7 @@ using namespace std;
 /*
 Goal: Find the two indices that add up to target
 Intuition: Store the nums into a hash while iterating through the array and find the complement number at the same time
+Time Complexity: O(n), Space Complexity: O(n)
 */
 class Solution {
     public:
