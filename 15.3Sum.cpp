@@ -37,7 +37,7 @@ public:
                 if (temp_sum > 0) end--;
                 else if (temp_sum < 0) start++;
                 else {
-                    ans.push_back({nums[i], nums[start], nums[end]});}
+                    ans.push_back({nums[i], nums[start], nums[end]});
                     
                     start++; end--;
                     
@@ -45,7 +45,8 @@ public:
                         start++;
                 }
                 
+            }
         }
-        
+        return ans;
     }
 };
