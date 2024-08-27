@@ -9,6 +9,7 @@ Therefore, we try to always select the path with higher probability first
 The path with higher probability that reach the end will be the answer (Mathematically)
 We can make use of Djikstra Algorithm which return the shortest path, we modify
 it to become return the highest probability by using maxheap
+Time Complexity: ElgV
 */
 
 class Solution {
@@ -27,7 +28,7 @@ public:
             adjList[v0].emplace_back(succProb[i], v1);
             adjList[v1].emplace_back(succProb[i], v0);
         }
-        
+
         // Storing the probability of reaching every single node from start
         vector<double> prob(n, 0.0);
         prob[start_node] = 1.0;
