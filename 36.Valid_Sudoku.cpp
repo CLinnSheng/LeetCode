@@ -4,11 +4,7 @@ using namespace std;
 /*
 Goal: Check whether is it a valid sudoku just check every row, col and box
 Intuition: Make use of set data structure to check through every single row, col and boxes
-Time Complexity O(n2) this is the best as there is no way to check it without iterate it
-*/
-class Solution {
-    
-    public:
+
         bool isValidSudoku(vector<vector<char>>& board) {
             
             ios_base :: sync_with_stdio(false);

@@ -1,15 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-/*
-Given an m arrays and is sorted in ascending order
-Need to pick 2 integers from 2 different arrays and calculate the distance (abs diff)
-return the maximum distance
-
-Intuition: Only care about the min and max from every single array
-array[0] min and array[size - 1] max
-brute force will be O(n^2) by just comparing every single array come after it
-
-use greedy solution by keep updating the min, max, and maximum distance for every array we iterate
 #include <functional>
 #include <ios>
 #include <iostream>
@@ -45,6 +33,7 @@ class Solution {
                 
                 // Check whether the current cell in grid2 is exist in grid1 or not
                 if (grid1[r][c] == 0)
+                // we dont straight away return because we want to make this whole pieces of island in grid2 to be invalid subisland
                     isSubIsland = false;
                 
                 
@@ -58,7 +47,12 @@ class Solution {
                         visited[new_r][new_c] = true;
                         
                         // dfs & recursively call until to check whether all the cell in this subisland is subset of the subisland in grid1 or not
-                        isSubIsland = isSubIsland && checkSubIsland(new_r, new_c);
+                        bool nextSubIsland = checkSubIsland(new_r, new_c);
+                        isSubIsland = isSubIsland && nextSubIsland;
+
+                        // Take note from here we dont do isSubIsland = isSubIsland && checkSubIsland(new_r, new_c)
+                        // because if the current cell already invalid then the other half will not be call causing only this particular cell in grid2
+                        // is not considered we want to make this whole subIsland to be invalid
                     }
                 }
                 
@@ -80,23 +74,4 @@ class Solution {
             return n_subIsland;
         }
         
-};
-            
-            ios_base :: sync_with_stdio(false);
-            cin.tie(nullptr);
-            cout.tie(nullptr);
-            
-            int cur_min = arrays[0].front(), cur_max = arrays[0].back();
-            int ans = INT_MIN;
-            
-            for (int i = 1; i < arrays.size(); i++) {
-                // this will prevent compute from the same array by starting from the second array
-                ans = max(ans, max(arrays[i].back() - cur_min, cur_max - arrays[i].front()));
-                
-                cur_min = min(cur_min, arrays[i].front());
-                cur_max = max(cur_max, arrays[i].back());
-            }
-            
-            return ans;
-        }
 };

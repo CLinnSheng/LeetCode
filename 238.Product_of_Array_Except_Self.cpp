@@ -13,11 +13,7 @@ Dry Run:
 [1, 2, 3, 4] Ans (initial) = [1, 1, 1, 1]
 left: [1, 1, 2, 6]
 right: [24, 12, 4, 1]
-*/
 
-class Solution {
-    
-    public:
         vector<int> productExceptSelf(vector<int>& nums) {
             
             ios_base :: sync_with_stdio(false);

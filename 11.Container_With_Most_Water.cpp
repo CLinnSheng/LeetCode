@@ -8,11 +8,7 @@
 Given an array of height
 Goal: Return the container with most water which is the maximum area
 Instuition: Can use 2 pointer and try to find the maximum area by moving the pointer with shorter height
-Time Complexity: O(n)
-*/
-class Solution {
-public:
-    int maxArea(std::vector<int>& height) {
+
         
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(nullptr);

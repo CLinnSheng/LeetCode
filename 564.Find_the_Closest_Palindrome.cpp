@@ -9,11 +9,7 @@ using namespace std;
 Goal: Return the palindrome that is the nearest to n
 Intuition: We can split into half half in the middle and try generate a palindrome just based on half of the values
 Palindrome that build from its original number will be the closest to n
-*/
 
-class Solution {
-public:
-    string nearestPalindromic(string n) {
         
         int length = n.length();
         int middle = (length % 2 == 0)? length / 2 - 1 : length / 2;

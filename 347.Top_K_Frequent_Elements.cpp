@@ -8,11 +8,7 @@ Constraint: It might more than 1 k most frequent elements
 Intuition: Since it involve with frequency, we can use hashtable to keep track the freq of each element
 And then use another 2d array to store the count and its elements
 array[i][j] is the element with count i
-*/
 
-class Solution {
-public:
-    vector<int> topKFrequent(vector<int>& nums, int k) {
         
         ios_base :: sync_with_stdio(false);
         cin.tie(nullptr);

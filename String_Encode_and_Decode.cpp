@@ -12,10 +12,6 @@ Intuition: Since we want to keep track of every single string, so it best to hav
 But the constraint is the string itself might contain letters in the front
 The solution for it will be create a unique identity, so that we know how many characters for it
 and when to start reading it
-*/
-
-class Solution {
-public:
 
     string encode(vector<string>& strs) {
 

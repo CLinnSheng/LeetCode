@@ -10,11 +10,7 @@ and then the amount of water trapped is just simply min(leftMax, rightMax) - hei
 Instead of having 2 arrays we can use 2 pointers, 1 in the left and 1 in the right
 both of them is responsible to compute the tracp water from each direction
 Time Complexity: O(N)
-*/
 
-class Solution {
-public:
-    int trap(std::vector<int>& height) {
         
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(nullptr);

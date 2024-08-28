@@ -12,11 +12,7 @@ Time Complexity is O(n2) because we need an inner loop to find its consecutive e
 
 Second way is we straight away sort it lead it to O(nlgn)
 and then we try to find the consecutive elements straight from the array
-Final Time complexity will just be O(nlogn)
-*/
-class Solution {
-public:
-    int longestConsecutive(std::vector<int>& nums) {
+
         
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(nullptr);

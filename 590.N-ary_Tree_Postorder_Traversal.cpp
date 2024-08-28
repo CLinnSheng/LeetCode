@@ -23,11 +23,7 @@ public:
 
 /*
 Goal: Return it in postorder Traversal
-Constraint: Not a binary Tree
-*/
-class Solution {
-public:
-    vector<int> postorder(Node* root) {
+
      
         ios_base::sync_with_stdio(false);
         cin.tie(nullptr);
