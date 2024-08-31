@@ -5,7 +5,7 @@
 /*
 Given that the array is sorted in ascending order
 Intuition: We can straight apply binary search
-Time Complexity: O(n)
+Time Complexity: O(lgn)
 */
 
 class Solution {
