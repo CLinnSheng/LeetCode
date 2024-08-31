@@ -8,6 +8,17 @@ Intuition: We can straight apply binary search
 Time Complexity: O(lgn)
 */
 
+/*
+Some detailed explanation about the while loop condition:
+1. (start < end)
+    a. Searching for an exact match / index
+    b. Find the first occurence of a condition
+    c. Terminate when start and end converge to a single element
+    
+2. (start <= end)
+    a. Seraching for a range or a minimum/maximum value
+    b. Include the end value in search range
+*/
 class Solution {
 public:
     int search(std::vector<int>& nums, int target)
