@@ -1,52 +1,31 @@
 #include <ios>
 #include <vector>
 #include <iostream>
-/*
-Goal: Check whether is target in the 2D matrix or not
 
-Intuition: Given that each row in the 2d matrix is sorted in ascending order
-The first integer of each row is greater than the last integer of the previous row.
-First we must find out it belongs to each row then only saerch for the particular row
-Time Complexity: O(lg(mn))
+/*
+Given that the array is sorted in ascending order
+Intuition: We can straight apply binary search
+Time Complexity: O(n)
 */
 
 class Solution {
 public:
-    bool searchMatrix(std::vector<std::vector<int>>& matrix, int target) 
-    {
+    int search(std::vector<int>& nums, int target)
+    {    
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(nullptr);
         std::cout.tie(nullptr);
         
-        int n_row = matrix.size(), n_col = matrix[0].size();
+        int start = 0, end = nums.size() - 1;
         
-        // Checking which row it belongs to
-        int left = 0, right = n_row - 1;
-        int middle;
-        while (left <= right) {
+        while (start <= end) {
             
-            middle = left + (right - left) / 2;
-            
-            if (matrix[middle][0] > target) right = middle - 1;
-            else if (matrix[middle][n_col - 1] < target) left = middle + 1;
-            else break; // found the row it belongs
+            int middle = start + (end - start) / 2;
+
+            if (nums[middle] > target) end = middle - 1;
+            else if (nums[middle] < target) start = middle + 1;
+            else return middle;
         }
-        
-        if (left > right) return false;
-
-        left = 0, right = n_col - 1;
-
-        // Binary search on that row
-        while (left <= right) {
-
-            int middle_index = left + (right - left) / 2;
-
-            if (matrix[middle][middle_index] > target) right = middle_index - 1;
-            else if (matrix[middle][middle_index] < target) left = middle_index + 1;
-            else return true;
-
-        }
-
-        return false;
+        return -1;
     }
 };

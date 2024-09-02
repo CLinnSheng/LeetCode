@@ -34,10 +34,8 @@ public:
             
             int middle = start + (end - start) / 2;
             
-            if (nums[middle] > nums[end])
-                start = middle + 1;
-            else
-                end = middle;
+            if (nums[middle] > nums[end]) start = middle + 1;
+            else end = middle;
         } 
         
         return nums[start];
