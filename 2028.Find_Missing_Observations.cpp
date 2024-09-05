@@ -38,9 +38,10 @@
                 
             std::vector<int> possible_roll;
             
-            // Easier way is just straight fill up with the biggest number
+            // Fill all the array with the mean first
+            // Ideally, each missing throw would have a value close to the average. If the sum isnt exactly divibsible by n, distribute the remainder among the throws (to make sure is 1 <= x <= 6)
             int mean_n = sum_n / n;
-            int mod = sum_n % n;
+            int mod = sum_n % n; // is sum_n mode n not mod mode n because we distribute the sum evenly so we wanna find out whether is it esxactly distributed the whole piece (integer) or else distributed the reamining piece evenly
             std::vector<int> array_n(n, mean_n);
             
             for (int i = 0; i < mod; i++)
