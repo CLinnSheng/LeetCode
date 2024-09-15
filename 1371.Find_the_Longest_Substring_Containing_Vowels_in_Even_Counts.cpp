@@ -27,7 +27,7 @@ public:
         std::cout.tie(nullptr);
         
         // Store the masks of all letters in the array
-        std::vector<int> characters{26, 0};
+        std::vector<int> characters(26, 0);
         characters['a' - 'a'] = 1;
         characters['e' - 'a'] = 2;
         characters['i' - 'a'] = 4;
@@ -35,7 +35,7 @@ public:
         characters['u' - 'a'] = 16;
         
         // Store the prefix XOR value at every vowel index, have 32 combinations because of 2^5
-        std::vector<int> mp{32, -1};
+        std::vector<int> mp(32, -1);
         int max_length = 0;
         int curr_prefix_XOR = 0;
         
