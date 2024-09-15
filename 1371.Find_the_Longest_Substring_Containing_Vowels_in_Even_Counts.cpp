@@ -9,8 +9,9 @@ Goal: Return the longest substring containing each vowel an even number of times
 Constraint: The substring must contain all 5 vowels (a, e, i, o, u) at even number of tiems 0 also included
 
 Intuition: We cant use sliding window because we cant tell in the further right hand side whether there exists another a if a already odd
-We can use bitmask data structure to store the count of each vowel
-we want to store the bitmask at every indices of vowel, because we want to find the longest so we just take the longest minus the shortest
+We can use bitmask data structure to keep track the count of each vowel
+(_ _ _ _ _)
+we want to store the bitmask at every indices of vowel, because we want to find the longest and keep updating on every single loop
 How bitmask work, if we already have odd a at i then i + 1 is also a so i ^ i + 1 equal to 0 means we have even a right now
 
 Time Complexity: O(n)
