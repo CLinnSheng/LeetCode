@@ -66,6 +66,6 @@ public:
             }
         }
         // Checking the first and last because of cyclic property of time
-        return std::min(ans, 24 * 60 - last_index - first_index);
+        return std::min(ans, 24 * 60 - last_index + first_index);
     }
 };
