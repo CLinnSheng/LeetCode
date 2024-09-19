@@ -46,9 +46,9 @@ public:
         // ii. Recursive approach
         if (!subRoot) return true; // empty subtree means is a subrtree of tree
         if (!root) return false; // when root traverse down to nullptr means we could nt find the subtree in the main tree
-        if (subRoot->val == root->val && helper(root, subRoot)) return true;
+        if (subRoot->val == root->val && helper(root, subRoot)) return true; // Serach down this subtree to make sure they are equal
 
-        // Continue down to search
+        // Continue down to search the subtree
         return isSubtree(root->left, subRoot) ||  isSubtree(root->right, subRoot);
     }
     
