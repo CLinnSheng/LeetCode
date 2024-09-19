@@ -35,7 +35,7 @@ public:
         std::cout.tie(nullptr);
         
         // Handling special case
-        if (!root) return { { } };
+        if (!root) return { };
         
         std::vector<std::vector<int>> ans;
         std::deque<TreeNode*> queue;
