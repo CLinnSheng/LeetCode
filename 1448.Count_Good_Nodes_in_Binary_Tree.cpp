@@ -19,7 +19,10 @@
  * Intuition: Can use dfs because we need to check every single node down to the
  * leaf
  *Root node itself is a good node, so this is the maximum value to start with
- * */
+
+  Time Complexity: O(n)
+  Space Complexity: O(lgn) because of the recursive call
+*/
 #include <ios>
 #include <iostream>
 class Solution {
@@ -30,15 +33,12 @@ public:
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
 
-    std::function(int(TreeNode *, int)) dfs = [](TreeNode *node, int maxVal) {
-      if (root == nullptr)
+    std::function<int(TreeNode *, int)> dfs = [&](TreeNode *node, int maxVal) {
+      if (node == nullptr)
         return 0;
 
-      int cnt = 0;
-
       // Check whether the node pointing now is a goodn node
-      if (node->val <= maxVal)
-        cnt++;
+      int cnt = node->val >= maxVal ? 1 : 0;
 
       int curr_max = std::max(maxVal, node->val);
 

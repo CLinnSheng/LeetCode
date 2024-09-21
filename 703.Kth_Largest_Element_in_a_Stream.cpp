@@ -1,35 +1,30 @@
-#include <bits/stdc++.h>
-using namespace std;
+/*
+Goal: Maintains a stream of test scores and continously return the kth highest
+test score Intuition: Since need to continously return the kth highest test
+score A data structure that always has the kth highest test score on the top of
+data structure
+--> minHeap with size of k, so the top will be the kth highest test score
 
+Time Complexity: O(mlgk + nlgk) first we buld the heap and then add n times
+Space Complexity: O(k)
+*/
 class KthLargest {
 public:
-/*
-Intuition: Can use a min heap and then pop until the kth largest element
-then we continously pop until the size equal to k, so the toppest element will be the kth largeest element everytime
-*/
+  std::priority_queue<int, std::vector<int>, greater<int>> minHeap;
+  int size;
+  KthLargest(int k, vector<int> &nums) : size(k) {
+    for (const auto &num : nums)
+      minHeap.emplace(num);
+  }
 
-    priority_queue<int, vector<int>, greater<int>> minHeap;
-    int size;
+  int add(int val) {
+    minHeap.emplace(val);
 
-    KthLargest(int k, vector<int>& nums) : size(k) {
+    while (minHeap.size() > size)
+      minHeap.pop();
 
-        ios_base :: sync_with_stdio(false);
-        cin.tie(nullptr);
-        cout.tie(nullptr);   
-
-        for (const auto &num : nums)
-            minHeap.emplace(num);
-    }
-    
-    int add(int val) {
-        
-        minHeap.emplace(val);
-
-        while (minHeap.size() > size)
-            minHeap.pop();
-
-        return minHeap.top();
-    }
+    return minHeap.top();
+  }
 };
 
 /**
