@@ -14,7 +14,7 @@
  * comparator function
  *
  * Time Complexity: O(nlgn)
- * Space Complexity: O(n)
+ * Space Complexity: O(k)
  *
  * */
 class Solution {
@@ -27,14 +27,12 @@ public:
     std::cout.tie(nullptr);
 
     // sort it in ascending order
-    std::sort(points.begin(), points.end(),
-              [](const auto &p1, const auto &p2) {
-                return (pow(p1[0], 2) + pow(p1[1], 2)) <
-                       (pow(p2[0], 2) + pow(p2[1], 2));
-              })
+    std::sort(points.begin(), points.end(), [](const auto &p1, const auto &p2) {
+      return (pow(p1[0], 2) + pow(p1[1], 2)) < (pow(p2[0], 2) + pow(p2[1], 2));
+    });
 
-        // then resizes it because we only want k smallest
-        points.resize(k);
+    // then resizes it because we only want k smallest
+    points.resize(k);
 
     return points;
   }
