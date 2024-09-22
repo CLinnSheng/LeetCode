@@ -19,6 +19,9 @@
  1e6 & the maximum heigh of mountain is 1e5 Therefore the time taken will be
  1e6(1+2+3..+1e5) approximately equal to 1e16 Then apply binary search on this
  range
+ The checking condition in doing binary search in the range of 1 to 1e16 is
+ by keep checking if all the workers are able to reduce the height to 0
+ in the time required which is mid
  * Goal: Return the minimum number of seconds required for the workers to make
  the height to 0
 */
@@ -36,6 +39,8 @@ public:
     std::uint64_t lower_boundary = 0, upper_boundary = 1e16;
     std::uint64_t ans = 0;
 
+    // This function check whether all the workers are able to reduce the height
+    // to 0 in the time given which is times
     auto helper = [=](std::uint64_t times) {
       std::uint64_t time_taken = 0;
 
@@ -49,6 +54,8 @@ public:
           else
             right = mid - 1;
         }
+        // at here we add right because using left will overestimate the height
+        // when break out of the loop
         time_taken += right;
         if (time_taken >= mountainHeight)
           return true;
