@@ -31,15 +31,14 @@ public:
     if (length == 0)
       return 0;
 
-    std::unordered_set<string> dictionary_;
-    for (const auto &word : dictionary)
-      dictionary_.insert(word);
+    std::unordered_set<string> dictionary_(dictionary.begin(),
+                                           dictionary.end());
 
     std::vector<int> dp(length + 1, 0);
 
     for (int start = length - 1; start >= 0; start--) {
       // we assume the new character added is not from the dict initially
-      dp[start] = dp[start] + 1;
+      dp[start] = dp[start + 1] + 1;
 
       for (int end = start; end < length; end++) {
         std::string sub_str = s.substr(start, end - start + 1);
