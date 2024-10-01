@@ -2,7 +2,8 @@
 #include <vector>
 
 // Intuition: DFS and backtracking and also checking whether is it a palindrome
-// at the same time Time Complexity: O(2^n * l) Space Complexity: O(2*n)
+// at the same time Time Complexity: O(2^n * l) 2^n due to splitting and l is
+// due to the palindrome checking Space Complexity: O(2^n)
 class Solution {
 public:
   bool checkPalindrome(const std::string &str) {
