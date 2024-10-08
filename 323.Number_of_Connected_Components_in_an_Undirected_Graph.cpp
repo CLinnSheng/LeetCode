@@ -20,8 +20,8 @@ public:
     parents.resize(n);
 
     for (int i = 0; i < n; i++) {
-      ranks[i] = i;
-      parents[i] = 1;
+      ranks[i] = 1;
+      parents[i] = i;
     }
 
     int n_nodes{n};
