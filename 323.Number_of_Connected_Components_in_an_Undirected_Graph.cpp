@@ -21,7 +21,7 @@ public:
 
     for (int i = 0; i < n; i++) {
       ranks[i] = i;
-      parents[i] = i;
+      parents[i] = 1;
     }
 
     int n_nodes{n};
