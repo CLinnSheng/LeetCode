@@ -1,8 +1,8 @@
 #include <algorithm>
+#include <deque>
 #include <functional>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 /*
  * Given a list of airline tickets where tickets[i] = [fromi, toi].
@@ -24,40 +24,60 @@ class Solution {
 public:
   std::vector<std::string>
   findItinerary(std::vector<std::vector<std::string>> &tickets) {
+    // dfs & backtracking
+    // std::sort(tickets.begin(), tickets.end());
+    // std::unordered_map<std::string, std::vector<std::string>> adjList;
+    //
+    // for (const std::vector<std::string> ticket : tickets)
+    //   adjList[ticket[0]].emplace_back(ticket[1]);
+    //
+    // std::vector<std::string> ans{"JFK"};
+    //
+    // std::function<bool(const std::string)> dfs_backtracking =
+    //     [&](const std::string src) {
+    //       if (ans.size() == tickets.size() + 1)
+    //         return true;
+    //
+    //       // if no ticket from this city
+    //       if (!adjList.count(src))
+    //         return false;
+    //
+    //       std::vector<std::string> temp(adjList[src]);
+    //       for (int i{}; i < temp.size(); i++) {
+    //         std::string currCity{temp[i]};
+    //
+    //         // dfs
+    //         ans.emplace_back(currCity);
+    //         adjList[src].erase(adjList[src].begin() + i);
+    //         if (dfs_backtracking(currCity))
+    //           return true;
+    //
+    //         // backtracking
+    //         ans.pop_back();
+    //         adjList[src].insert(adjList[src].begin() + i, currCity);
+    //       }
+    //       return false;
+    //     };
+    // dfs_backtracking("JFK");
+    // return std::move(ans);
+    std::unordered_map<std::string, std::deque<std::string>> adjList;
     std::sort(tickets.begin(), tickets.end());
-    std::unordered_map<std::string, std::vector<std::string>> adjList;
 
-    for (const std::vector<std::string> ticket : tickets)
+    for (const std::vector<std::string> &ticket : tickets)
       adjList[ticket[0]].emplace_back(ticket[1]);
 
-    std::vector<std::string> ans{"JFK"};
+    std::vector<std::string> res;
 
-    std::function<bool(const std::string)> dfs_backtracking =
-        [&](const std::string src) {
-          if (ans.size() == tickets.size() + 1)
-            return true;
-
-          // if no ticket from this city
-          if (!adjList.count(src))
-            return false;
-
-          std::vector<std::string> temp(adjList[src]);
-          for (int i{}; i < temp.size(); i++) {
-            std::string currCity{temp[i]};
-
-            // dfs
-            ans.emplace_back(currCity);
-            adjList[src].erase(adjList[src].begin() + i);
-            if (dfs_backtracking(currCity))
-              return true;
-
-            // backtracking
-            ans.pop_back();
-            adjList[src].insert(adjList[src].begin() + i, currCity);
-          }
-          return false;
-        };
-    dfs_backtracking("JFK");
-    return std::move(ans);
+    std::function<void(const std::string)> dfs = [&](const std::string src) {
+      while (!adjList[src].empty()) {
+        std::string dest = adjList[src].front();
+        adjList[src].pop_front();
+        dfs(dest);
+      }
+      res.emplace_back(src);
+    };
+    dfs("JFK");
+    std::reverse(res.begin(), res.end());
+    return res;
   }
 };
