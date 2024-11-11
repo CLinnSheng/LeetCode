@@ -24,7 +24,10 @@ perform a topological sort on the graph to find the alien language character
 order. If we can complete the topological sort with all characters accounted
 for, we have successfully identified a possible alien language order. Otherwise,
 we return an empty string.
- * */
+ * Time Complexity: O(V + E + N)
+ * Space Complexity: O(V + N) where V is the number of unique charaters & N is
+the number of word
+ */
 class Solution {
 public:
   std::string foreignDictionary(std::vector<std::string> &words) {
@@ -34,6 +37,7 @@ public:
     std::unordered_map<char, int> inDegree;
 
     // initialize the graph
+    // O(N)
     for (const std::string &word : words)
       for (const char &ch : word) {
         graph[ch] = std::unordered_set<char>();
@@ -67,11 +71,13 @@ public:
     // only push those with 0 indegree because they are the starting character
     // in the dictionary
     std::deque<char> q;
+    // O(V)
     for (auto &[ch, deg] : inDegree)
       if (deg == 0)
         q.emplace_back(ch);
 
     std::string ans{};
+    // O(E)
     while (!q.empty()) {
       char currentChar = q.front();
       q.pop_front();
