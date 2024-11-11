@@ -24,29 +24,28 @@ public:
 
     std::size_t size{nums.size()};
     if (size == 1)
-      return true
+      return true;
 
-             std::function<bool(const int &)>
-                 isPrime = [](const int &n) {
-                   for (int i{2}; i <= std::sqrt(n); i++)
-                     if (n % i == 0)
-                       return false;
-                   return true;
-                 };
+    std::function<bool(const int &)> isPrime = [](const int &n) {
+      for (int i{2}; i <= std::sqrt(n); i++)
+        if (n % i == 0)
+          return false;
+      return true;
+    };
 
     std::vector<int> primeNumbers(2, 0);
-    for (int i{2}; i <= *std::max_element(nums.begin(), nums.end()) - 1; i++)
-      primeNumber.emplace_back(isPrime(i) ? i : primeNumbers.back());
+    for (int i{2}; i <= *std::max_element(nums.begin(), nums.end()); i++)
+      primeNumbers.emplace_back(isPrime(i) ? i : primeNumbers.back());
 
     int prevNumber{};
-    for (const int &num : nums) {
+    for (const auto &num : nums) {
       // upperbound for the maximum prime number we want to get
       // subtract from prevNmber because we dont want it to be the same as the
       // prevNumber
       int upperBound{num - prevNumber};
 
       // finding the possible maximum primeNumber
-      int largestPrimeNumber{primeNumbers[upperBound - 1]};
+      int largestPrimeNumber{upperBound > 0 ? primeNumbers[upperBound - 1] : 0};
       if (num - largestPrimeNumber <= prevNumber)
         return false;
 
