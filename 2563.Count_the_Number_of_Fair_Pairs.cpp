@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <functional>
 #include <vector>
-
 using ll = long;
 
 /*
@@ -16,8 +16,9 @@ using ll = long;
  *  We can optimize this but not having a double loop
  *  We just have to find out the boundary for each num in nums where it can form
  * a fair pair. The way to do this is first sort the array and then find out the
- * upper and lower boundary where the sum is within lwoer & upper Time
- * Complexity: O(nlgn) Space Complexity: O(1)
+ * upper and lower boundary where the sum is within lwoer & upper
+ * The upper boundary and lower boundary can be found from a sorted array by
+ * using binary binarySearch Time Complexity: O(nlgn) Space Complexity: O(1)
  * */
 class Solution {
 public:
