@@ -27,7 +27,7 @@ public:
     std::function<int(int, int, const int &)> binarySearch =
         [&nums](int left, int right, const int &target) {
           while (left <= right) {
-            int middle = left + (right - left) / 2);
+            int middle(left + (right - left) / 2);
 
             if (nums[middle] >= target)
               right = middle - 1;
