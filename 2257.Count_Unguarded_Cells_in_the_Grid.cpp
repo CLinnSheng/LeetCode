@@ -34,8 +34,7 @@ public:
     // Go to every row first
     for (int i{}; i < m; i++) {
       bool guard = false;
-
-      for (int j{}; j < n; j++) 
+      for (int j{}; j < n; j++)
         if (map[i][j] == GUARD)
           guard = true;
         else if (map[i][j] == WALL)
@@ -44,10 +43,7 @@ public:
                  guard) // only take care of empty cooridnates, for other just
                         // skip if it stay until the last condition
           map[i][j] = GUARDED;
-      
-
       guard = false;
-
       for (int j{m - 1}; j >= 0; j--)
         if (map[i][j] == GUARD)
           guard = true;
@@ -73,7 +69,6 @@ public:
                         // skip if it stay until the last condition
           map[i][j] = GUARDED;
       guard = false;
-
       for (int i{m - 1}; i >= 0; i--)
         if (map[i][j] == GUARD)
           guard = true;
