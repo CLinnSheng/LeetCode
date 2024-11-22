@@ -1,5 +1,3 @@
-#include <functional>
-#include <utility>
 #include <vector>
 
 /*
@@ -34,6 +32,7 @@ public:
     // Go to every row first
     for (int i{}; i < m; i++) {
       bool guard = false;
+      // Look from the left
       for (int j{}; j < n; j++)
         if (map[i][j] == GUARD)
           guard = true;
@@ -44,6 +43,7 @@ public:
                         // skip if it stay until the last condition
           map[i][j] = GUARDED;
       guard = false;
+      // Look from the right
       for (int j{m - 1}; j >= 0; j--)
         if (map[i][j] == GUARD)
           guard = true;
@@ -58,6 +58,7 @@ public:
     // Go to every column
     for (int j{}; j < n; j++) {
       bool guard = false;
+      // Look from above
       for (int i{}; i < m; i++)
 
         if (map[i][j] == GUARD)
@@ -69,6 +70,7 @@ public:
                         // skip if it stay until the last condition
           map[i][j] = GUARDED;
       guard = false;
+      // Look from bottom
       for (int i{m - 1}; i >= 0; i--)
         if (map[i][j] == GUARD)
           guard = true;
