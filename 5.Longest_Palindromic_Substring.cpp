@@ -3,52 +3,40 @@
 #include <vector>
 
 /*
- * Given a string s return the longest palindrome substring in struct
- * Intuition: We want to find substring within a string s but with a condition
- * that the substring must be a palindrome Naive Approach will be using a double
- * loop that will lead to O(n2) and everytime checking the substring is a
- * palindrome will take O(N) The only possible way is to reduce the time
- * complexity of checking palindrome as if 'a' is a palindrome then 'xax' is
- * palindrome or not just check the value of x is it equal or not so basically
- * we using the stored result --> dp We cannot do anything about the O(n2)
- * because theres the way to form substring
+ * Given a string & find the longest palindrome.
  *
+ * Intuition: By using naive approach double for loop for every single possible
+ * comibnation of string and then another for loop to check whether is this a
+ * valid palindrome or not
+ * Time Complexity: O(n^3)
+ *
+ * Actually we dont have to check the whole string whether is it a valid
+ * palindrome, we can use a much more clever way if s[i] == s[y] and then check
+ * whether s[i - 1] == s[y - 1] or not. We can use dp as there is overlapping
+ * subproblem & memoziation is implemented Time Complexity: O(n^2) Space
+ * Complexity: O(n^2)
  */
 class Solution {
 public:
   std::string longestPalindrome(std::string s) {
-
-    std::int32_t len = s.length();
-
-    if (len == 0)
-      return "";
+    int len(s.length());
     if (len == 1)
       return s;
 
-    std::vector<std::vector<int>> dp(len, std::vector<int>(len, 0));
+    std::vector<std::vector<bool>> dp(len, std::vector<bool>(len, false));
+    int startingIndex;
+    int longestLen{};
 
-    for (int i = 0; i < len; i++)
-      dp[i][i] = 1;
-
-    std::pair<int, int> index = {0, 0};
-
-    for (int i = 0; i < len - 1; i++)
-      if (s[i] == s[i + 1]) {
-        dp[i][i + 1] = 1;
-        index = {i, i + 1};
-      }
-
-    // from here we building up the dp, so x + "aa" + x the checking will be
-    // very simple just check whether x1 equal to x2 and the inner str is
-    // palindrome or not from the dp
-    for (int sub_str_len = 2; sub_str_len < len; sub_str_len++)
-      for (int start = 0; start < len - sub_str_len; start++) {
-        int end = start + sub_str_len;
-        if (s[start] == s[end] && dp[start + 1][end - 1]) {
-          dp[start][end] = true;
-          index = {start, end};
+    for (int i{len - 1}; i >= 0; i--)
+      for (int j{i}; j < len; j++)
+        if (s[i] == s[j] && (j - i + 1 <= 2 || dp[i + 1][j - 1])) {
+          dp[i][j] = true;
+          if (j - i + 1 > longestLen) {
+            longestLen = j - i + 1;
+            startingIndex = i;
+          }
         }
-      }
-    return s.substr(index.first, index.second - index.first + 1);
+
+    return s.substr(startingIndex, longestLen);
   }
 };

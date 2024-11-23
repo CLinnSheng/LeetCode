@@ -1,8 +1,5 @@
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <ios>
-#include <iostream>
+#include <functional>
 #include <vector>
 
 /*
@@ -18,33 +15,28 @@
 class Solution {
 public:
   int rob(std::vector<int> &nums) {
-
-    std::ios_base::sync_with_stdio(false);
-    std::cout.tie(nullptr);
-    std::cin.tie(nullptr);
-
-    std::int32_t n_house = nums.size();
-
-    if (n_house == 0)
-      return 0;
-    if (n_house == 1)
+    if (nums.size() == 1)
       return nums[0];
-    if (n_house == 2)
-      return std::max(nums[0], nums[1]);
-    // range [1, n-1]
-    std::vector<int> copy_1 = nums;
-    copy_1[1] = std::max(copy_1[0], copy_1[1]);
 
-    for (int i = 2; i < n_house - 1; i++)
-      copy_1[i] = std::max(copy_1[i - 1], copy_1[i] + copy_1[i - 2]);
+    std::function<int(const std::vector<int> &)> helper =
+        [](const std::vector<int> &n) {
+          if (n.empty())
+            return 0;
+          if (n.size() == 1)
+            return n[0];
 
-    // range[2, n]
-    std::vector<int> copy_2 = nums;
-    copy_2[2] = std::max(copy_2[2], copy_2[1]);
+          std::vector<int> dp(n.size());
+          dp[0] = n[0];
+          dp[1] = std::max(n[0], n[1]);
 
-    for (int i = 3; i < n_house; i++)
-      copy_2[i] = std::max(copy_2[i - 1], copy_2[i] + copy_2[i - 2]);
+          for (int i{2}; i < n.size(); i++)
+            dp[i] = std::max(dp[i - 1], dp[i - 2] + n[i]);
 
-    return std::max(copy_2[n_house - 1], copy_1[n_house - 2]);
+          return dp.back();
+        };
+    // either startin from the first 1 or the second 1
+    // first 1 is from [1, n - 1] while second is from [2, n]
+    return std::max(helper(std::vector<int>(nums.begin(), nums.end() - 1)),
+                    helper(std::vector<int>(nums.begin() + 1, nums.end())));
   }
 };
