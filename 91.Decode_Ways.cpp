@@ -69,7 +69,7 @@ public:
         dp[i] = 0;
       else {
         dp[i] = dp[i + 1];
-        if (i + 1 < s.size() && (s[i] == '1' || s[i] == '2' && s[i] < '7'))
+        if (i + 1 < s.size() && (s[i] == '1' || s[i] == '2' && s[i + 1] < '7'))
           dp[i] += dp[i + 2];
       }
     return dp[0];
