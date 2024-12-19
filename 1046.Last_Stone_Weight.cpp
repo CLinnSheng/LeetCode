@@ -23,7 +23,7 @@ class Solution {
 public:
   int lastStoneWeight(vector<int> &stones) {
 
-    std::ios_base::sync_with_stdio(false);
+      std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     std::priority_queue<int, std::vector<int>> maxHeap;
