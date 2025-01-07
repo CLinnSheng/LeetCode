@@ -30,36 +30,36 @@ first and then append the rest at the front by reversing its the way to find the
 longest palindrome is to by comparing with its reverse order, at here we using
 suffix and prefix is much more easier and not so expensive
 */
-class Solution {
-public:
-  std::string shortestPalindrome(std::string s) {
+class Solution
+{
+  public:
+    std::string shortestPalindrome(std::string s)
+    {
+        std::ios_base::sync_with_stdio(false);
+        std::cin.tie(nullptr);
+        std::cout.tie(nullptr);
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        int prefix = 0, suffix = 0;
+        int base = 29, powerVal = 1, mod = 1e9 + 7;
+        int last_index = -1;
 
-    int prefix = 0, suffix = 0;
-    int base = 29, powerVal = 1, mod = 1e9 + 7;
-    int last_index = -1;
+        for (int i = 0; i < s.size(); i++)
+        {
 
-    for (int i = 0; i < s.size(); i++) {
+            auto temp = s[i];
 
-      auto temp = s[i];
+            prefix = prefix * base + (temp - 'a' + 1); // here we +1 because we start from 1 for a
+                                                       // beacuse if we use 0 we will be confuse
+            suffix = suffix + (temp - 'a' + 1) * powerVal;
 
-      prefix = prefix * base +
-               (temp - 'a' + 1); // here we +1 because we start from 1 for a
-                                 // beacuse if we use 0 we will be confuse
-      suffix = suffix + (temp - 'a' + 1) * powerVal;
+            powerVal = (powerVal * base) % mod;
 
-      powerVal = (powerVal * base) % mod;
+            if (prefix == suffix)
+                last_index = i;
+        }
+        std::string append_string = s.substr(last_index + 1);
+        std::string reverse_append_string(append_string.rbegin(), append_string.rend());
 
-      if (prefix == suffix)
-        last_index = i;
+        return reverse_append_string + s;
     }
-    std::string append_string = s.substr(last_index + 1);
-    std::string reverse_append_string(append_string.rbegin(),
-                                      append_string.rend());
-
-    return reverse_append_string + s;
-  }
 };
