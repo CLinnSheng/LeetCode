@@ -21,6 +21,11 @@ using ll = long long;
  * the right direction and the other 1 in the opposite direction. Each nodes hold a count also We will build the tree in
  * the reverse order of the array words because we want to make sure the index pairs (i, j) such that i < j. get the
  * count first & then only add into the tree
+ * Time Complexity: O(nm) where m is the longest length of word
+ * Iterate through the array of words O(n)
+ * Try to traverse the tree O(m)
+ *
+ * Space Complexity: O(nm) in the worst case store all word
  * */
 
 struct pairHash
