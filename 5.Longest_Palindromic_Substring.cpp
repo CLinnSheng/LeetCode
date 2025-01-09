@@ -16,27 +16,31 @@
  * subproblem & memoziation is implemented Time Complexity: O(n^2) Space
  * Complexity: O(n^2)
  */
-class Solution {
-public:
-  std::string longestPalindrome(std::string s) {
-    int len(s.length());
-    if (len == 1)
-      return s;
+class Solution
+{
+  public:
+    std::string longestPalindrome(std::string s)
+    {
+        int len(s.length());
+        if (len == 1)
+            return s;
 
-    std::vector<std::vector<bool>> dp(len, std::vector<bool>(len, false));
-    int startingIndex;
-    int longestLen{};
+        std::vector<std::vector<bool>> dp(len, std::vector<bool>(len, false));
+        int startingIndex;
+        int longestLen{};
 
-    for (int i{len - 1}; i >= 0; i--)
-      for (int j{i}; j < len; j++)
-        if (s[i] == s[j] && (j - i + 1 <= 2 || dp[i + 1][j - 1])) {
-          dp[i][j] = true;
-          if (j - i + 1 > longestLen) {
-            longestLen = j - i + 1;
-            startingIndex = i;
-          }
-        }
+        for (int i{len - 1}; i >= 0; i--)
+            for (int j{i}; j < len; j++)
+                if (s[i] == s[j] && (j - i + 1 <= 2 || dp[i + 1][j - 1]))
+                {
+                    dp[i][j] = true;
+                    if (j - i + 1 > longestLen)
+                    {
+                        longestLen = j - i + 1;
+                        startingIndex = i;
+                    }
+                }
 
-    return s.substr(startingIndex, longestLen);
-  }
+        return s.substr(startingIndex, longestLen);
+    }
 };
