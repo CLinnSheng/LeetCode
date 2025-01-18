@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <unordered_map>
 #include <vector>
 using std::vector;
@@ -25,13 +26,12 @@ class Solution
 
         std::unordered_map<int, int> hashIndex;
         for (int i{}; i < size; i++)
+        {
             if (hashIndex.count(nums[i]))
-            {
-                if (i - nums[i] <= k)
+                if (std::abs(i - hashIndex[nums[i]]) <= k)
                     return true;
-            }
-            else
-                hashIndex[nums[i]] = i;
+            hashIndex[nums[i]] = i;
+        }
         return false;
     }
 };
