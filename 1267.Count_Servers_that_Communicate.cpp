@@ -36,7 +36,7 @@ class Solution
             for (int col{}; col < COLS; col++)
                 if (grid[row][col])
                     // either row or col have more than computer
-                    ttl += computerRow[row] || computerCol[col];
+                    ttl += computerRow[row] > 1 || computerCol[col] > 1;
 
         return ttl;
     }
