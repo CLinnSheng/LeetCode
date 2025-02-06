@@ -28,15 +28,14 @@ class Solution
 
         std::unordered_map<int, int> product_freq;
         for (int i{}; i < nums.size(); i++)
-            for (int j{}; j < nums.size(); j++)
-                if (i != j)
-                    product_freq[nums[i] * nums[j]]++;
+            for (int j{i + 1}; j < nums.size(); j++)
+                product_freq[nums[i] * nums[j]]++;
 
         int answer{};
 
-        for (const auto &map : product_freq)
+        for (const auto &[product, freq] : product_freq)
         {
-            int pairs{map.second * ((map.second - 1) / 2)};
+            int pairs = freq * (freq - 1) / 2;
             answer += 8 * pairs;
         }
         return answer;
