@@ -7,25 +7,28 @@
     Time Complexity: O(n)
     Space Complexity :O(1)
  * */
-class Solution {
-public:
-  int climbStairs(int n) {
+class Solution
+{
+  public:
+    int climbStairs(int n)
+    {
 
-    if (n == 2)
-      return 2;
-    if (n == 1)
-      return 1;
+        if (n == 2)
+            return 2;
+        if (n == 1)
+            return 1;
 
-    int first = 1;
-    int second = 2;
-    int res = 0;
+        int first = 1;
+        int second = 2;
+        int res = 0;
 
-    // Bottom up approach
-    for (int i = 2; i < n; i++) {
-      res = first + second;
-      first = second;
-      second = res;
+        // Bottom up approach
+        for (int i = 2; i < n; i++)
+        {
+            res = first + second;
+            first = second;
+            second = res;
+        }
+        return res;
     }
-    return res;
-  }
 };
