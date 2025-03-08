@@ -7,65 +7,56 @@ eg: 1 2 3 4
 if we first broke index 1 then we cannot broke into index 2, we can only choose
 either 3 or 4 for the next 1
 
-Intuition: Try to maximize the amount of val from an array but with constraint,
-this will lead us to think that this is a dp problem We can either use bottom up
-or top down approach
+Intuition:
+This is actually a tree decision problem, at every index we can choose to rob or not. If we choose to rob then we will
+choose again at i + 2 or else we can choose not to and try again at i + 1
+Recursion --> Memoziation (topDown) --> DP (bottomUp)
 
 Time Complexity: O(n) because we just go through the array
 Space Complexity: O(n)
 */
 #include <algorithm>
-#include <ios>
-#include <iostream>
 #include <vector>
-class Solution {
-public:
-  int rob(std::vector<int> &nums) {
+class Solution
+{
+  private:
+    // dp[i] stands for at ith index, whats the maximum value that it has robbed until ith house by following the
+    // constraint
+    std::vector<int> dp;
+    int helper(const int &index, std::vector<int> &nums)
+    {
+        // base case
+        if (index >= nums.size())
+            return 0;
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        // memoziation
+        if (dp[index] != -1)
+            return dp[index];
 
-    // Bottom-up appraoch
-    if (nums.size() == 0)
-      return 0;
-    if (nums.size() == 1)
-      return nums[0];
+        return dp[index] = std::max(helper(index + 1, nums), nums[index] + helper(index + 2, nums));
+    }
 
-    // Determining the second house
-    nums[1] = std::max(nums[0], nums[1]);
+  public:
+    int rob(std::vector<int> &nums)
+    {
+        if (nums.size() == 1)
+            return nums[0];
+        if (nums.empty())
+            return 0;
 
-    for (int i = 2; i < nums.size(); i++)
-      // Now we have to make use of dp, decide whether whether on this index
-      // visit it + previously 2 days or just visiting this house
-      nums[i] = std::max(nums[i - 1], nums[i - 2] + nums[i]);
+        dp = std::vector<int>(nums.size(), -1);
 
-    return nums[nums.size() - 1];
-  }
+        // // top-down
+        // return helper(0, nums);
+
+        // bottom up
+        dp[0] = nums[0];
+        dp[1] = std::max(nums[0], nums[1]);
+
+        for (int i{2}; i < nums.size(); i++)
+            // at ith index whether i - 1 (not including the ith house) or i - 2 (include the current house)
+            dp[i] = std::max(dp[i - 1], dp[i - 2] + nums[i]);
+
+        return dp[nums.size() - 1];
+    }
 };
-
-/*
- * Top Down approach
- * int rob(std::vector<int> &nums) {
- *
- *  std::ios_base::sync_with_stdio(false);
- *  std::cin.tie(nullptr);
- *  std::cout.tie(nullptr);
- *
- *  std::vector<int> dp(nums.size() - 1, -1);
- *
- *  std::function<int(int)> helper = [&](int index) {
- *
- *    Reaching index 0 & we dont have any extra element that can compare, so
- * just return if (index == 0) return nums[0]; if (index < -1) return 0; if
- * (dp[index] != -1) return dp[index];
- *
- *    dp[index] = std::max(helper(index - 1), helper(index - 2) + nums[index]);
- *
- *    return dp[index];
- *  }
- *
- *  From the back because this is a top down approach
- *  return helper(nums.size() - 1);
- * }
- */
