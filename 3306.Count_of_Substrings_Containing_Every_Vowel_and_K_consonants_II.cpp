@@ -15,6 +15,7 @@ using std::string;
  * So, the clever things is over here. Once we find the window that meet the 2 conditions. Any characters behind it add
  * to the window, will also meet the 2 conditions no matter whether is it a vowel or consonants. So the window has
  * become at least K consonants and all vowels. So simply just take the length of word and then minus the right pointer
+ * Time Complexity: O(n)
  * */
 class Solution
 {
