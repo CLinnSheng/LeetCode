@@ -131,7 +131,7 @@ class Solution
                     // everything before i
                     decrement[std::max(i, left)] += val;
                     // for right boundary, we need it in the future
-                    decrement[right] -= val;
+                    decrement[right + 1] -= val;
                 }
             }
             currDecrement += decrement[i];
