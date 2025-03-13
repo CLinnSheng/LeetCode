@@ -21,7 +21,7 @@ class Solution
     int findFirsPositive(const vector<int> &nums)
     {
         int left{}, right(nums.size() - 1);
-        int index{};
+        int index(nums.size());
 
         while (left <= right)
         {
@@ -37,7 +37,6 @@ class Solution
                 left = middle + 1;
             }
         }
-
         return index;
     }
 
@@ -45,7 +44,7 @@ class Solution
     int findFirstZero(const vector<int> &nums)
     {
         int left{}, right(nums.size() - 1);
-        int index{};
+        int index(nums.size());
 
         while (left <= right)
         {
