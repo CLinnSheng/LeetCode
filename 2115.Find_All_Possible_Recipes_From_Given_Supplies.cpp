@@ -59,23 +59,42 @@ class Solution
             can_cook[supply] = true;
 
         // store the food index for easy accessing the array
+        // to make sure the ingredients is either come from supplies or other food recipe
         std::unordered_map<std::string, int> food_index;
         for (int i{}; i < recipes.size(); i++)
             food_index[recipes[i]] = i;
 
+        // for tracking cycles
+        std::unordered_map<std::string, bool> in_progress;
+
         std::function<bool(const std::string &)> dfs = [&](const std::string &curr_food) {
             // check whether have we ever traverse through this food and check whether
             // is it cookable or not
-            if (can_cook[curr_food])
-                return true;
+            // either be raw ingredient or other recipes that can be cook
+            if (can_cook.count(curr_food))
+                return can_cook[curr_food];
 
-            // this will break if there's a cycle
+            // detect cycles
+            if (in_progress.count(curr_food) && in_progress[curr_food])
+                return false;
+
+            // handle if the ingredient is not available from supplies nor recipes
+            // because is from supply will straight return from above condition
+            if (!food_index.count(curr_food))
+                return false;
+
+            // assume the current food is not cookable first
             can_cook[curr_food] = false;
+            in_progress[curr_food] = true;
 
             for (const auto &ingredient : ingredients[food_index[curr_food]])
                 if (!dfs(ingredient))
+                {
+                    in_progress[curr_food] = false;
                     return false;
-            return true;
+                }
+
+            return can_cook[curr_food] = true;
         };
 
         for (const auto &recipe : recipes)
