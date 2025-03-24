@@ -35,6 +35,7 @@ class Solution
         {
             newInterval[0] = std::min(newInterval[0], intervals[index][0]);
             newInterval[1] = std::max(newInterval[1], intervals[index][1]);
+            index++;
         }
 
         answer.emplace_back(newInterval);
