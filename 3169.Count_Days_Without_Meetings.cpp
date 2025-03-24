@@ -16,7 +16,7 @@ using std::vector;
  * Then, how do we deal with the edge case of another meeting which come later is entirely inside another meeting?
  * We will do the same thing but now the end day is smaller than start day will result in day < 0
  * so whenever face this we just make the number of day meeting equal to 0
- * Time Complexity: O(n)
+ * Time Complexity: O(nlgn)
  *
  * */
 class Solution
