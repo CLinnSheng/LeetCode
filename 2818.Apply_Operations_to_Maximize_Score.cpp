@@ -134,7 +134,7 @@ class Solution
             auto [val, index]{maxHeap.top()};
             maxHeap.pop();
 
-            long long nSubArrays((rightBoundary[index] - index) * (index - leftBoundary[index]));
+            long long nSubArrays((long long)(rightBoundary[index] - index) * (index - (long long)leftBoundary[index]));
             long long nOperations{std::min((long long)k, nSubArrays)};
 
             ans = (ans * power(val, nOperations)) % MOD;
