@@ -23,7 +23,7 @@ class Solution
         long long prefixMax{nums[0]}, maxDiff{};
 
         // just moving the k pointer
-        for (int i{2}; i < nums.size(); i++)
+        for (int i{1}; i < nums.size(); i++)
         {
             // update the answer first
             answer = std::max(answer, maxDiff * nums[i]);
