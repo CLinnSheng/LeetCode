@@ -35,6 +35,9 @@ class Solution
         long long answer{};
         int len(nums.size());
 
+        // Populate the prefixMax & suffixMax
+        // prefixMax[i] means the largest nums value before nums[i]
+        // suffixMax[i] means the largest value afer nums[i]
         std::vector<int> prefixMax(len, 0), suffixMax(len, 0);
         for (int i{1}; i < len; i++)
         {
