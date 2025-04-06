@@ -64,6 +64,7 @@ class Solution
         // bottom up approach
         std::sort(nums.begin(), nums.end());
         // initially all subset length is 1 which is including it self
+        // dp[i] is the length of the subset ending at i including i which is the same as top down appraoch
         std::vector<int> dp(nums.size(), 1), prev(nums.size(), -1);
         int maxIdx{}; // tracking the last index of the largest subset
 
