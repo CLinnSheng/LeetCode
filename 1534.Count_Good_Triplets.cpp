@@ -64,12 +64,13 @@ class Solution
         int n(arr.size());
 
         for (int j{}; j < n - 1; j++)
+        {
             for (int k{j + 1}; k < n; k++)
             {
                 if (std::abs(arr[j] - arr[k]) <= b)
                 {
                     // how many element before j where the abs conditions are met
-                    int left_boundary{std::min(arr[j] - a, arr[k] - c)};
+                    int left_boundary{std::max(arr[j] - a, arr[k] - c)};
                     int right_boundary{std::min(arr[j] + a, arr[k] + c)};
 
                     left_boundary = std::max(left_boundary, 0);
@@ -78,16 +79,15 @@ class Solution
                     // number of values of good i
                     if (left_boundary <= right_boundary)
                     {
-                        res += prefix[right_boundary] -
-                               (left_boundary == 0 ? 0 : prefix[right_boundary - left_boundary - 1]);
+                        res += prefix[right_boundary] - (left_boundary == 0 ? 0 : prefix[left_boundary - 1]);
                     }
                 }
-
-                // update the prefix from arr[j] to 1000
-                // because prefix[x] tells you the total number of element <= x
-                for (int index{arr[j]}; index <= 1000; index++)
-                    prefix[index]++;
             }
+            // update the prefix from arr[j] to 1000
+            // because prefix[x] tells you the total number of element <= x
+            for (int index{arr[j]}; index <= 1000; index++)
+                prefix[index]++;
+        }
 
         return res;
     }
