@@ -1,27 +1,25 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <unordered_set>
+#include <vector>
 
 /*
-store all the element in the hashmap and then iterate through the array again to find out the duplicates
-*/
-class Solution {
-public:
-    bool containsDuplicate(vector<int>& nums) {
-        
-        ios_base :: sync_with_stdio(false);
-        cin.tie(nullptr);
-        cout.tie(nullptr);
-
-        unordered_map<int, int> freq;
+ * Goal: Check whether is there any duplicate in the array
+ *
+ * Intuition:
+ * The most straightaway is store the val visited in the hash set
+ * Time Complexity: O(n)
+ * */
+class Solution
+{
+  public:
+    bool containsDuplicate(std::vector<int> &nums)
+    {
+        std::unordered_set<int> set;
 
         for (const auto &num : nums)
-            freq[num]++;
-
-        for (const auto &num : nums) {
-            freq[num]--;
-            if (freq[num] > 0)
+            if (set.count(num))
                 return true;
-        }
+            else
+                set.insert(num);
 
         return false;
     }
