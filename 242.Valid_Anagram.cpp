@@ -1,29 +1,34 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <string>
+#include <unordered_map>
 
 /*
-Intuition: Since anagram is a word or phrase formed by rearranging the letters
-we can track the number of characters in both string
-*/
-class Solution {
-public:
-    bool isAnagram(string s, string t) {
-        
-        ios_base :: sync_with_stdio(false);
-        cin.tie(nullptr);
-        cout.tie(nullptr);
+ * Goal: Check whether t is an anagram of s or not
+ * Anagram: A string is formed by rearranging the order of the character
+ *
+ * Intuition:
+ * In order to form an anagram from a string, both of the string must have the same number of character for each of the
+ * character Use a hash map to keep track of the freq of each char
+ *
+ * Time Complexity: O(n)
+ * */
+class Solution
+{
+  public:
+    bool isAnagram(std::string s, std::string t)
+    {
+        if (s.length() != t.length())
+            return false;
 
-        unordered_map<char, int> freq;
+        std::unordered_map<int, int> freq_s, freq_t;
 
-        for (const auto &c : s)
-            freq[c]++;
+        for (int index{}; index < s.length(); index++)
+        {
+            freq_s[s[index]]++;
+            freq_t[t[index]]++;
+        }
 
-        for (const auto &c : t)
-            freq[c]--;
-
-        for (const auto &hash : freq)
-            if (hash.second)
-                return false;
+        if (freq_s != freq_t)
+            return false;
 
         return true;
     }
