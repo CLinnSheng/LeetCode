@@ -34,8 +34,8 @@ class Solution
   public:
     int numberOfArrays(std::vector<int> &differences, int lower, int upper)
     {
-        int minVal{}, maxVal{};
-        int currVal{};
+        long long minVal{}, maxVal{};
+        long long currVal{};
 
         for (const int &diff : differences)
         {
@@ -44,7 +44,7 @@ class Solution
             maxVal = std::max(maxVal, currVal);
         }
 
-        int answer{(upper - lower + 1) - (maxVal - minVal)};
+        int answer((upper - lower + 1) - (maxVal - minVal));
 
         return answer > 0 ? answer : 0;
     }
