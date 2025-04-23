@@ -1,38 +1,58 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <vector>
 
 /*
-Goal: Return an array answer such that answer[i] is equal to the product of all the terms except itself nums[i]
-eg: [1, 2, 3, 4] -> [24, 12, 8, 6]
+ * Goal: Return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].
+ *
+ * Intuition:
+ * The brute force will just simply iterate throught the nums array twice at the second loop we just skip when i == j,
+ * so we can compute the product.
+ *
+ * Optimization:
+ * From the brute force approach, we can observe that we need information from the past and also future.
+ * The only way can do that is actually precompute the multiplicatoin.
+ * So, we gonna have one prefix and another suffix multiplication
+ * Time Complexity: O(n)
+ *
+ * We can further optimize the space complexity because we dont really need the information of every single index, we
+ * only just need the information of the previous multiplication
+ * */
+class Solution
+{
+  public:
+    std::vector<int> productExceptSelf(std::vector<int> &nums)
+    {
+        // int n(nums.size());
+        // std::vector<int> answer(n);
+        // std::vector<int> prefix(n), suffix(n);
+        //
+        // // Precompute
+        // prefix[0] = 1;
+        // suffix[n - 1] = 1;
+        //
+        // for (int i{1}; i < n; i++)
+        //     prefix[i] = prefix[i - 1] * nums[i - 1];
+        // for (int i{n - 2}; i >= 0; i--)
+        //     suffix[i] = suffix[i + 1] * nums[i + 1];
+        //
+        // for (int i{}; i < n; i++)
+        //     answer[i] = prefix[i] * suffix[i];
+        //
+        // return answer;
 
-Brute force will take O(n2) by iterating the array twice which the second iteration skip itself
-Intution: is it possible to use O(n) ---> Is the same traverse the array twice but not inner for loop
-First traverse the array from the left and second time from the right
+        // Optimze Space Complexity
+        int n(nums.size());
+        std::vector<int> answer(n, 1);
 
-Dry Run:
-[1, 2, 3, 4] Ans (initial) = [1, 1, 1, 1]
-left: [1, 1, 2, 6]
-right: [24, 12, 4, 1]
+        for (int i{1}; i < n; i++)
+            answer[i] = answer[i - 1] * nums[i - 1];
 
-        vector<int> productExceptSelf(vector<int>& nums) {
-            
-            ios_base :: sync_with_stdio(false);
-            cin.tie(nullptr);
-            cout.tie(nullptr);
-            
-            int n = nums.size();
-            vector<int> ans(n, 1);
-            int postfixSum = 1;
-            
-            // Traverse from the left
-            for (int i = 1; i < n; i++)
-                ans[i] = ans[i -1 ] * nums[i - 1];
-                
-            for (int i = n - 1; i >= 0; i--){
-                ans[i] *= postfixSum;
-                postfixSum *= nums[i];
-            }
-            
-            return ans;
+        int postfix{1};
+        for (int i{n - 1}; i >= 0; i--)
+        {
+            answer[i] = answer[i] * postfix;
+            postfix *= nums[i];
         }
+
+        return answer;
+    }
 };
