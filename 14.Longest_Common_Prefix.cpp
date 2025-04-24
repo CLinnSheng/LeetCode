@@ -8,28 +8,31 @@
  *
  * Intuition:
  * All the string in the array doesnt have the same length and since we need to find the common prefix
- * so actually we just need to compare the shortest & the logest string
+ * If we observe the maximum length of common prefix is actually the shortest length in the strs array
+ * So what we need to compare is just the longest str and shortest str
+
  *
- * Time Complexity: O(n)
- * Space Complexity: O(n)
+ * Time Complexity: O(nlgn)
+ * Space Complexity: O(1)
  * */
 class Solution
 {
   public:
     std::string longestCommonPrefix(std::vector<std::string> &strs)
     {
-        std::string ans;
         std::sort(strs.begin(), strs.end());
 
-        int shortest_len(strs[0].length()), longest_len(strs[strs.size() - 1].length());
-        int min_len{std::min(shortest_len, longest_len)};
+        int shortestLen(strs[0].length()), longestLen(strs[strs.size() - 1].length());
+        int minLen(std::min(shortestLen, longestLen));
 
-        for (int i{}; i < min_len; i++)
-        {
-            if (strs[0][i] != strs[strs.size() - 1][i])
+        std::string ans{};
+
+        for (int index{}; index < minLen; index++)
+            if (strs[0][index] != strs[strs.size() - 1][index])
                 break;
-            ans += strs[0][i];
-        }
+            else
+                ans += strs[0][index];
+
         return ans;
     }
 };

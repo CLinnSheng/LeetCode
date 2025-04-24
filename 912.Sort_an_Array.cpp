@@ -7,6 +7,7 @@ using std::vector;
  *
  * Intuition:
  * Just apply merge sort where at worst case only O(nlgn)
+ * Selection Sort also can
  * */
 class Solution
 {
@@ -19,38 +20,46 @@ class Solution
 
     void mergeSort(vector<int> &nums, int start, int end)
     {
-        // divide and conquer until left 1 element only, so straight away return
+        // base case only left 1 element
         if (start >= end)
             return;
 
-        int mid{start + (end - start) / 2};
+        // divide & conquer strategy
+        // keep divide until size of 1 and built it up from that
+        int mid(start + (end - start) / 2);
 
-        // Divide and Conquer
+        // divide
         mergeSort(nums, start, mid);
         mergeSort(nums, mid + 1, end);
-        // Then merge the 2 half half sorted array
+
+        // merging the 2 sorted array
         merge(nums, start, end);
     }
 
     void merge(vector<int> &nums, int start, int end)
     {
-        int mid{start + (end - start) / 2};
+        // perform insertion sort
+        int mid(start + (end - start) / 2);
         int i{start}, j{mid + 1};
-        vector<int> temp;
+        std::vector<int> temp;
 
         while (i <= mid && j <= end)
-            if (nums[i] <= nums[j])
-                temp.emplace_back(nums[i++]);
-            else
+        {
+            if (nums[i] >= nums[j])
                 temp.emplace_back(nums[j++]);
+            else
+                temp.emplace_back(nums[i++]);
+        }
 
+        // Insert the remaining array
         while (i <= mid)
             temp.emplace_back(nums[i++]);
 
         while (j <= end)
             temp.emplace_back(nums[j++]);
 
-        for (int i{start}; i <= end; i++)
-            nums[i] = temp[i - start];
+        // update on the reference array
+        for (int index{start}; index <= end; index++)
+            nums[index] = temp[index - start];
     }
 };
