@@ -1,59 +1,58 @@
 #include <climits>
 #include <unordered_map>
 #include <vector>
-using std::vector;
-
 /*
- * Goal: Return all elements that appear more than n / 3 times
+ * Given integer array of size n
+ * Goal: Find all elements that appear more than n/3 times
  *
- * Intuition: The most simplest & direct way is by using hash data structure
- * We just need to iterate through the arrays and record the count.
- * Then iterate the hash again & get all those with count more than n / 3 time
+ * Intuition:
+ * The simplest method is to track the frequency of each element by using a hash map
+ * Then iterate through the map and find all that n/3 times
  * Time Complexity: O(n)
  * Space Complexity: O(n)
  *
- * What if the interviewer ask is it possible to make it in O(1) for the space complexity
- * if we observe right there is only at most possible 2 elements to return
- * we can also use the BM voting algorithm like the first version question
- * we just need to be more cautious for the edge case
- * */
+ * How can we optimze the time complexity to O(1)?
+ * We can make use of the bm voting algorithm in majority element I
+ * Just have to tweek abit
+ */
 class Solution
 {
   public:
-    vector<int> majorityElement(vector<int> &nums)
+    std::vector<int> majorityElement(std::vector<int> &nums)
     {
-        int n(nums.size());
-
+        // int n(nums.size());
+        //
+        // std::vector<int> ans;
+        //
         // std::unordered_map<int, int> freq;
         // for (const auto &num : nums)
         //     freq[num]++;
         //
-        // std::vector<int> answer;
-        // for (const auto &[num, cnt] : freq)
+        // for (const auto &[val, cnt] : freq)
         //     if (cnt > (n / 3))
-        //         answer.emplace_back(num);
+        //         ans.emplace_back(val);
         //
-        // return answer;
+        // return ans;
 
-        // since at most 2 answer
-        int n1{INT_MAX}, n2{INT_MAX};
+        int n(nums.size());
         int cnt1{}, cnt2{};
+        int num1{INT_MAX}, num2{INT_MAX};
+        std::vector<int> answer;
 
         for (const auto &num : nums)
         {
-            if (num == n1)
+            if (num1 == num)
                 cnt1++;
-            else if (num == n2)
+            else if (num2 == num)
                 cnt2++;
-            // if goes to 0 then we change value
             else if (cnt1 == 0)
             {
-                n1 = num;
+                num1 = num;
                 cnt1++;
             }
             else if (cnt2 == 0)
             {
-                n2 = num;
+                num2 = num;
                 cnt2++;
             }
             else
@@ -62,20 +61,19 @@ class Solution
                 cnt2--;
             }
         }
-        // need to check again because the 2 majority element
-        // might not be more than n / 3
+
+        // since we got the 2 most element but we need to check again it might not more than n/3 times
         cnt1 = cnt2 = 0;
         for (const auto &num : nums)
-            if (num == n1)
+            if (num == num1)
                 cnt1++;
-            else if (num == n2)
+            else if (num == num2)
                 cnt2++;
 
-        std::vector<int> answer;
-        if (cnt1 > (n / 3))
-            answer.emplace_back(n1);
-        if (cnt2 > (n / 3))
-            answer.emplace_back(n2);
+        if (cnt1 > n / 3)
+            answer.emplace_back(num1);
+        if (cnt2 > n / 3)
+            answer.emplace_back(num2);
 
         return answer;
     }
