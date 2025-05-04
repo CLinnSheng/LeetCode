@@ -1,42 +1,41 @@
 #include <vector>
 
 /*
- * Same as the orignal version but this 1 allow
- * to have as many trascantion as possible
+ * prices[i] is the price of a given stock on the ith day.
+ * Each day, can buy/sell the stock
+ * Can buy it then immediately sell it on the same day.
+ * Constraint: can only hold at most one share of the stock at any time
+ *
+ * Goal: Find and return the maximum profit you can achieve
  *
  * Intuition:
- * We need to buy low & sell high and as many transaction as possible
- * So we will be greedy and try to get as many transaction as possible
- * whenever we found a local minimum then we will proceed to find the local maximum
- *
+ * The best way to maximize the profit is buy low and sell high
+ * Greedy approach
+ * So we will first find the local minima first, then only proceed finding the local maxima
  * Time Complexity: O(N)
- * Space Complexity: O(1)
  * */
-
 class Solution
 {
   public:
     int maxProfit(std::vector<int> &prices)
     {
-        int profit{};
+        int maxProfit{};
 
-        int days(prices.size());
         int low{prices[0]}, high{prices[0]}, it{};
+        int nDays(prices.size());
 
-        while (it < days - 1)
+        while (it < nDays - 1)
         {
-            // finding the local minimum price
-            while (it < days - 1 && prices[it] >= prices[it + 1])
+            while (it < nDays - 1 && prices[it] >= prices[it + 1])
                 it++;
             low = prices[it];
 
-            // finding the local maximum price
-            while (it < days - 1 && prices[it] <= prices[it + 1])
+            while (it < nDays - 1 && prices[it] <= prices[it + 1])
                 it++;
             high = prices[it];
 
-            profit += high - low;
+            maxProfit += high - low;
         }
-        return profit;
+        return maxProfit;
     }
 };
