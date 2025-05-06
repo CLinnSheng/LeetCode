@@ -20,7 +20,6 @@
  * the seoncd 1 is the lsat 3 col.
  * Actually more exact is by col, where f(n) is the number of ways for n column
  * Through derivation in the end we get this formula dp[n] = dp[n - 1] * 2 + dp[n - 3];
- * Time Complexity: O(n)
  * */
 #include <vector>
 class Solution
@@ -41,7 +40,7 @@ class Solution
         std::vector<int> dp(n + 1);
         dp[0] = 1, dp[1] = 1, dp[2] = 2, dp[3] = 5;
         for (int i{4}; i <= n; i++)
-            dp[i] = (dp[i - 1] * 2 + dp[i - 3]) % MOD;
+            dp[i] = ((dp[i - 1] * 2) % MOD + dp[i - 3] % MOD) % MOD;
 
         return dp[n];
     }
