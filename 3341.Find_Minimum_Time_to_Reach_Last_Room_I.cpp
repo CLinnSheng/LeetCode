@@ -14,7 +14,7 @@
  * Intuition:
  * Keyword --> Minimum time
  * greedy --> dijkstra algorithm (no negative).
- *
+ * Time Complexity: O(mng * lg(mn))
  * */
 class Solution
 {
