@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <climits>
 #include <functional>
 #include <queue>
@@ -6,16 +5,15 @@
 #include <vector>
 
 /*
- * Given a 2darray moveTime where moveTime[i][j] represent the minimum time in seconds
- * when you can start moving to that room
+ * The same question as the I verison just with some modificatoin, where every time visit a new cell will be alternate
+ * between 1 & 2 seconds
  *
- * Goal: Return the minimum time to reach the room(n-1, m-1)
- *
- * Intuition:
- * Keyword --> Minimum time
- * greedy --> dijkstra algorithm (no negative).
- * Time Complexity: O(mng * lg(mn))
+ * Intuitoin:
+ * Same use dijkstra & greedy algo.
+ * And have a variable to track how much second to visit the cell.
+ * Time Complexity: O(mn*lg(mn))
  * */
+
 class Solution
 {
   private:
@@ -24,6 +22,7 @@ class Solution
   public:
     int minTimeToReach(std::vector<std::vector<int>> &moveTime)
     {
+
         int m(moveTime.size()), n(moveTime[0].size());
         std::vector<std::vector<int>> minTime(m, std::vector<int>(n, INT_MAX));
 
@@ -53,7 +52,7 @@ class Solution
                 if (newRow < 0 || newCol < 0 || newRow >= m || newCol >= n)
                     continue;
 
-                int time = std::max(currTime, moveTime[newRow][newCol]) + 1;
+                int time = std::max(currTime, moveTime[newRow][newCol]) + (currRow + currCol) % 2 + 1;
 
                 if (time < minTime[newRow][newCol])
                 {
