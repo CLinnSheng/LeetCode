@@ -7,16 +7,23 @@ using std::vector;
  * Subarray: Contiguous non-empty sequence of elements within an array.
  *
  * Intuition:
- * We can solve it naively by using double inner loop but this will have a time complexity of O(n^2)
- * How can we optimize it?
- * This first thought will be using sliding window but this doesnt work for negative number
- * becuase we will keep moving the right pointer until the cumulative sum is greater than k then
- * we will move the left pointer. But this doesnt work for negative element.
+ * Brute force way will be double looping to try all possible subarray
+ * But from the brute force approach, we can see that we keep computing the some overlapping subarray.
+ * Is there any efficient to do it?
  *
- * From the dry run by using naive approach, we can actually see we have been computing the same subproblem.
- * We can skip all these repetive subproblem by storing it in a hash so we can access it in O(1).
- * for example when i = 3, then we will check the cumulative sum from i = 0 to 3 and minus it with k see whether we have
- * this subaray of  sum - k Time Complexity: O(n) Space Complexity: O(1)
+ * Use we can use sliding window.
+ * So what we can do is keep moving the right pointer until the subarray is equal to K.
+ * Then move the left pointer and repeat again
+ *
+ * Howeve there's one constraint which is the value might be negative, therefor we cannot implement sliding window.
+ * Because how can we make sure if keep moving the right pointer it still can achieve the sum K, because is not always
+ * guaranteed to increase.
+ *
+ * There's another clever way is actually using prefix sum. prefixSum[i] will have the number of possible subarray to
+ * form i Then to find how mnay subarray until ith index, simply need to find how many possible subarray of k - currSum
+ * this is because the prefixSum[diff] will give us how many subarray can be form of sum value equal to diff.
+ * Then this tell us how many way we can remove the subarray of sum diff.
+ * Time Complexity: O(n)
  * */
 class Solution
 {
@@ -24,18 +31,15 @@ class Solution
     int subarraySum(vector<int> &nums, int k)
     {
         int ans{};
-        // key: SUM, value: count
         std::unordered_map<int, int> prefixSum;
-        // theres only one way to have subarray sum of 0
         prefixSum[0] = 1;
 
         int currSum{};
+
         for (const auto &num : nums)
         {
             currSum += num;
-            if (prefixSum.count(currSum - k))
-                ans++;
-
+            ans += prefixSum[currSum - k];
             prefixSum[currSum]++;
         }
         return ans;
