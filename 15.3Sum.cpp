@@ -1,52 +1,54 @@
 #include <algorithm>
-#include <ios>
-#include <iostream>
 #include <vector>
+using std::vector;
 
 /*
-Goal: Return all duplicates that sum up to 0
-Constraint: The set must not contain duplicate triplets
-Intuition: Fix one elements that we can use the same approach as 2sum
-Besides that, we can also sort the array so for the fix element that is more than 0 we can omit it
-Time Complexity: O(n2) because of the double loop
-*/
-
-class Solution {
-public:
-    std::vector<std::vector<int>> threeSum(std::vector<int>& nums) {
-        
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-        
-        std::vector<std::vector<int>> ans;
+ * Goal: Return all the triplets such that it sums up to 0
+ *
+ * Intuition:
+ * Key observation the array is not sorted.
+ * Brute force way will take O(n^3) which is triple loop
+ *
+ * How can we optimize it? Can we reduce a loop?
+ * Actually this is somehow similar to 2sum.
+ * What we can do is fix 1 nubmer the apply the algo from 2sum.
+ * The array must be sorted in order to apply the algo from 2sum
+ * But theres a constraint must be distinct triplets
+ * Time Complextiy: O(n^2)
+ * */
+class Solution
+{
+  public:
+    vector<vector<int>> threeSum(vector<int> &nums)
+    {
+        vector<vector<int>> answer;
         std::sort(nums.begin(), nums.end());
-        int size = nums.size();
-        
-        for (int i = 0; i < size; i++) {
-            
-            if (nums[i] > 0) break;
-            if ( i > 0 && nums[i] == nums[i - 1]) continue;
-            
-            int start = i + 1, end = size - 1;
-            
-            while (start < end) {
-                
-                int temp_sum = nums[i] + nums[start] + nums[end];
-                
-                if (temp_sum > 0) end--;
-                else if (temp_sum < 0) start++;
-                else {
-                    ans.push_back({nums[i], nums[start], nums[end]});
-                    
-                    start++; end--;
-                    
-                    while (start < end && nums[start] == nums[start - 1])
-                        start++;
+
+        for (int i{}; i < nums.size() - 2; i++)
+        {
+            // Since the array is sorted, the number after ith must be graeter than 0 if ith already cgraeter than 0
+            // then no point on keep checking forward
+            if (nums[i] > 0)
+                break;
+
+            if (i > 0 && nums[i - 1] == nums[i])
+                continue;
+
+            int left{i + 1}, right(nums.size() - 1);
+            while (left < right)
+            {
+                int sum{nums[i] + nums[left] + nums[right]};
+
+                if (sum > 0)
+                    right--;
+                else if (sum < 0)
+                    left++;
+                else
+                {
+                    answer.push_back({nums[i], nums[left], nums[right]});
                 }
-                
             }
         }
-        return ans;
+        return answer;
     }
 };

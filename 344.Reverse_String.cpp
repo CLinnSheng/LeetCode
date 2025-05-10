@@ -1,3 +1,4 @@
+#include <utility>
 #include <vector>
 
 /*
@@ -6,8 +7,10 @@
  *
  * Intuition:
  * Since we cannot have extra memory to copy the string
- * We can only word on the original variable that hold the string
- * we can done it by using 2 pointer 1 point at the front while the other 1 point at the back
+ * So we cannot have a vector of the same size which will cause O(n)
+ * what we can do is using 2 pointer change internally
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
  * */
 class Solution
 {
@@ -16,12 +19,9 @@ class Solution
     {
         int left{}, right(s.size() - 1);
 
-        while (left < right)
+        while (left <= right)
         {
-            auto temp{s[left]};
-            s[left] = s[right];
-            s[right] = temp;
-
+            std::swap(s[left], s[right]);
             left++;
             right--;
         }
