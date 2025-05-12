@@ -1,27 +1,36 @@
 #include <string>
-#include <string_view>
 
 /*
- * Goal: Check whether the string still a palindrome after deleting at most one character from it
+ * Given a string s, return true if the s can be a palindrome after deleting at most one character from it
  *
- * Intuition:
- * By brute force is to try every single possible of string.
- * Time Complexity: O(n^2)
+ * Constraint: Only lowercase letter
+ * Goal: Check whether the string is palindrome or not (can delete at most one character)
  *
- * To optimize it we only try the 2 possible strings when they are not equal (2 pointer)
- * Time Complexity: O(n) because at most we only check once
+ * Intuitoin:
+ * The brute force way will just simply try all possibel string by deleting 1 character
+ * Time Complexity: O(N^2)
+ *
+ * Is there any way to optimize it?
+ * Do we really need to check every single possible string?
+ * How about we only check when the left end and right end is not equal --> Then determine delete from which end
+ * Time Complexity: O(n)
+ * Because the isPalindrome only check once whenever we encounter a character has to be delete --> O(n)
+ * The reason why the result is came out whenever there is a character has to be delete. So if got one mismatch and
+ * by deleting it still cannot form palindrome then for sure the string is not palindrome, theres no point continue
  * */
 class Solution
 {
   private:
-    bool isPalindrome(const std::string_view &s)
+    // O(n)
+    bool isPalindomre(const std::string &s)
     {
-        int left{}, right{static_cast<int>(s.length()) - 1};
+        int left{}, right(s.length() - 1);
 
         while (left < right)
         {
             if (s[left] != s[right])
                 return false;
+
             left++;
             right--;
         }
@@ -31,18 +40,30 @@ class Solution
   public:
     bool validPalindrome(std::string s)
     {
-        if (isPalindrome(s))
+        // if (isPalindomre(s))
+        //     return true;
+        // for (int i{}; i < s.length(); i++)
+        // {
+        //     std::string new_str = s.substr(0, i) + s.substr(i + 1);
+        //     if (isPalindomre(new_str))
+        //         return true;
+        // }
+        // return false;
+
+        if (isPalindomre(s))
             return true;
 
-        int left{}, right{static_cast<int>(s.length()) - 1};
+        int left{}, right(s.length() - 1);
+        // O(n)
         while (left < right)
         {
             if (s[left] != s[right])
-                return isPalindrome(s.substr(0, left) + s.substr(left + 1)) ||
-                       isPalindrome(s.substr(0, right) + s.substr(right + 1));
+                return (isPalindomre(s.substr(0, left) + s.substr(left + 1)) ||
+                        isPalindomre(s.substr(0, right) + s.substr(right + 1)));
+
             left++;
             right--;
         }
-        return true;
+        return false;
     }
 };
