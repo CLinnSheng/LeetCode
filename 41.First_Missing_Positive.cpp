@@ -10,6 +10,16 @@
  * We only care about positive integer.
  * Important observation: is the maximum missing positive will be n + 1
  * and then the minimum will be 1
+ * So the array must have 1 to n values inside.
+ * If any value in the range of [1, n] is missing then it is the first missing number or else will be n + 1
+ * So we need check the range of [1, n]
+ * Have an array to track it, then how do we make it in O(1)?
+ * The only possible way to make it O(1) is either use variable or existing memory space.
+ * The only possible way will be using existing memory space, iterate through the array
+ * check whether the current element is place at the correct order or not? if not replace it with the correct order
+ * element. IMPORTANT: We only need to check values within the range of [1, n] anything outside of the range no need
+ * check because we finding the first missing positive element. If all are graeter that means 1 is missing
+ *
  * */
 class Solution
 {
@@ -43,18 +53,10 @@ class Solution
         int i{};
         while (i < n)
         {
-            // reason to skip nums[i] > n because the maximum missing integer will be n + 1
-            if (nums[i] < 0 || nums[i] > n)
-            {
-                i++;
-                continue;
-            }
-
-            // swap the element to the position it should be at
-            // eg: 1 should be at nums[0]
-            int index{nums[i] - 1};
-            if (nums[index] != nums[i])
-                std::swap(nums[index], nums[i]);
+            // Place the integer at the correct position like the 1 in O(n)
+            // 1 --> nums[0]
+            if (nums[i] > 0 && nums[i] <= n && nums[i] != nums[nums[i] - 1])
+                std::swap(nums[nums[i] - 1], nums[i]);
             else
                 i++;
         }
