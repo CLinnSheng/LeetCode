@@ -17,24 +17,23 @@ class Solution
   public:
     string mergeAlternately(string word1, string word2)
     {
-        std::string ans{};
-
+        std::string answer{};
         int len1(word1.length()), len2(word2.length());
-        int pointer1{}, pointer2{};
-        bool turn_1{true};
+        bool turn{};
+        int ptr1{}, ptr2{};
 
-        while (pointer1 < len1 && pointer2 < len2)
+        while (ptr1 < len1 && ptr2 < len2)
         {
-            ans += (turn_1 ? word1[pointer1++] : word2[pointer2++]);
-            turn_1 = !turn_1;
+            answer += turn ? word2[ptr2++] : word1[ptr1++];
+            turn = !turn;
         }
 
-        while (pointer1 < len1)
-            ans += word1[pointer1++];
+        while (ptr1 < len1)
+            answer += word1[ptr1++];
 
-        while (pointer2 < len2)
-            ans += word2[pointer2++];
+        while (ptr2 < len2)
+            answer += word2[ptr2++];
 
-        return ans;
+        return answer;
     }
 };
