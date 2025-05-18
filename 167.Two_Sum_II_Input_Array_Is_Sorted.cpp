@@ -1,32 +1,23 @@
 #include <vector>
-using std::vector;
 
 /*
- * Numbers is sorted in non-decreasing order --> ascending order
- * Goal: Find 2 number such that they add up to a specific target number
- *
- * Goal: Return the indices of the 2 numbers, index1 and index2 added by one as an integer array [index1,index2] of
- * length2
+ * Given an array of integers sorted in acending order
+ * Goal: Return the indices of 2 numbers such that they add up to a given target number target and index1 < index2.
+ * Take NOTE: Always be exactly one valid solution
  *
  * Intuition:
- * The brute force way is just simply loop through the array twice to try all possible pair
+ * important thing is the numbers is sorted and there's always exist 1 solution
+ * another thing is cannot use the same element twice
+ * The brute force will just simply trying all possible pair but this will cost O(n^2)
  *
- * How can we optimize this?
- * Since the array is sorted --> how can we make use of this information?
- * And we only need 2 pair, --> 2 pointer each pointed to the maybe "pair of values"
- * If the sum is too large we need to move the right pointer because it gonna be larget if we move the left pointer.
- * And we need to move the left because need to decrease the total sum, same for the left pointer.
- * if too small need to move to the right to increase the sum.
- * IMPORTANT: There always exists a solution
- * Time Complexity: O(n)
- * Space Complexity: O(1)
- *
+ * Can we make use of the sorted array?
+ * We can use 2 pointer 1 pointing at the beginning and another at the end.
+ * So we will simply move the left pointer if the sum is too less and move the right if the sum is too big
  * */
-
 class Solution
 {
   public:
-    vector<int> twoSum(vector<int> &numbers, int target)
+    std::vector<int> twoSum(std::vector<int> &numbers, int target)
     {
         int left{}, right(numbers.size() - 1);
 
