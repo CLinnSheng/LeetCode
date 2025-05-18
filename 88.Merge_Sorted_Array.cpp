@@ -2,45 +2,48 @@
 using std::vector;
 
 /*
- * Given 2 array sorted in ascending order, and 2 integers representing the number of elements in nums1 and nums
- * respectively. Merge nums1 and nums2 into a single array sorted in ascending order. Final array should not be returned
- * by the function, but instead be stored inside the array nums1.
+ * Given 2 arrays and both are sorted in ascending order.
+ * m is the number of valid elements in nums1, n is the number of valid elements in nums2.
+ * array nums1 has a total length of m + n with the first m elements containing the values to be merged and the last n
+ * elements set to 0 as place holders.
+ *
+ * Goal: Merge thw two arrays such that the final array is sorted within nums1.
  *
  * Intuition:
- * Each array having 1 pointer point to the current element. So just compare the element of the pointer from each array
- * and decide who to put next. 1 easiery way is to compare from the back since the array is already sorted, can save a
- * little bit computational time if nums2 run out first, so the rest is from nums1 we dont have to continue to insert it
- * already.
- *
- * Time Complexity: O(n)
- * Space Complexity: O(n)
+ * Both arrays are sorted in ascending order.
+ * Must modify nums1 inplace & not returning anything from the function.
+ * Since both array are sorted, is better to compare from the end because if the are not sorted in the correct order we
+ * have to move everything to the right. Time Complexity: O(m + n) Space Complexity: O(1)
  * */
 class Solution
 {
   public:
     void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
     {
-        int pointer_1{m - 1}, pointer_2{n - 1};
+        int ptr1{m - 1}, ptr2{n - 1};
+        int last{m + n - 1};
 
-        while (pointer_1 >= 0 && pointer_2 >= 0)
+        while (ptr1 >= 0 && ptr2 >= 0)
         {
-            if (nums1[pointer_1] >= nums2[pointer_2])
+            if (nums1[ptr1] >= nums2[ptr2])
             {
-                nums1[pointer_1 + pointer_2 + 1] = nums1[pointer_1];
-                pointer_1--;
+                nums1[last] = nums1[ptr1];
+                ptr1--;
             }
             else
             {
-                nums1[pointer_1 + pointer_2 + 1] = nums2[pointer_2];
-                pointer_2--;
+                nums1[last] = nums2[ptr2];
+                ptr2--;
             }
+            last--;
         }
 
-        // check whether is there any element left from nums2
-        while (pointer_2 >= 0)
+        // Edge cases if nums2 are not merged all
+        while (ptr2 >= 0)
         {
-            nums1[pointer_2] = nums2[pointer_2];
-            pointer_2--;
+            nums1[last] = nums2[ptr2];
+            last--;
+            ptr2--;
         }
     }
 };
