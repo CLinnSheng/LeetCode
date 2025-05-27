@@ -1,48 +1,46 @@
-#include <bits/stdc++.h>
-#include <ios>
-#include <iostream>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 /*
-Goal: Return the length of the longest repeating character replacement (number of replacement is k)
-Intuition: Can use sliding window algorithm by keep tracking the number of each character 
-We must always keep track of the longest repeating character in the window
-How do we know when is time to shift the window? --> when the number of replacement character exceed k
-Time Complexity: O(n)
-*/
+ * Can choose any character in the string and change it to any letter up to k times.
+ * Goal: Return the length of the longest substring containing the same letter you can get after performing the above
+ * operatoin
+ *
+ * Intuition:
+ * Is the same as longest substring without repeating characters question.
+ * We can same apply sliding window algo but with a little tweak to handle repeating characters
+ * Allow to replace characters up to k times.
+ * So we need keep track of the most frequent characters.
+ * Then we can compute out the number of character need to be replaced (Window Size) - Most frequent characeters
+ * So if exceed then we move the left pointer in order for the window to be valid
+ * We also being greedy at the same time
+ *
+ * */
+class Solution
+{
+  public:
+    int characterReplacement(std::string s, int k)
+    {
+        std::vector<int> characters(26, 0);
+        int left{}, right{}, currCnt{};
+        int n(s.length());
+        int maxLen{};
 
-class Solution {
-public:
-    int characterReplacement(std::string s, int k) {
-        
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-        
-        std::vector<int> alphabet(26, 0);
-        
-        int length = s.length(), start = 0, end = 0;
-        int max_length = 0;
-        int cnt = 0; // To keep track of the current longest repeating character
-        
-        if (length == 0) return 0;
-        
-        while (end < length) {
-        
-            alphabet[s[end] - 'A']++;
-            
-            // To keep track of the current longest repeating character
-            cnt = std::max(cnt, alphabet[s[end] - 'A']);
-            
-            // To check if the number of character swapped exceed k
-            // if exceed we shift the window (left pointer)
-            if (end - start + 1 - cnt > k)
-                alphabet[s[start++] - 'A']--;
+        while (right < n)
+        {
+            characters[s[right] - 'A']++;
+            currCnt = std::max(
+                currCnt, characters[s[right] - 'A']); // currCnt keeping track of the current most repeating characters.
+            // So we will be greedy here by replacing all those not has lesser number of repeating characters
 
-            max_length = std::max(max_length, end - start + 1);
+            if (right - left + 1 - currCnt > k) // number of characters need to replaced greater than k
+                characters[s[left++] - 'A']--;
 
-            end++;
+            maxLen = std::max(maxLen, right - left + 1);
+            right++;
         }
-        
-        return max_length;
+
+        return maxLen;
     }
 };
