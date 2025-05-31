@@ -1,69 +1,70 @@
-#include <bits/stdc++.h>
-#include <ios>
+#include <string>
 #include <unordered_map>
 
 /*
-Given two string s1 & s2
-Goal: Check whether is s2 contains a permuation of s1
-Intuition: Easy way to deal with permutation is by tracking the frequency of each char using hash data structure
-Use sliding window of size s1 slide through s2
-Keep checking is there 26 matches along the way
-Time Complexity: O(l1 + (l2 - l1))
-*/
-
-class Solution {
-public:
-    bool checkInclusion(std::string s1, std::string s2) {
-
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-
-        int length1 = s1.length(), length2 = s2.length();
-
-        if (length1 > length2) return false;
+ * Goal: Check whether s2 contains a permutation of s1 or not
+ *
+ * Intuition:
+ * We need to check whether s2 contians a permutation of s1 or not
+ * so basically s2 must at least has the length of s1
+ * In another word we are checking s1 is inside s2 or not but sequence doesnt matter
+ * so what we really need is just the information of frequency for each character in s1.
+ *
+ * We can use a sliding window of size s1 to slide through s2
+ * And have another array of 26 characters of hashmap to store the frequency of each character in s1
+ * Time Complexity: O(n)
+ * */
+class Solution
+{
+  public:
+    bool checkInclusion(std::string s1, std::string s2)
+    {
+        // Base Case
+        if (s2.length() < s1.length())
+            return false;
 
         std::unordered_map<int, int> map1, map2;
-        int matches = 0; // To check whether a permutation of s1 is in s2
-
-        // Base Case: The first 2 character
-        for (int i = 0; i < length1; i++) {
+        for (int i{}; i < s1.length(); i++)
+        {
             map1[s1[i] - 'a']++;
             map2[s2[i] - 'a']++;
         }
 
-        // Checking the first 2 character
-        for (int i = 0; i < 26; i++)
+        // Check for the first length1
+        int matches{}; // Var to store the number of match character
+        for (int i{}; i < 26; i++)
             if (map1[i] == map2[i])
                 matches++;
 
+        // Sliding Window
+        int left{}, right(s1.length());
+        while (right < s2.length())
+        {
+            if (matches == 26)
+                return true;
 
-        // Left & Right pointer of sliding window
-        // r is length 1 because we will checking it first before sliding the window
-        int l = 0, r = length1;
+            // Moving the window
+            // right pointer
+            int ch{s2[right] - 'a'};
+            map2[ch]++;
+            // Check whether is it a new character or not
+            if (map1[ch] == map2[ch])
+                matches++;
+            else if (map1[ch] + 1 == map2[ch])
+                matches--;
 
-        while (r < length2) {
+            // left pointer
+            ch = s2[left] - 'a';
+            map2[ch]--;
+            // Check whether is the characer from s1 got remove or not
+            if (map1[ch] == map2[ch])
+                matches++;
+            else if (map2[ch] + 1 == map1[ch])
+                matches--;
 
-            if (matches == 26) return true;
-
-            // Moving the right pointer
-            int index = s2[r] - 'a';
-            map2[index]++;
-            // if is it a new character that are not appear in s1
-            if (map2[index] == map1[index]) matches++;
-            else if (map2[index] == map1[index] + 1) matches--;
-
-
-            // Moving the left pointer
-            index = s2[l] - 'a';
-            map2[index]--;
-            // if we delete the character that is found in s1
-            if (map1[index] == map2[index]) matches++;
-            else if (map1[index] - 1 == map2[index]) matches--;
-
-            l++; r++;
+            left++;
+            right++;
         }
-
         return matches == 26;
     }
 };
