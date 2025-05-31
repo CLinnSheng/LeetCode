@@ -7,107 +7,73 @@ using std::vector;
  * NOTE: A node is always target to it self
  *
  * Intuition:
- * Is about the same as the I version just some tweak on the condition of becoming the target node.
- * At here is only even path.
- * The approach will be the same which is using dfs and we can have a flag to determine whether is it even or not.
- * And then in terms way to compute the maxTargetNodes.
- * So what we basically do in the tree1 find the even edges and then for the tree2 find the odd edges because of we got
- * 1 extra edge to connect it then this make it even
- * If we observe, we repeat visiting some nodes. Why not we use cache?
- * So we can use caching to improve the time complexity
+ * Is about as the first version but here we only count path with even distance.
+ * So the approach will be the same separate the process into 2 for each each tree.
+ * Is easy to track even path if start from a single source of node O(n^2)
+ * but how can we check it efficiently if starting from each node?
+ * There's a clever way, we can start from 1 source node then mark the color as black if even distance from that node
+ * otherwise white. Because if we start from other node, the number of nodes which has even path is actually the same.
+ *
+ * So while for the other tree, then we do the same but we dont really have to strict it just choose the 1 with odd path
+ * due to the reason of additional 1 edges. This is because if there is more even nodes then we can just simply connect
+ * the odd nodes such that it will form even path
+ * Time Complexity: O(n)
  * */
-// class Solution
-// {
-//   private:
-//     int dfs(const vector<vector<int>> &adjList, const int &currNode, const int &parentNode, bool isEven)
-//     {
-//         int res = isEven;
-//
-//         for (const auto neigh : adjList[currNode])
-//         {
-//             if (neigh == parentNode)
-//                 continue;
-//
-//             res += dfs(adjList, neigh, currNode, !isEven);
-//         }
-//
-//         return res;
-//     }
-//
-//     vector<int> helper(const vector<vector<int>> &edges, bool isEven)
-//     {
-//         int n(edges.size() + 1);
-//         vector<int> tree(n, 0);
-//
-//         vector<vector<int>> adjList(n, vector<int>());
-//         for (const auto &edge : edges)
-//         {
-//             adjList[edge[0]].emplace_back(edge[1]);
-//             adjList[edge[1]].emplace_back(edge[0]);
-//         }
-//
-//         for (int i{}; i < n; i++)
-//             tree[i] = dfs(adjList, i, -1, isEven);
-//
-//         return tree;
-//     }
-//
-//   public:
-//     vector<int> maxTargetNodes(vector<vector<int>> &edges1, vector<vector<int>> &edges2)
-//     {
-//         vector<int> tree1 = helper(edges1, true);
-//         vector<int> tree2 = helper(edges2, false);
-//
-//         vector<int> answer;
-//         auto it{std::max_element(tree2.begin(), tree2.end())};
-//         for (int i{}; i <= edges1.size(); i++)
-//             answer.emplace_back(tree1[i] + *it);
-//
-//         return answer;
-//     }
-// };
+
 class Solution
 {
-  public:
-    vector<vector<int>> buildList(const vector<vector<int>> &edges)
+  private:
+    void dfs(const vector<vector<int>> &adjList, vector<int> &colors, const int &currNode, const int &parentNode,
+             int &oddCnt, int &evenCnt)
     {
-        vector<vector<int>> adj(edges.size() + 1);
-        for (auto &e : edges)
-        {
-            adj[e[0]].push_back(e[1]);
-            adj[e[1]].push_back(e[0]);
-        }
-        return adj;
-    }
-
-    void dfsColor(const vector<vector<int>> &adj, int u, int parent, vector<int> &color, int &evenCnt, int &oddCnt)
-    {
-        if (color[u] == 0)
+        if (colors[currNode] == 0)
             evenCnt++;
         else
             oddCnt++;
-        for (int v : adj[u])
-            if (v != parent)
-            {
-                color[v] = color[u] ^ 1;
-                dfsColor(adj, v, u, color, evenCnt, oddCnt);
-            }
+
+        for (const auto &neigh : adjList[currNode])
+        {
+            if (neigh == parentNode)
+                continue;
+
+            colors[neigh] = colors[currNode] ^ 1;
+            dfs(adjList, colors, neigh, currNode, oddCnt, evenCnt);
+        }
     }
 
+    vector<vector<int>> buildAdjList(const vector<vector<int>> &edges)
+    {
+        int size(edges.size() + 1);
+        vector<vector<int>> adjList(size, vector<int>());
+
+        for (const auto &edge : edges)
+        {
+            adjList[edge[0]].emplace_back(edge[1]);
+            adjList[edge[1]].emplace_back(edge[0]);
+        }
+
+        return adjList;
+    }
+
+  public:
     vector<int> maxTargetNodes(vector<vector<int>> &edges1, vector<vector<int>> &edges2)
     {
-        auto adjA = buildList(edges1), adjB = buildList(edges2);
-        int n = adjA.size(), m = adjB.size();
-        vector<int> colorA(n, -1), colorB(m, -1);
-        int evenA = 0, oddA = 0, evenB = 0, oddB = 0;
-        colorA[0] = 0;
-        dfsColor(adjA, 0, -1, colorA, evenA, oddA);
-        colorB[0] = 0;
-        dfsColor(adjB, 0, -1, colorB, evenB, oddB);
-        int maxiB = max(evenB, oddB);
-        vector<int> res(n);
-        for (int i = 0; i < n; i++)
-            res[i] = (colorA[i] == 0 ? evenA : oddA) + maxiB;
-        return res;
+        auto adjList1{buildAdjList(edges1)}, adjList2{buildAdjList(edges2)};
+
+        int m(edges1.size() + 1), n(edges2.size() + 1);
+        int odd1{}, even1{}, odd2{}, even2{};
+        vector<int> colors1(m), colors2(n);
+
+        // colors[i] = 0 --> Even otherwise 1 --> Odd
+        colors1[0] = colors2[0] = 1;
+        dfs(adjList1, colors1, 0, -1, odd1, even1);
+        dfs(adjList2, colors2, 0, -1, odd2, even2);
+
+        vector<int> answers(m);
+        int bestNodeTree2{std::max(odd2, even2)};
+        for (int i{}; i < m; i++)
+            answers[i] = (colors1[i] ? odd1 : even1) + bestNodeTree2;
+
+        return answers;
     }
 };
