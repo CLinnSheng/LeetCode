@@ -10,9 +10,9 @@
  */
 
 #include <cmath>
-#include <queue>
-#include <iostream>
 #include <ios>
+#include <iostream>
+#include <queue>
 #include <vector>
 
 /*
@@ -40,21 +40,21 @@ Space Complexity: O(1)
 //     }
 // };
 
-// class Solution 
+// class Solution
 // {
 // public:
-    
-//     ListNode* mergeKLists(std::vector<ListNode*>& lists) 
+
+//     ListNode* mergeKLists(std::vector<ListNode*>& lists)
 //     {
-    
+
 //         std::ios_base::sync_with_stdio(false);
 //         std::cin.tie(nullptr);
 //         std::cout.tie(nullptr);
-        
+
 //         if (lists.empty()) return nullptr;
-        
+
 //         std::priority_queue<ListNode*, std::vector<ListNode*>, Comparator> minHeap;
-        
+
 //         for (auto& head : lists)
 //         {
 //             while (head)
@@ -63,10 +63,10 @@ Space Complexity: O(1)
 //                 head = head->next;
 //             }
 //         }
-        
+
 //         ListNode* ans = new ListNode();
 //         ListNode* temp = ans;
-        
+
 //         while (!minHeap.empty())
 //         {
 //             auto top = minHeap.top();
@@ -74,12 +74,12 @@ Space Complexity: O(1)
 //             temp->next = top;
 //             temp = temp->next;
 //         }
-        
+
 //         temp->next = nullptr;
 //         return ans->next;
 //     }
 // };
-// 
+//
 
 /**
  * Definition for singly-linked list.
@@ -91,17 +91,21 @@ Space Complexity: O(1)
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
-class Solution {
-public:
-    ListNode* mergeTwoLL(ListNode* l1, ListNode* l2)
+class Solution
+{
+  public:
+    ListNode *mergeTwoLL(ListNode *l1, ListNode *l2)
     {
-        if (l1 == l2 && l2 == nullptr) return nullptr;
-        if (l1 == nullptr && l2) return l2;
-        if (l1 && l2 == nullptr) return l1;
-        
-        ListNode* merged = new ListNode();
-        ListNode* temp = merged;
-        
+        if (l1 == l2 && l2 == nullptr)
+            return nullptr;
+        if (l1 == nullptr && l2)
+            return l2;
+        if (l1 && l2 == nullptr)
+            return l1;
+
+        ListNode *merged = new ListNode();
+        ListNode *temp = merged;
+
         while (l1 && l2)
         {
             if (l1->val > l2->val)
@@ -114,46 +118,46 @@ public:
                 temp->next = l2;
                 l2 = l2->next;
             }
-            
+
             temp = temp->next;
         }
-        
+
         while (l1)
         {
             temp->next = l1;
             l1 = l1->next;
         }
-        
+
         while (l2)
         {
             temp->next = l2;
             l2 = l2->next;
         }
-        
+
         temp->next = nullptr;
         return merged->next;
-        
     }
-    ListNode* mergeKLists(vector<ListNode*>& lists) 
+    ListNode *mergeKLists(vector<ListNode *> &lists)
     {
         std::ios_base::sync_with_stdio(false);
         std::cin.tie(nullptr);
         std::cout.tie(nullptr);
-        
+
         int k = lists.size();
-        
-        if (k == 0) return nullptr;
-        
+
+        if (k == 0)
+            return nullptr;
+
         // iterate until left only 1 linked list
         while (k > 1)
         {
             for (int i = 0; i < k / 2; i++)
                 lists[k] = mergeTwoLL(lists[i], lists[k - i - 1]);
-                
+
             // in case the initial number of LL is odd because got 1 LL will not merge with any other LL
             k = (k + 1) / 2;
         }
-        
+
         return lists[0];
     }
 };
