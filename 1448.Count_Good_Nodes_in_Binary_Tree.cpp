@@ -16,40 +16,35 @@
  * Good node: A node X is a good node if in the path from root to X there are no
  * nodes with a value greater than X.
  *
- * Intuition: Can use dfs because we need to check every single node down to the
- * leaf
- *Root node itself is a good node, so this is the maximum value to start with
+ * Intuition:
+ * Use dfs or recursive and pass the current maximum value so that we know that whether the node we visited is it the
+ * maximum or not in order to determine whether is it a good nodes or not. A root node is always a good node
+ *
+ * Time Complexity: O(n)
+ */
+#include <functional>
+class Solution
+{
+  public:
+    int goodNodes(TreeNode *root)
+    {
+        int answer{};
 
-  Time Complexity: O(n)
-  Space Complexity: O(lgn) because of the recursive call
-*/
-#include <ios>
-#include <iostream>
-class Solution {
-public:
-  int goodNodes(TreeNode *root) {
+        std::function<void(TreeNode *, int)> helper = [&](TreeNode *node, int maximumVal) {
+            if (node == nullptr)
+                return;
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+            if (node->val >= maximumVal)
+            {
+                answer++;
+                maximumVal = node->val;
+            }
 
-    std::function<int(TreeNode *, int)> dfs = [&](TreeNode *node, int maxVal) {
-      if (node == nullptr)
-        return 0;
+            helper(node->left, maximumVal);
+            helper(node->right, maximumVal);
+        };
 
-      // Check whether the node pointing now is a goodn node
-      int cnt = node->val >= maxVal ? 1 : 0;
-
-      int curr_max = std::max(maxVal, node->val);
-
-      if (node->left)
-        cnt += dfs(node->left, curr_max);
-      if (node->right)
-        cnt += dfs(node->right, curr_max);
-
-      return cnt;
-    };
-
-    return dfs(root, root->val);
-  }
+        helper(root, root->val);
+        return answer;
+    }
 };
