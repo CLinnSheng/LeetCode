@@ -5,73 +5,67 @@
 #include <vector>
 
 /*
- * A string is happy:
+ * only contains "a", "b" & "c"
+ * does not contain "aaa", "bbb" & "ccc"
+ * s contain at most a occurences of "a" for b and c as well
  *
-    s only contains the letters 'a', 'b', and 'c'.
-    s does not contain any of "aaa", "bbb", or "ccc" as a substring.
-    s contains at most a occurrences of the letter 'a'.
-    s contains at most b occurrences of the letter 'b'.
-    s contains at most c occurrences of the letter 'c'.
- *
- * Goal: Return the longest possible happy string
+ * Goal: Find the longest possible happy string.
  *
  * Intuition:
- * To produce the longest happy string, we always choose the letter with the
- most count
- * eg: we got 4a and 1b
- * 1. Start from the longest
- *  aabaa
- * 2. Start from the lowest
- *  baa
- *
- *  We got make use of priority queue data structure
- *  We get the character of the most frequent and then check
- *  When we encounter 3 occurrences of letter, we will choose the next character
- *
- *  Time Complexity: O(nlgn)
- *  Space Complexity: O(n)
+ * We need to find the longest possible string, then we have to be greedy while picking it.
+ * Always choose the 1 with the most freq first
+ * We can make use of a maxHeap
+ * Time Complexity: O(nlgn)
  * */
-class Solution {
-public:
-  std::string longestDiverseString(int a, int b, int c) {
-    std::priority_queue<std::pair<int, char>, std::vector<std::pair<int, char>>,
-                        std::less<std::pair<int, char>>>
-        maxHeap;
+class Solution
+{
+  public:
+    std::string longestDiverseString(int a, int b, int c)
+    {
+        std::string answer{};
+        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::less<std::pair<int, int>>>
+            maxHeap;
 
-    if (a)
-      maxHeap.emplace(a, 'a');
-    if (b)
-      maxHeap.emplace(b, 'b');
-    if (c)
-      maxHeap.emplace(c, 'c');
+        if (a)
+            maxHeap.emplace(a, 'a');
+        if (b)
+            maxHeap.emplace(b, 'b');
+        if (c)
+            maxHeap.emplace(c, 'c');
 
-    std::string ans = "";
+        while (!maxHeap.empty())
+        {
+            auto [currFreq, currChar] = maxHeap.top();
+            maxHeap.pop();
 
-    while (!maxHeap.empty()) {
-      auto [cnt, currentChar] = maxHeap.top();
-      maxHeap.pop();
+            // Handle 3 consecutive same characters
+            if (answer.length() >= 2 && currChar == answer[answer.length() - 1] &&
+                answer[answer.length() - 2] == currChar)
+            {
+                // If no more work then finish
+                if (maxHeap.empty())
+                    break;
 
-      int ans_len = ans.length();
-      if (ans_len >= 2 && ans[ans_len - 1] == currentChar &&
-          ans[ans_len - 2] == currentChar) {
-        if (maxHeap.empty())
-          break;
+                auto [nxtFreq, nxtChar] = maxHeap.top();
+                maxHeap.pop();
 
-        auto [cntNxt, nxtChar] = maxHeap.top();
-        maxHeap.pop();
+                answer += nxtChar;
+                nxtFreq--;
 
-        ans += nxtChar;
-        cntNxt--;
-        if (cntNxt)
-          maxHeap.emplace(cntNxt, nxtChar);
-      } else {
-        ans += currentChar;
-        cnt--;
-      }
+                // if still have then put it back
+                if (nxtFreq)
+                    maxHeap.emplace(nxtFreq, nxtChar);
+            }
+            else
+            {
+                answer += currChar;
+                currFreq--;
+            }
 
-      if (cnt)
-        maxHeap.emplace(cnt, currentChar);
+            // Put it back no matter got use or not
+            if (currFreq)
+                maxHeap.emplace(currFreq, currChar);
+        }
+        return answer;
     }
-    return std::move(ans);
-  }
 };

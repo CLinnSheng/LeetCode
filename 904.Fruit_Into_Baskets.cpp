@@ -10,6 +10,8 @@
  * We must pick wisely from where to start because once we reach a tree with fruit that cannot fit into the basket then
  * we have to stop We can use a sliding window to hold window of 2 type of fruit only, once reach 3 we have to remove
  * from the left until only left 2
+ *
+ * Time Complexity: O(n)
  * */
 #include <unordered_map>
 #include <vector>
