@@ -1,7 +1,3 @@
-#include <functional>
-#include <numeric>
-#include <queue>
-#include <utility>
 #include <vector>
 using std::vector;
 
@@ -32,12 +28,17 @@ class Solution
 
             for (int basket{}; basket < n; basket++)
             {
-                if (used[basket] && baskets[basket] >= fruits[fruit])
+                if (!used[basket] && baskets[basket] >= fruits[fruit])
                 {
                     canBePlace = true;
                     used[basket] = true;
+                    break;
                 }
             }
+
+            if (!canBePlace)
+                answer++;
         }
+        return answer;
     }
 };
