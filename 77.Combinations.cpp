@@ -3,38 +3,39 @@
 using std::vector;
 
 /*
- * Return all possible combinations of k numbers chosen from the range [1, n]
- * NOTE: [2, 1] & [1, 2] are the same
+ * Goal: Return all possible combinations of k numbers chosen from the range [1, n]
  *
  * Intuition:
- * Use dfs & backtracking. It is a tree decision problem on whether want to include or not
+ * Just use recursive and backtrackking because we need to try all possible combination of k wihtin the range
  * */
 class Solution
 {
   public:
     vector<vector<int>> combine(int n, int k)
     {
+        vector<int> currSubset;
         vector<vector<int>> answer;
 
-        std::function<void(vector<int> &, const int &)> dfs_backtracking = [&](vector<int> &temp, const int &currVal) {
-            if (temp.size() == k)
+        std::function<void(const int &)> backtracking = [&](const int &val) {
+            if (currSubset.size() == k)
             {
-                answer.emplace_back(temp);
+                answer.emplace_back(currSubset);
                 return;
             }
 
-            if (currVal > n)
+            if (val > n)
                 return;
 
-            // Include
-            temp.emplace_back(currVal);
-            dfs_backtracking(temp, currVal + 1);
-            // backtracking
-            temp.pop_back();
-            dfs_backtracking(temp, currVal + 1);
+            for (int i{val}; i <= n; i++)
+            {
+                currSubset.emplace_back(i);
+                backtracking(i + 1);
+
+                // backtracking
+                currSubset.pop_back();
+            }
         };
-        vector<int> temp;
-        dfs_backtracking(temp, 1);
+        backtracking(1);
         return answer;
     }
 };

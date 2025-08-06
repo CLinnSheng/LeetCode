@@ -1,34 +1,35 @@
 #include <functional>
+#include <set>
 #include <vector>
 using std::vector;
 
 /*
- * Goal: Return all possible permuations
+ * Given an array nums that might contain duplicates
+ * Goal: Return all possible unique permutation in any order
  *
  * Intuition:
- * Permutation means all the number must be in use but in any order
- * so we need an array to track whether this number is used or not
- * AS usual we can just use backtracking to try all possible combinations
- * Time Complexity: O(n! * n)
+ * Now the array contain duplcates how can we resolve this issues?
+ * We can just use a hash set to track it
+ * TIme Complexity: O()
  * */
 class Solution
 {
   public:
-    vector<vector<int>> permute(vector<int> &nums)
+    vector<vector<int>> permuteUnique(vector<int> &nums)
     {
         int n(nums.size());
 
         if (n == 0)
             return {};
 
-        vector<vector<int>> answer;
         vector<int> currSubset;
         vector<int> used(n, false);
+        std::set<vector<int>> answer;
 
         std::function<void()> backtracking = [&]() {
             if (currSubset.size() == n)
             {
-                answer.emplace_back(currSubset);
+                answer.insert(currSubset);
                 return;
             }
 
@@ -46,7 +47,8 @@ class Solution
                 used[i] = false;
             }
         };
+
         backtracking();
-        return answer;
+        return vector<vector<int>>(answer.begin(), answer.end());
     }
 };
