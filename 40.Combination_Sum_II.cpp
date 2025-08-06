@@ -1,56 +1,58 @@
+#include <algorithm>
+#include <functional>
+#include <vector>
+using std::vector;
+
 /*
-Since want to find permutation, we can use dfs and backtracking to try out diff
-combinations dfs to search to find the combination that hit the target if not
-backtrack Constraint is that is must be a unique combinatoi set (order doesnt
-matter) ways to solve this is to sort the array because we wont repeat the same
-number anymore for example like [1, 2, 5] & and [2, 1 ,5] as [2, 1, 5] wont be
-appear if we sort the arrray because 2 comes after 1 duplicates are allow to be
-in the set so in order to have duplicate numbers allow we msut have this
-condition if i == index and also arr[i] != arr[i - 1] to prevent producting the
-same set of combinations Time Complexity: O(nlgn + 2^n) we can choose to include
-or not Space Complexity : O(2^n)
-*/
+ * This is almost similar to the combinationSum1 but for this each element can only chose once
+ * And also must not contain duplicate combinations. So every subset in the answer has to be unique
+ *
+ * Intuition:
+ * Ok so to encounter the problem of unique combination we only need to handle when there exists 2 same element side by
+ * side. We only do the recursion for one of the element is good enough
+ * The unique combination is the element inside the combination must be unique regarding of the order.
+ * Then we need to sort the array first, in order to eliminate the combination of getting the target with different
+ * order Because the same element will be stick together and we will only perform the recursion only once
+ *
+ * TIme Complexity: O(n * 2^n)
+ * */
+class Solution
+{
+  public:
+    vector<vector<int>> combinationSum2(vector<int> &candidates, int target)
+    {
+        vector<int> currSubset;
+        vector<vector<int>> answer;
+        std::sort(candidates.begin(), candidates.end());
 
-class Solution {
-public:
-  vector<vector<int>> combinationSum2(vector<int> &candidates, int target) {
+        std::function<void(const int &, const int &)> backtracking = [&](const int &index, const int &currSum) {
+            if (currSum == target)
+            {
+                answer.emplace_back(currSubset);
+                return;
+            }
 
-    ios_base ::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
+            if (currSum > target || index >= candidates.size())
+            {
+                return;
+            }
 
-    int n = candidates.size();
-    vector<vector<int>> ans;
-    vector<int> sub;
+            for (int i{index}; i < candidates.size(); i++)
+            {
+                // Handle same element
+                // We can use repeating element but must be unique combinations
+                if (i > index && candidates[i] == candidates[i - 1])
+                    continue;
 
-    sort(candidates.begin(), candidates.end());
-    backtracking(ans, candidates, target, sub, 0, 0, n);
+                currSubset.emplace_back(candidates[i]);
+                backtracking(i + 1, currSum + candidates[i]);
 
-    return ans;
-  }
+                // backtracking
+                currSubset.pop_back();
+            }
+        };
 
-  void backtracking(vector<vector<int>> &ans, vector<int> &cand, int target,
-                    vector<int> &sub, int index, int cur_sum, int size) {
-
-    // basecase
-    if (cur_sum == target) {
-      ans.emplace_back(sub);
-      return;
+        backtracking(0, 0);
+        return answer;
     }
-
-    // backtrack
-    if (cur_sum > target)
-      return;
-
-    for (int i = index; i < size; i++) {
-
-      if (i == index || cand[i] != cand[i - 1]) {
-        sub.emplace_back(cand[i]);
-        backtracking(ans, cand, target, sub, i + 1, cur_sum + cand[i], size);
-
-        // backtrack
-        sub.pop_back();
-      }
-    }
-  }
 };
