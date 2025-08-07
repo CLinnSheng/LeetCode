@@ -1,56 +1,66 @@
-// Time Complexity: O(m*n)
-// Space Complexity: O(m*n)
-
+#include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
-class Solution {
-public:
-  std::vector<std::pair<int, int>> direction{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-  bool exist(std::vector<std::vector<char>> &board, std::string word) {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+/*
+ * Goal: Return true if the word is present in the grid otherwise return false
+ *
+ * Intuition:
+ * We can use dfs and backtracking. DFS on every index
+ * Time Complexity: O(n^2)
+ * */
+class Solution
+{
+  private:
+    const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-    int len = word.length();
-    if (len == 0)
-      return true;
+  public:
+    bool exist(std::vector<std::vector<char>> &board, std::string word)
+    {
+        int ROW(board.size()), COL(board[0].size());
+        std::vector<std::vector<bool>> visited(ROW, std::vector<bool>(COL, false));
 
-    std::vector<std::vector<bool>> visited(
-        board.size(), std::vector<bool>(board[0].size(), false));
+        if (word.length() == 0)
+            return true;
 
-    for (int i = 0; i < board.size(); i++)
-      for (int j = 0; j < board[0].size(); j++) {
-        if (helper(i, j, word, board, visited, 0))
-          return true;
-        visited[i][j] = false;
-      }
+        std::function<bool(const int &, const int &, const int &)> dfs_backtracking =
+            [&](const int &row, const int &col, const int &index) {
+                // Mark it first
+                visited[row][col] = true;
 
-    return false;
-  }
+                if (index < word.length() && board[row][col] != word[index])
+                    return false;
 
-  bool helper(int r, int c, const std::string &word,
-              const std::vector<std::vector<char>> &board,
-              std::vector<std::vector<bool>> &visited, int index) {
+                if (index == word.length() - 1)
+                    return true;
 
-    visited[r][c] = true;
-    if (index < word.length() && board[r][c] != word[index])
-      return false;
-    if (index == word.length() - 1)
-      return true;
+                for (const auto &direction : DIRECTIONS)
+                {
+                    int newRow{direction.first + row};
+                    int newCol{direction.second + col};
 
-    for (const auto &[_r, _c] : direction) {
-      auto new_r = _r + r;
-      auto new_c = _c + c;
+                    if (newRow < 0 || newCol < 0 || newRow >= ROW || newCol >= COL || visited[newRow][newCol])
+                        continue;
 
-      if (new_r >= 0 && new_c >= 0 && new_r < board.size() &&
-          new_c < board[0].size() && !visited[new_r][new_c]) {
-        if (helper(new_r, new_c, word, board, visited, index + 1))
-          return true;
-        // backtrack
-        visited[new_r][new_c] = false;
-      }
+                    if (dfs_backtracking(newRow, newCol, index + 1))
+                        return true;
+
+                    // false
+                    // backtrack to try other path
+                    visited[newRow][newCol] = false;
+                }
+
+                return false;
+            };
+
+        for (int r{}; r < ROW; r++)
+            for (int c{}; c < COL; c++)
+            {
+                if (dfs_backtracking(r, c, 0))
+                    return true;
+                visited[r][c] = false;
+            }
+        return false;
     }
-    return false;
-  }
 };
