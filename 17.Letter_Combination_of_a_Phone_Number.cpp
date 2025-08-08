@@ -1,38 +1,69 @@
-// Time Complexity: Lets consider the worst case, the digit is map to number
-// which have 4 characters, and then it has 4 possible string. SO this lead to
-// O(4^n)
-//  and every time we concatenate the string this is O(n)
-//  Hence total time complexity is O(n * 4^n)
-//  Space Complexity: O(4^n)
+#include <functional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-class Solution {
-public:
-  const std::vector<std::string> number = {"",    "",    "abc",  "def", "ghi",
-                                           "jkl", "mno", "pqrs", "tuv", "wxyz"};
+/*
+ * Each digit is mapped to a set of character as shown below
+ * Goal: Return all possible letter combinations that digits could represent
+ *
+ * Intuition:
+ * This is a decision tree problem where at every index we need to choose which character and also need to try all
+ * possible combinations that means we need to back tracking
+ * */
+class Solution
+{
+  private:
+    std::unordered_map<int, std::string> map;
 
-  std::vector<std::string> letterCombinations(std::string digits) {
-    int len = digits.length();
-    if (len == 0)
-      return {};
+    void helper()
+    {
+        map[0] = "+";
+        map[1] = "";
+        map[2] = "abc";
+        map[3] = "def";
+        map[4] = "ghi";
+        map[5] = "jkl";
+        map[6] = "mno";
+        map[7] = "pqrs";
+        map[8] = "tuv";
+        map[9] = "wxyz";
+    }
 
-    std::vector<string> ans;
+  public:
+    Solution()
+    {
+        helper();
+    }
 
-    std::function<void(const int, const std::string)> dfs_backtracking =
-        [&](const int index, const std::string curr_words) {
-          if (index == digits.length()) {
-            ans.emplace_back(curr_words);
-            return;
-          }
+    std::vector<std::string> letterCombinations(std::string digits)
+    {
+        std::vector<std::string> answer;
+        std::string str{};
 
-          std::string pad_words = number[digits[index] - '0'];
+        if (digits.empty())
+            return {};
 
-          for (int i = 0; i < pad_words.length(); i++)
-            dfs_backtracking(index + 1, curr_words + pad_words[i]);
+        std::function<void(const int &)> dfs_backtracking = [&](const int &index) {
+            if (index == digits.length())
+            {
+                answer.emplace_back(str);
+                return;
+            }
+
+            auto &mapStr{map[digits[index] - '0']};
+
+            for (const auto &ch : mapStr)
+            {
+                str += ch;
+                dfs_backtracking(index + 1);
+
+                // backtracking
+                str.pop_back();
+            }
         };
 
-    dfs_backtracking(0, "");
-    return std::move(ans);
-  }
+        dfs_backtracking(0);
+        return answer;
+    }
 };
