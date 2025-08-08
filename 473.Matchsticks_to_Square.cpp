@@ -14,6 +14,7 @@
  * Need to find the possible combinations to make up 4 equal length sides
  * We can sort it first for easy handling because we trying to link up the matchsticks, so at earlier index if cannot
  * make it up to total length / 4 then that means we dont have to continue down the array, can stop right there
+ * Time Complexity: O(4^n)
  * */
 class Solution
 {
