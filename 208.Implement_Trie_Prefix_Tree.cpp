@@ -1,75 +1,80 @@
-/*
-Intuition: Every single node represent a character
-for example a -> p -> p -> l -> e
-if we got a new word that is substr of another, we just fork out from the substr
-
-Space Complexity: O(m*n) basically just the number of characters from all the
-words
-*/
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <string>
 
-struct TrieNodes {
-  std::array<std::shared_ptr<TrieNodes>, 26> alphabets;
-  bool isWord;
+/*
+ * Goal: Create a prefix tree class
+ *
+ * Intuition:
+ * We can think of create a data structure wheere we can easily perform all the operations below
+ * So the data structure will be a tree that linking all the words with the same prefix. For eg:
+ * hot and hot dog. The tree will be h -> o -> t -> d -> o -> g So basically it will link at the back instead of having
+ * another tree. We can have a flag to flag at t to tell us that this word exist
+ * Time Complexity: O(m * n) --> all characters
+ * */
+using std::string;
+struct TrieNode
+{
+    std::array<std::shared_ptr<TrieNode>, 26> alphabets;
+    bool isWord{};
 
-  TrieNodes() : isWord{false} {
-    std::fill(alphabets.begin(), alphabets.end(), nullptr);
-  }
+    TrieNode() : isWord{false}
+    {
+        std::fill(alphabets.begin(), alphabets.end(), nullptr);
+    }
 };
 
-class Trie {
-private:
-  std::shared_ptr<TrieNodes> root;
+class PrefixTree
+{
+    std::shared_ptr<TrieNode> root;
 
-public:
-  Trie() { root = std::make_shared<TrieNodes>(); }
-
-  // Time Complexity: O(n)
-  void insert(std::string word) {
-    auto temp = root;
-
-    for (const auto &c : word) {
-      auto alpha_num = c - 'a';
-      if (temp->alphabets[alpha_num] == nullptr)
-        temp->alphabets[alpha_num] = std::make_shared<TrieNodes>();
-      temp = temp->alphabets[alpha_num];
+  public:
+    PrefixTree()
+    {
+        root = std::make_shared<TrieNode>();
     }
-    temp->isWord = true;
-  }
 
-  // Time Complexity: O(n)
-  bool search(std::string word) {
-    auto temp = root;
+    void insert(string word)
+    {
+        auto temp{root};
+        for (const auto &c : word)
+        {
+            if (temp->alphabets[c - 'a'] == nullptr)
+                temp->alphabets[c - 'a'] = std::make_shared<TrieNode>();
 
-    for (const auto &c : word) {
-      auto alpha_num = c - 'a';
-      if (temp->alphabets[alpha_num] == nullptr)
-        return false;
-      temp = temp->alphabets[alpha_num];
+            temp = temp->alphabets[c - 'a'];
+        }
+
+        // Mark it as a word
+        temp->isWord = true;
     }
-    return temp->isWord;
-  }
 
-  // Time Complexity: O(n)
-  bool startsWith(std::string prefix) {
-    auto temp = root;
+    bool search(string word)
+    {
+        auto temp{root};
 
-    for (const auto &c : prefix) {
-      auto alpha_num = c - 'a';
-      if (temp->alphabets[alpha_num] == nullptr)
-        return false;
-      temp = temp->alphabets[alpha_num];
+        for (const auto &c : word)
+        {
+            if (temp->alphabets[c - 'a'] == nullptr)
+                return false;
+            temp = temp->alphabets[c - 'a'];
+        }
+
+        return temp->isWord;
     }
-    return true;
-  }
+
+    bool startsWith(string prefix)
+    {
+        auto temp{root};
+
+        for (const auto &c : prefix)
+        {
+            if (temp->alphabets[c - 'a'] == nullptr)
+                return false;
+            temp = temp->alphabets[c - 'a'];
+        }
+
+        return true;
+    }
 };
-
-/**
- * Your Trie object will be instantiated and called as such:
- * Trie* obj = new Trie();
- * obj->insert(word);
- * bool param_2 = obj->search(word);
- * bool param_3 = obj->startsWith(prefix);
- */
