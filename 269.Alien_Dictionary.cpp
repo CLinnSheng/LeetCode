@@ -28,67 +28,73 @@ we return an empty string.
  * Space Complexity: O(V + N) where V is the number of unique charaters & N is
 the number of word
  */
-class Solution {
-public:
-  std::string foreignDictionary(std::vector<std::string> &words) {
+class Solution
+{
+  public:
+    std::string foreignDictionary(std::vector<std::string> &words)
+    {
 
-    // graph
-    std::unordered_map<char, std::unordered_set<char>> graph;
-    std::unordered_map<char, int> inDegree;
+        // graph
+        std::unordered_map<char, std::unordered_set<char>> graph;
+        std::unordered_map<char, int> inDegree;
 
-    // initialize the graph
-    // O(N)
-    for (const std::string &word : words)
-      for (const char &ch : word) {
-        graph[ch] = std::unordered_set<char>();
-        inDegree[ch] = 0;
-      }
+        // initialize the graph
+        // O(N)
+        for (const std::string &word : words)
+            for (const char &ch : word)
+            {
+                graph[ch] = std::unordered_set<char>();
+                inDegree[ch] = 0;
+            }
 
-    // character seen so for
-    int numCharacters{};
-    int wordCount(words.size());
+        // character seen so for
+        int numCharacters{};
+        int wordCount(words.size());
 
-    // Building the graph
-    for (int i{}; i < wordCount - 1; i++) {
-      std::string currentWord{words[i]}, nextWord{words[i + 1]};
-      int minLen = std::min(currentWord.length(), nextWord.length());
+        // Building the graph
+        for (int i{}; i < wordCount - 1; i++)
+        {
+            std::string currentWord{words[i]}, nextWord{words[i + 1]};
+            int minLen = std::min(currentWord.length(), nextWord.length());
 
-      // nextWord cannot be the prefix of the currentWord
-      if (currentWord.length() > nextWord.length() &&
-          currentWord.substr(0, minLen) == nextWord.substr(0, minLen))
-        return "";
+            // nextWord cannot be the prefix of the currentWord
+            if (currentWord.length() > nextWord.length() && currentWord.substr(0, minLen) == nextWord.substr(0, minLen))
+                return "";
 
-      for (int j{}; j < minLen; j++)
-        if (currentWord[j] != nextWord[j]) {
-          if (!graph[currentWord[j]].count(nextWord[j])) {
-            graph[currentWord[j]].insert(nextWord[j]);
-            inDegree[nextWord[j]]++;
-          }
-          break;
+            for (int j{}; j < minLen; j++)
+                if (currentWord[j] != nextWord[j])
+                {
+                    if (!graph[currentWord[j]].count(nextWord[j]))
+                    {
+                        graph[currentWord[j]].insert(nextWord[j]);
+                        inDegree[nextWord[j]]++;
+                    }
+                    break;
+                }
         }
+
+        // only push those with 0 indegree because they are the starting character
+        // in the dictionary
+        std::deque<char> q;
+        // O(V)
+        for (auto &[ch, deg] : inDegree)
+            if (deg == 0)
+                q.emplace_back(ch);
+
+        std::string ans{};
+        // O(E)
+        while (!q.empty())
+        {
+            char currentChar = q.front();
+            q.pop_front();
+
+            ans += currentChar;
+
+            for (char neighbourChar : graph[currentChar])
+                if (--inDegree[neighbourChar] == 0)
+                    q.emplace_back(neighbourChar);
+        }
+
+        return ans.size() < inDegree.size() ? "" : ans;
     }
-
-    // only push those with 0 indegree because they are the starting character
-    // in the dictionary
-    std::deque<char> q;
-    // O(V)
-    for (auto &[ch, deg] : inDegree)
-      if (deg == 0)
-        q.emplace_back(ch);
-
-    std::string ans{};
-    // O(E)
-    while (!q.empty()) {
-      char currentChar = q.front();
-      q.pop_front();
-
-      ans += currentChar;
-
-      for (char neighbourChar : graph[currentChar])
-        if (--inDegree[neighbourChar] == 0)
-          q.emplace_back(neighbourChar);
-    }
-
-    return ans.size() < inDegree.size() ? "" : ans;
-  }
 };
