@@ -27,6 +27,7 @@
  * is not in our data structure
  * eg: [leet, code, leetcode]. s = "abcasdsdsdsds". Since a is not in the prefix of any words so we can skip the
  * character
+ * Time complexity: O(n^2 + m * k)
  * */
 
 struct TrieNode

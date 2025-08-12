@@ -1,20 +1,22 @@
 #include <functional>
+#include <utility>
 #include <vector>
 
 /*
- * Given a 2d array which representing a map where grid[i][j] = 1 -> land while 0 -> water
- * Goal: Return the island perimeter.
+ * Only exactly one island
+ * Goal: Find the perimeter of the island
  *
  * Intuition:
- * We can just simply use dfs to find all the connected island.
- * But the problem is how to find out the perimeter of a specific cell in the island
- * Observe the pattern if we are able to traverse from this cell to another from a direction then the part is not
- * counted. So whenever we couldnt traverse from the side we just count the perimter Time Complexity: O(m*n) Space
- * Complexity: O(m*n)
+ * This is a grpah problem so we can simply use dfs
+ * Since there is only one island we just have to dfs once. And we use an array to keep track of the cell we visited
+ *
+ * Time Complexity: O(m * n)
  * */
-
 class Solution
 {
+  private:
+    std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
   public:
     int islandPerimeter(std::vector<std::vector<int>> &grid)
     {
@@ -22,26 +24,27 @@ class Solution
         std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
 
         std::function<int(const int &, const int &)> dfs = [&](const int &row, const int &col) {
-            // Base Cases
-            // Becase we are not able to traverse from it so this side is counted into the perimetr
+            // Base Case, cannot traverse only return the side length other wise is 0
             if (row < 0 || col < 0 || row >= ROWS || col >= COLS || grid[row][col] == 0)
                 return 1;
 
             if (visited[row][col])
                 return 0;
 
-            // mark as visited
+            // Mark as visited
             visited[row][col] = true;
 
-            // traverse from 4 all possible directions
-            return dfs(row + 1, col) + dfs(row - 1, col) + dfs(row, col + 1) + dfs(row, col - 1);
-        };
+            int answer{};
 
-        // to find out the first piece of land we can start
+            for (const auto &direction : DIRECTIONS)
+                answer += dfs(row + direction.first, col + direction.second);
+
+            return answer;
+        };
         for (int i{}; i < ROWS; i++)
             for (int j{}; j < COLS; j++)
                 if (grid[i][j])
                     return dfs(i, j);
-        return 0;
+        return -1;
     }
 };
