@@ -1,66 +1,87 @@
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <string>
+using std::string;
 
-struct Nodes {
-  std::array<std::shared_ptr<Nodes>, 26> alphabets;
-  bool isWord;
+/*
+ * Goal: Implement all data structure
+ * search: return true if any string in the data structure that matches 'word'. 'word' may contain '.' where dots can be
+ * matched with any letter
+ *
+ * Intuition:
+ * We can use a trie tree data structure so we can easily store and search word with the same prefix
+ * We just need to handle the search for the '.'. So we can use dfs to search through all possible combinations if
+ * encounter '.' Time Complexity: O(m * n)
+ *
+ * */
+struct TrieNode
+{
+    std::array<std::shared_ptr<TrieNode>, 26> alphabets;
+    bool isWord;
 
-  Nodes() : isWord{false} {
-    std::fill(alphabets.begin(), alphabets.end(), nullptr);
-  }
+    TrieNode() : isWord(false)
+    {
+        std::fill(alphabets.begin(), alphabets.end(), nullptr);
+    }
 };
 
-class WordDictionary {
-private:
-  std::shared_ptr<Nodes> root;
+class WordDictionary
+{
+  private:
+    std::shared_ptr<TrieNode> root;
 
-public:
-  WordDictionary() { root = std::make_shared<Nodes>(); }
+    bool dfs(const std::string &word, const int &index, std::shared_ptr<TrieNode> node)
+    {
+        auto currNode{node};
 
-  // Time Complexity: O(n)
-  void addWord(std::string word) {
-    auto temp = root;
-
-    for (const auto &c : word) {
-      auto num_word = c - 'a';
-
-      if (temp->alphabets[num_word] == nullptr)
-        temp->alphabets[num_word] = std::make_shared<Nodes>();
-      temp = temp->alphabets[num_word];
+        for (int i{index}; i < word.length(); i++)
+        {
+            // not '.' then handle it like how we handle in trie data structure
+            if (word[i] != '.')
+            {
+                if (currNode->alphabets[word[i] - 'a'] == nullptr)
+                    return false;
+                else
+                    currNode = currNode->alphabets[word[i] - 'a'];
+            }
+            else
+            {
+                // '.', try all possible word because is a wildcard
+                for (const auto &child : currNode->alphabets)
+                {
+                    if (child != nullptr && dfs(word, i + 1, child))
+                        return true;
+                }
+                return false;
+            }
+        }
+        return currNode->isWord;
     }
-    temp->isWord = true;
-  }
 
-  bool search(std::string word) {
-    // use dfs for the ... part
-    return dfs(word, 0, root);
-  }
-
-  bool dfs(std::string word, int index, std::shared_ptr<Nodes> root) {
-    auto temp = root;
-
-    for (int i = index; i < word.size(); i++) {
-
-      // if '.' just search any nodes that available
-      if (word[i] == '.') {
-        for (auto &child : temp->alphabets)
-          if (child != nullptr && dfs(word, i + 1, child))
-            return true;
-        return false;
-      } else {
-        if (temp->alphabets[word[i] - 'a'] == nullptr)
-          return false;
-        temp = temp->alphabets[word[i] - 'a'];
-      }
+  public:
+    WordDictionary()
+    {
+        root = std::make_shared<TrieNode>();
     }
-    return temp->isWord;
-  }
+
+    void addWord(string word)
+    {
+        auto temp{root};
+
+        for (const auto &c : word)
+        {
+            if (temp->alphabets[c - 'a'] == nullptr)
+                temp->alphabets[c - 'a'] = std::make_shared<TrieNode>();
+
+            temp = temp->alphabets[c - 'a'];
+        }
+
+        temp->isWord = true;
+    }
+
+    bool search(string word)
+    {
+        return dfs(word, 0, root);
+    }
 };
-
-/**
- * Your WordDictionary object will be instantiated and called as such:
- * WordDictionary* obj = new WordDictionary();
- * obj->addWord(word);
- * bool param_2 = obj->search(word);
- */

@@ -1,118 +1,89 @@
-#include <array>
-#include <iostream>
+#include <functional>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 
 /*
-Goal: Find all the words on the board that is from the array of strings, word
-Constraint: Each string from the words can only be used once
-Intuition: We can use dfs and backtracking from every single point on the board.
-But this is very costly because if the first few characters are not the same we
-still try to search through all the coordinates. Optimization: We will stop once
-the characters do not follow the string from the words. We can use Trie trees.
-*/
+ * Goal: Return all words that are present in the grid
+ *
+ * Intuition:
+ * All word can only be used once
+ * We can use dfs to search the grid and backtracking when the string form doesnt match any of the prefix of the words.
+ * The time complexity will be: O(N^2 * m^2) the m^2 is iterating through the words and check whether got this prefix or
+ * not We can optimize this part by using a Trie Tree data structure to solve checking prefix
+ * */
 
-const std::vector<std::pair<int, int>> DIRECTIONS = {
-    {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+struct TrieNode
+{
+    std::unordered_map<int, TrieNode *> alphabets;
+    bool isWord;
 
-class TrieTree {
-public:
-  std::array<TrieTree *, 26> alphabets; // Use raw pointers
-  bool isWord;
-  int nWords; // Track how many words are available at every node in the tree
-
-  TrieTree() : isWord{false}, nWords{0} {
-    std::fill(alphabets.begin(), alphabets.end(), nullptr);
-  }
-
-  // Insert word into Trie
-  void insert_word(const std::string &str) {
-    TrieTree *temp = this; // Use raw pointer instead of shared_ptr
-    temp->nWords++;
-    for (const auto &c : str) {
-      auto char_to_num = c - 'a';
-
-      if (temp->alphabets[char_to_num] == nullptr)
-        temp->alphabets[char_to_num] =
-            new TrieTree(); // Allocate new TrieTree node
-      temp = temp->alphabets[char_to_num];
-      temp->nWords++;
+    TrieNode() : isWord(false)
+    {
     }
-    temp->isWord = true;
-  }
 
-  // Remove word from Trie
-  void remove_word(const std::string &str) {
-    TrieTree *temp = this; // Use raw pointer
-    temp->nWords--;
-    for (const auto &c : str)
-      if (temp->alphabets[c - 'a']) {
-        temp = temp->alphabets[c - 'a'];
-        temp->nWords--;
-      }
-  }
+    void addWord(const std::string &str)
+    {
+        auto temp{this};
 
-  // Destructor to free allocated memory
-  ~TrieTree() {
-    for (auto &node : alphabets)
-      if (node != nullptr)
-        delete node;
-  }
+        for (const auto &ch : str)
+        {
+            if (temp->alphabets.find(ch - 'a') == temp->alphabets.end())
+                temp->alphabets[ch - 'a'] = new TrieNode();
+
+            temp = temp->alphabets[ch - 'a'];
+        }
+
+        temp->isWord = true;
+    }
 };
+class Solution
+{
+  private:
+    const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-class Solution {
-public:
-  std::vector<std::string> findWords(std::vector<std::vector<char>> &board,
-                                     std::vector<std::string> &words) {
+  public:
+    std::vector<std::string> findWords(std::vector<std::vector<char>> &board, std::vector<std::string> &words)
+    {
+        std::unordered_set<std::string> answer;
+        if (words.size() == 0)
+            return {};
 
-    std::vector<std::vector<bool>> visited(
-        board.size(), std::vector<bool>(board[0].size(), false));
-    std::vector<std::string> ans;
-    TrieTree *root = new TrieTree(); // Use raw pointer for TrieTree
+        int ROWS(board.size()), COLS(board[0].size());
+        std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
 
-    // Add the words into the trie tree
-    for (const auto &word : words)
-      root->insert_word(word);
+        TrieNode *root = new TrieNode();
+        for (const auto &word : words)
+            root->addWord(word);
 
-    // DFS and backtracking function
-    std::function<void(int, int, std::string, TrieTree *, TrieTree *)>
-        dfs_backtracking = [&](int row, int col, std::string curr_string,
-                               TrieTree *curr_node) {
-          if (row < 0 || col < 0 || row >= board.size() ||
-              col >= board[0].size() || visited[row][col] ||
-              curr_node->alphabets[board[row][col] - 'a'] == nullptr ||
-              curr_node->alphabets[board[row][col] - 'a']->nWords <= 0)
-            return;
+        std::function<void(const int &, const int &, TrieNode *, std::string)> dfs_backtracking =
+            [&](const int &row, const int &col, TrieNode *currNode, std::string word) {
+                if (row < 0 || col < 0 || row >= ROWS || col >= COLS || visited[row][col] ||
+                    currNode->alphabets[board[row][col] - 'a'] == nullptr)
+                    return;
 
-          visited[row][col] = true;
-          curr_string += board[row][col];
-          curr_node = curr_node->alphabets[board[row][col] - 'a'];
+                visited[row][col] = true;
+                word += board[row][col];
+                currNode = currNode->alphabets[board[row][col] - 'a'];
 
-          // Check if we found a word
-          if (curr_node->isWord) {
-            curr_node->isWord = false; // Mark word as found
-            ans.emplace_back(curr_string);
-            root->remove_word(curr_string);
-          }
+                if (currNode->isWord)
+                    answer.insert(word);
 
-          // Perform DFS in all directions
-          for (const auto &[dx, dy] : DIRECTIONS) {
-            int new_row = row + dx;
-            int new_col = col + dy;
+                for (const auto &direction : DIRECTIONS)
+                {
+                    int newRow{direction.first + row}, newCol{direction.second + col};
 
-            dfs_backtracking(new_row, new_col, curr_string, root, curr_node);
-          }
+                    dfs_backtracking(newRow, newCol, currNode, word);
+                }
 
-          // backtrack
-          visited[row][col] = false;
-        };
+                visited[row][col] = false;
+            };
 
-    // Start DFS from every point on the board
-    for (int i = 0; i < board.size(); i++)
-      for (int j = 0; j < board[0].size(); j++)
-        dfs_backtracking(i, j, "", root);
-
-    delete root; // Don't forget to free the root to avoid memory leak
-    return std::move(ans);
-  }
+        for (int i{}; i < ROWS; i++)
+            for (int j{}; j < COLS; j++)
+                dfs_backtracking(i, j, root, "");
+        return std::vector<std::string>(answer.begin(), answer.end());
+    }
 };
