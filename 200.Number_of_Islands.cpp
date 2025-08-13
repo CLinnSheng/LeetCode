@@ -6,47 +6,45 @@
  * Goal: Find the number of islands.
  * An islands is formed by connecting adjacent lands horizontally or vertically
  *
- * Intuition: Dfs the grid if is it a land and then search through all the
- * nearby lands and mark it as visited so that we wont visit it again. Therefore
- * this will result in a piece of land. Then continue to search all until there
- * is no more land Time Complexity: O(m*n) because we traverse all Space
- * Complexity: O(m*n) recursive call stack
+ * Intuition:
+ * We can just simply dfs and mark those cells we visited so that we wont visited again
+ * Time Complexity: O(n^2)
  * */
 
-class Solution {
-public:
-  const std::vector<std::pair<int, int>> DIRECTIONS = {
-      {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+class Solution
+{
+  public:
+    const std::vector<std::pair<int, int>> DIRECTIONS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-  int numIslands(std::vector<std::vector<char>> &grid) {
-    int n_row = grid.size();
-    int n_col = grid[0].size();
+    int numIslands(std::vector<std::vector<char>> &grid)
+    {
+        int ROWS(grid.size()), COLS(grid[0].size());
+        std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
+        int ans{};
 
-    int ans = 0;
+        std::function<void(const int &, const int &)> dfs = [&](const int &row, const int &col) {
+            // mark
+            visited[row][col] = true;
 
-    std::function<void(const int &, const int &)> dfs = [&](const int &row,
-                                                            const int &col) {
-      if (row < 0 || col < 0 || row >= n_row || col >= n_col ||
-          grid[row][col] == '0')
-        return;
+            for (const auto &direction : DIRECTIONS)
+            {
+                int newRow{direction.first + row}, newCol{direction.second + col};
 
-      // mark as visited
-      grid[row][col] = '0';
+                if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || grid[newRow][newCol] == '0' ||
+                    visited[newRow][newCol])
+                    continue;
 
-      for (const auto &[_row, _col] : DIRECTIONS) {
-        auto new_row = _row + row;
-        auto new_col = _col + col;
+                dfs(newRow, newCol);
+            }
+        };
 
-        dfs(new_row, new_col);
-      }
-    };
-    for (int i = 0; i < n_row; i++)
-      for (int j = 0; j < n_col; j++)
-        if (grid[i][j] == '1') {
-          dfs(i, j);
-          ans++;
-        }
-
-    return ans;
-  }
+        for (int i{}; i < ROWS; i++)
+            for (int j{}; j < COLS; j++)
+                if (grid[i][j] == '1' && !visited[i][j])
+                {
+                    ans++;
+                    dfs(i, j);
+                }
+        return ans;
+    }
 };
