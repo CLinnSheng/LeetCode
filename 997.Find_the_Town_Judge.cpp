@@ -13,29 +13,24 @@ using std::vector;
  * Goal: Return the label of the judge otherwise -1
  *
  * Intuition:
- * We can actually make this as a graph, we can treat the trust relationship as an edge.
- * Basically a judge trust nobody & everybody trust the judge that means in a graph property
- * the node will have n - 1 indegree & 0 outdegree
- * Time Complexity: O(n)
- * Space Complexity: O(n)
+ * We can treat the relationship as a graph
+ * We can have indegree and outdegree. So for judge, it need to have  n - 1 indegree and 0 outdegree
  * */
 class Solution
 {
   public:
     int findJudge(int n, vector<vector<int>> &trust)
     {
-        vector<int> inDegree(n, 0), outdegree(n, 0);
-        // O(N)
-        for (const auto &edge : trust)
+        vector<int> inDegree(n + 1, 0), outDegree(n + 1, 0);
+        for (const auto &relationship : trust)
         {
-            outdegree[edge[0] - 1]++;
-            inDegree[edge[1] - 1]++;
+            inDegree[relationship[1]]++;
+            outDegree[relationship[0]]++;
         }
 
-        // O(N)
-        for (int i{}; i < n; i++)
-            if (inDegree[i] == n - 1 && outdegree[i] == 0)
-                return i + 1;
+        for (int i{1}; i <= n; i++)
+            if (inDegree[i] == n - 1 && outDegree[i] == 0)
+                return i;
 
         return -1;
     }
