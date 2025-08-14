@@ -20,34 +20,42 @@ public:
 */
 
 /*
-Goal: Return a deep copy of the graph
-Intuition: Everytime need to produce a deep copy we need to keep track of the
-old and the new 1 at the same time So hash data structure can be use to keep
-track of the new and old 1 together, so we know where to place our new 1 based
-on our old one use dfs and if visited we return back Time Complexity: O(n) Space
-Complexity: O(n)
-*/
-class Solution {
-public:
-  Node *cloneGraph(Node *node) {
-    std::unordered_map<Node *, Node *> mapping_Old_New;
-    return dfs(mapping_Old_New, node);
-  }
+ * Goal: Return a deep copy of the graph
+ *
+ * Intuition:
+ * We need to clone every single node in the graph and also the relationship between nodes should be the same
+ * We can dfs through the graph to find out all the nodes. We can use a hashmap to map the old node to the new node
+ * We also can use the map to determine whether is the same node is being access or not, if is it then we simply just
+ * return the newly created 1 instead of creating a new 1
+ *
+ * Time Complexity: O(n)
+ * */
 
-  Node *dfs(std::unordered_map<Node *, Node *> &mapping_Old_New, Node *node) {
-    if (node == nullptr)
-      return nullptr;
+#include <unordered_map>
+class Solution
+{
+  public:
+    Node *cloneGraph(Node *node)
+    {
+        std::unordered_map<Node *, Node *> mapping;
+        return dfs(mapping, node);
+    }
 
-    // check we visit this node before or not
-    if (mapping_Old_New.count(node))
-      return mapping_Old_New[node];
+    Node *dfs(std::unordered_map<Node *, Node *> &mapping, Node *currNode)
+    {
+        if (!currNode)
+            return nullptr;
 
-    Node *copy = new Node(node->val);
-    mapping_Old_New[node] = copy;
+        // Check whether this node is visited or not
+        if (mapping.find(currNode) != mapping.end())
+            return mapping[currNode];
 
-    for (const auto &nb : node->neighbors)
-      copy->neighbors.emplace_back(dfs(mapping_Old_New, nb));
+        Node *cloneNode = new Node(currNode->val);
+        mapping[currNode] = cloneNode;
 
-    return copy;
-  }
+        for (const auto &neigh : currNode->neighbors)
+            cloneNode->neighbors.emplace_back(dfs(mapping, neigh));
+
+        return cloneNode;
+    }
 };

@@ -1,69 +1,68 @@
-/*
-Goal: Return the minimum number of minutes that must elpase until there are 0
-fresh fruit NOTE: Every minute, if a fresh fruit is horizontally or vertically
-adjacent to a rotten fruit, then the fresh fruit also become rotten. Intuition:
-So the fresh fruit take place next (horizontally or vertically) to a rotten
-fruit it will turns rotten. So we only need to know the position of rotten
-fruit. And every minute all the fresh fruit rotten at the same time Time
-Complexity: O(m*n) Space Complexity: O(m*n)
-*/
 #include <deque>
+#include <utility>
 #include <vector>
+/*
+ * Goal: Return the minimum number of minutes that must elapse until there are zero fresh fruits remaining. If this
+ * state is impossible within the grid, return -1.
+ *
+ * Intuition:
+ * This is a graph problem. So if we compare bfs & dfs. BFS will be much more simplier.
+ * We just have to bfs from the rotten fruits.
+ * We also need to keep track of all the fruit as well because we only return the time if all fruit turn rotten
+ *
+ * Time Complexity: O(m * n)
+ * */
+class Solution
+{
+  private:
+    std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-class Solution {
-public:
-  const std::vector<std::pair<int, int>> DIRECTIONS = {
-      {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+  public:
+    int orangesRotting(std::vector<std::vector<int>> &grid)
+    {
+        int ROWS(grid.size()), COLS(grid[0].size());
+        // Store all the rotten fruit that gonna spread on the next wave
+        std::deque<std::pair<int, int>> queue;
 
-  int orangesRotting(std::vector<std::vector<int>> &grid) {
+        int freshFruit{};
+        for (int i{}; i < ROWS; i++)
+            for (int j{}; j < COLS; j++)
+            {
+                if (grid[i][j] == 1)
+                    freshFruit++;
+                else if (grid[i][j] == 2)
+                    queue.emplace_back(i, j);
+            }
 
-    int n_row = grid.size();
-    int n_col = grid[0].size();
+        int time{};
 
-    int n_freshfruit = 0;
+        while (!queue.empty() && freshFruit > 0)
+        {
+            // Take note at the same time, every rotten fruit spread at the same time for the same wave
+            int nRottenFruit(queue.size());
 
-    // to keep track of the position of the rotten fruit
-    std::deque<std::pair<int, int>> rottenfruit_pos;
-    int time = 0;
+            while (nRottenFruit)
+            {
+                auto currCell{queue.front()};
+                queue.pop_front();
 
-    for (int row = 0; row < n_row; row++)
-      for (int col = 0; col < n_col; col++) {
-        if (grid[row][col] == 1)
-          n_freshfruit++;
-        if (grid[row][col] == 2)
-          rottenfruit_pos.emplace_back(row, col);
-      }
+                for (const auto &direction : DIRECTIONS)
+                {
+                    int newRow{direction.first + currCell.first}, newCol{direction.second + currCell.second};
 
-    if (n_freshfruit == 0)
-      return 0;
-    if (rottenfruit_pos.empty())
-      return -1;
+                    if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || grid[newRow][newCol] != 1)
+                        continue;
 
-    // now we stimulate every single minute
-    while (n_freshfruit > 0 && !rottenfruit_pos.empty()) {
-      int curr_size = rottenfruit_pos.size();
+                    queue.emplace_back(newRow, newCol);
+                    // Mark it so that we wont revisit again
+                    grid[newRow][newCol] = 2;
+                    freshFruit--;
+                }
+                nRottenFruit--;
+            }
 
-      // At this minute every fresh fruit that is adjacent to the rotten fruit
-      // will get rotten
-      for (int i = 0; i < curr_size; i++) {
-        const auto [y, x] = rottenfruit_pos.front();
-        rottenfruit_pos.pop_front();
-
-        for (const auto &[_y, _x] : DIRECTIONS) {
-          int new_y = y + _y;
-          int new_x = x + _x;
-
-          if (new_x < 0 || new_y < 0 || new_x >= n_col || new_y >= n_row ||
-              grid[new_y][new_x] != 1)
-            continue;
-
-          n_freshfruit--;
-          grid[new_y][new_x] = 2;
-          rottenfruit_pos.emplace_back(new_y, new_x);
+            time++;
         }
-      }
-      time++;
+        return freshFruit == 0 ? time : -1;
     }
-    return (n_freshfruit != 0) ? -1 : time;
-  }
 };

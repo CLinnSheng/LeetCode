@@ -1,57 +1,57 @@
-/*
-Goal: Fill each land cell with the distance to its nearest treasure chest.
-Intuition: We need dfs from the position of treasure. So just  + 1 from the
-distance of previous cell so for the the first land of the traverse from
-treasure will be 0 + 1 because distance of treasure itself will be 0 and then
-everytime we reach a land we will just take the min because it might be visit
-from other treasure position as well Space Complexity: O(m*n) Time
-Complexity:O(m*n)
-*/
-#include <cstdint>
-#include <ios>
-#include <iostream>
+#include <climits>
+#include <deque>
 #include <utility>
 #include <vector>
 
-class Solution {
-public:
-  const std::vector<std::pair<int, int>> DIRECTIONS = {
-      {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+/*
+ * grid[i][j]:
+ * 0 --> Treasure
+ * -1 --> Water, cannot traverse
+ * inf --> land cell that can traverse
+ *
+ * Goal: Fill each land cell with the distance to its nearest chest. If cannot reach then remain INF
+ * NOTE: edit it inplace
+ *
+ *
+ * Intuition:
+ * This is a graph problem. Using bfs will be much more easier than using dfs
+ * How can we handle so that we wont revist the same cell again? How do we manage different source to a destination and
+ * choose which value? So to make thing easier we can bfs from the treasure, then simply take the previous cell value
+ * + 1. And we only visit those cell with INF because visited cell wont be INF anymore
+ *
+ * Time Complexity: O(m * n)
+ * */
+class Solution
+{
+  private:
+    const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-  void islandsAndTreasure(std::vector<std::vector<int>> &grid) {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+  public:
+    void islandsAndTreasure(std::vector<std::vector<int>> &grid)
+    {
+        std::deque<std::pair<int, int>> queue;
+        int ROWS(grid.size()), COLS(grid[0].size());
+        // Push all the treasures first
+        for (int i{}; i < ROWS; i++)
+            for (int j{}; j < COLS; j++)
+                if (grid[i][j] == 0)
+                    queue.emplace_back(i, j);
 
-    if (grid.empty())
-      return;
+        while (!queue.empty())
+        {
+            auto top{queue.front()};
+            queue.pop_front();
 
-    int n_row = grid.size(), n_col = grid[0].size();
-    std::deque<std::pair<int, int>> queue;
+            for (const auto &direction : DIRECTIONS)
+            {
+                int newRow{direction.first + top.first}, newCol{direction.second + top.second};
 
-    for (int row = 0; row < n_row; row++)
-      for (int col = 0; col < n_col; col++)
-        if (grid[row][col] == 0)
-          queue.emplace_back(row, col);
+                if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || grid[newRow][newCol] != INT_MAX)
+                    continue;
 
-    while (!queue.empty()) {
-      const auto &coordinate = queue.front();
-      queue.pop_front();
-      int y = coordinate.first;
-      int x = coordinate.second;
-
-      for (const auto &[_row, _col] : DIRECTIONS) {
-        auto new_row = y + _row;
-        auto new_col = x + _col;
-
-        if (new_row < 0 || new_col < 0 || new_col >= n_col ||
-            new_row >= n_row || grid[new_row][new_col] != INT_MAX)
-          continue;
-
-        grid[new_row][new_col] =
-            std::min(grid[new_row][new_col], grid[y][x] + 1);
-        queue.emplace_back(new_row, new_col);
-      }
+                grid[newRow][newCol] = std::min(grid[newRow][newCol], grid[top.first][top.second] + 1);
+                queue.emplace_back(newRow, newCol);
+            }
+        }
     }
-  }
 };
