@@ -1,63 +1,58 @@
-/*
- * Goal: Return the ordering of courses. IF it is impossible to finish all
- * courses means theres a cycle then return an empty array NOTE:
- * prerequisites[i] = [ai, bi] where ai is the course and bi is the prequisite
- * course
- *
- * Intuition: Since there is a connection between ai and bi, so we can draw a
- * graph from vertex a to vertex b for every single prerequisites. The reason
- * why a to b because we need b before a. So we will traverse all the way down
- * to the child node as this course is prerequisite of all the courses before
- * it. So we will insert it into the output. Use a set data structrue to store
- * all the courses that we visited and already confirm it wont produce a cyce,
- * so when we encounter a courses that require the same prerequisites course, we
- * dont have to traverse the graph again Use a set data strucutre to keep track
- * of the nodes currently visiting so that it wont produce a cycle. Time
- * Complexity: O(V + E) Space Complexity: O(V + E)
- */
 #include <functional>
-#include <unordered_set>
 #include <vector>
 
-class Solution {
-public:
-  std::vector<int> findOrder(int numCourses,
-                             std::vector<std::vector<int>> &prerequisites) {
+/*
+ * prerequisites[i] = [ai, bi] take course ai, must take course bi first
+ * Goal: Return a valid ordering of course you acn take all course.
+ *
+ * Intuition:
+ * A bit similar to the first version of course_schedule. but just a little bit tweek.
+ * We can make use of the first version to find whether is it possible to have all course or not
+ * by just checking got cycle or not
+ * Since this is finding the order of course taken, we need another array to keep track of all the course we taken. So
+ * that we no need to go through the same prerequisiteCourse again
+ * Time COmplexity: O(V + E)
+ * */
+class Solution
+{
+  public:
+    std::vector<int> findOrder(int numCourses, std::vector<std::vector<int>> &prerequisites)
+    {
+        std::vector<std::vector<int>> adjList(numCourses);
+        for (const auto &prerequisite : prerequisites)
+            adjList[prerequisite[0]].emplace_back(prerequisite[1]);
 
-    std::unordered_set<int> visited_courses;
-    std::unordered_set<int> check_cycles;
+        std::vector<int> answer{};
+        std::vector<bool> cycles(numCourses, false), courseTaken(numCourses, false);
 
-    // build an adjList
-    std::vector<std::vector<int>> adjList(numCourses, std::vector<int>());
+        std::function<bool(const int &)> dfs = [&](const int &currCourse) {
+            if (cycles[currCourse])
+                return false;
 
-    for (const auto &courses : prerequisites)
-      adjList[courses[0]].emplace_back(courses[1]);
+            // If already taken this course no need to put into the array again
+            // So means the this course is a prerequisiteCourse and already taken
+            if (courseTaken[currCourse])
+                return true;
 
-    std::vector<int> ans;
+            // Mark this course as visited
+            cycles[currCourse] = true;
 
-    std::function<bool(const int &)> dfs = [&](const int &curr_node) {
-      if (check_cycles.count(curr_node))
-        return false;
-      if (visited_courses.count(curr_node))
-        return true;
+            for (const auto &prerequisiteCourse : adjList[currCourse])
+                if (!dfs(prerequisiteCourse))
+                    return false;
 
-      check_cycles.insert(curr_node);
+            answer.emplace_back(currCourse);
+            courseTaken[currCourse] = true;
 
-      for (const auto &neigh : adjList[curr_node])
-        if (!dfs(neigh))
-          return false;
+            // Unmark in case other course need this as prerequisite as well
+            cycles[currCourse] = false;
+            adjList[currCourse].clear();
+            return true;
+        };
+        for (int i{}; i < numCourses; i++)
+            if (!dfs(i))
+                return {};
 
-      check_cycles.erase(curr_node);
-      visited_courses.insert(curr_node);
-      ans.emplace_back(curr_node);
-
-      return true;
-    };
-
-    for (int i = 0; i < numCourses; i++)
-      if (!dfs(i))
-        return {};
-
-    return std::move(ans);
-  }
+        return answer;
+    }
 };

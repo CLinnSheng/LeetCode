@@ -1,51 +1,53 @@
-/*
-Goal: Check whether can we finish all courses or not
-CONSTRAINT: for prequisites[i] = [ai, bi] if u want to take bi u need to take ai
-Intuition: Check whether theres a cycle in a graph (waiting cycle)
-So we will build the graph first and then dfs the graph and check whether did we
-visit a node that is already visited Time Complexity : O(V+E) because in worst
-case we traverse every single edge and node Space Complexity : O(V+E)
-*/
 #include <functional>
-#include <unordered_set>
 #include <vector>
 
-class Solution {
-public:
-  bool canFinish(int numCourses, std::vector<std::vector<int>> &prerequisites) {
-    if (prerequisites.size() == 1)
-      return true;
+/*
+ * prerequisites[i] = [ai, bi] where u must take course b before course a
+ * Goal: Return true if possible to finish all course.
+ *
+ * Intuition:
+ * From one of the example [1, 0], [0, 1]. We can see this 2 course is depends on one another.
+ * So we can treat each course as a node and build a graph on it.
+ * So if we have cycle in a graph means that some of the courses are depends on one another. therefore
+ * we cannot complete all the courses
+ * */
+class Solution
+{
+  public:
+    bool canFinish(int numCourses, std::vector<std::vector<int>> &prerequisites)
+    {
+        std::vector<std::vector<int>> adjList(numCourses);
+        for (const auto &prerequisite : prerequisites)
+            adjList[prerequisite[0]].emplace_back(prerequisite[1]);
 
-    std::vector<std::vector<int>> adjList(numCourses, std::vector<int>());
+        std::vector<bool> visited(numCourses, false);
 
-    for (const auto &pre : prerequisites)
-      adjList[pre[0]].emplace_back(pre[1]);
+        std::function<bool(const int &)> dfs = [&](const int &currCourse) {
+            if (visited[currCourse])
+                return false;
 
-    std::unordered_set<int> visitedNode;
+            // if no more prerequisites for this course
+            if (adjList[currCourse].empty())
+                return true;
 
-    std::function<bool(const int &)> dfs = [&](const int &curr_node) {
-      if (visitedNode.count(curr_node))
-        return false;
-      // if we reach the end
-      if (adjList[curr_node].empty())
+            visited[currCourse] = true;
+
+            for (const auto &prerequisite : adjList[currCourse])
+                if (!dfs(prerequisite))
+                    return false;
+
+            // Pruning as the first time we visit this course and can complete it we can remove it from the graph
+            // as the second time traverse tothis node we already know we can done this course
+            adjList[currCourse].clear();
+            visited[currCourse] = false;
+
+            return true;
+        };
+
+        for (int i{}; i < numCourses; i++)
+            if (!dfs(i))
+                return false;
+
         return true;
-
-      visitedNode.insert(curr_node);
-
-      for (const auto &i : adjList[curr_node])
-        if (!dfs(i))
-          return false;
-
-      visitedNode.erase(curr_node);
-      // clean the graph for the completed traversal
-      adjList[curr_node].clear();
-      return true;
-    };
-
-    for (int i = 0; i < numCourses; i++)
-      if (!dfs(i))
-        return false;
-
-    return true;
-  }
+    }
 };

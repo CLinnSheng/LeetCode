@@ -16,6 +16,7 @@
  * So is either DFS / BFS. Since the question is asking for finding the minimum number, so we can only use
  * BFS.
  *
+ * Time Complexity: O(m)
  * */
 class Solution
 {
@@ -45,8 +46,13 @@ class Solution
     int openLock(std::vector<std::string> &deadends, std::string target)
     {
         std::unordered_set<std::string> visited(deadends.begin(), deadends.end());
+        // edge case
+        if (visited.find("0000") != visited.end())
+            return -1;
+
         std::deque<std::pair<std::string, int>> queue;
         queue.emplace_back("0000", 0);
+        visited.insert("0000");
 
         while (!queue.empty())
         {
