@@ -1,60 +1,62 @@
-/*
-Goal: Find the number of connected components in an undirected graphs
-Intuition: Use UnionFind algorithm to connect and check whether got cycle or not
-Time Complexity: O(n + E) [The time complexity of the root is O(a(n)) is almost
-constant because of path compression O(1)] Space Complexity: O(n)
-*/
+#include <unordered_set>
 #include <vector>
 
-class Solution {
-public:
-  /**
-   * @param n: the number of vertices
-   * @param edges: the edges of undirected graph
-   * @return: the number of connected components
-   */
+/*
+ * Goal: Find the number of components.
+ * All nodes that connected together is considered as a component
+ *
+ * Intuition:
+ * For this we can use unionFind algorithm to find all the nodes that connected together.
+ * Then iterate through the array to find how many distinct parent are there
+ *
+ * Another method will just simply by use dfs on every single node, see how far it can go and mark those visited node
+ * Time Complexity: O(n)
+ * */
+class Solution
+{
+  private:
+    int findParent(const int &node, std::vector<int> &parents)
+    {
+        if (node != parents[node])
+            parents[node] = findParent(parents[parents[node]], parents);
 
-  int countComponents(int n, std::vector<std::vector<int>> &edges) {
+        return parents[node];
+    }
+    void unionFind(const int &node1, const int &node2, std::vector<int> &parents, std::vector<int> &ranks)
+    {
+        int parent1{findParent(node1, parents)};
+        int parent2{findParent(node2, parents)};
 
-    ranks.resize(n);
-    parents.resize(n);
+        if (parent1 == parent2)
+            return;
 
-    for (int i = 0; i < n; i++) {
-      ranks[i] = 1;
-      parents[i] = i;
+        if (ranks[parent1] > ranks[parent2])
+        {
+            parents[parent2] = parent1;
+            ranks[parent1] += ranks[parent2];
+        }
+        else
+        {
+            parents[parent1] = parent2;
+            ranks[parent2] += ranks[parent1];
+        }
     }
 
-    int n_nodes{n};
+  public:
+    int countComponents(int n, std::vector<std::vector<int>> &edges)
+    {
+        std::vector<int> parents(n), ranks(n, 1);
+        for (int i{}; i < n; i++)
+            parents[i] = i;
 
-    for (const auto &edge : edges)
-      n_nodes -= UnionFind(edge[0], edge[1]);
-    return n_nodes;
-  }
+        for (const auto &edge : edges)
+            unionFind(edge[0], edge[1], parents, ranks);
 
-private:
-  std::vector<int> ranks;
-  std::vector<int> parents;
-  int UnionFind(const int &node1, const int &node2) {
-    int p1 = findParent(node1);
-    int p2 = findParent(node2);
+        // Build the parents again after connecting all the comonent
+        for (int i{}; i < n; i++)
+            findParent(i, parents);
 
-    // if same root dont connect
-    if (p1 == p2)
-      return 0;
-
-    if (ranks[p1] > ranks[p2]) {
-      parents[p2] = p1;
-      ranks[p1] += ranks[p2];
-    } else {
-      parents[p1] = p2;
-      ranks[p2] += ranks[p1];
+        std::unordered_set<int> answer(parents.begin(), parents.end());
+        return answer.size();
     }
-    return 1;
-  }
-
-  int findParent(const int &node) {
-    if (parents[node] != node)
-      parents[node] = findParent(parents[parents[node]]);
-    return parents[node];
-  }
 };

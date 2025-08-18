@@ -2,74 +2,66 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-using std::vector;
 
 /*
- * Total of numCourses have to take from 0 to numCourses - 1.
- * Given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course ai first if you
- * want to take course bi.
- * prerequisites can be indirect. eg: a is the prerequisite of course b, and course b is a prequisite of course c,
- * then a is the prerequisites of course c.
- * queries[j] = [uj, vj]. For the jth query, answer whether course uj is a prerequisite of course vj or not.
- * Goal: Return a boolean array where answer[j] is the answer to the jth query.
+ * Goal: Check every single query whether queries[uj, kj] course uj is a prerequisite course of kj
  *
  * Intuition:
- * This is a graph problem, we can simply just use dfs to search from the prerequisites courses to the target courses
- * if we able to reach means the query is true. This is actually a brute force way.
- * Time Complexity: O(V + E) * m
+ * The brute force way will be iterating through every single queries then just dfs through to check whether is it a
+ * prerequisite or not Time Complexity: O(V + E) * m
  *
- * The way we can optimize this is through memoziation because from the brute force way, we
- * can see there is actually lots of overlapping of subproblem. So we can optimize it through caching or dp or
- * memoziatinon.
- *
- * Another way is actually using hash map and hash set. We would like to store all the prerequisites courses of A in a
- * hash set while traversing the graph
- *
+ * If we notice from the brute force, we actually solved some subproblem multiple times.
+ * How can we optimize it? Caching
+ * Time Complexity: O(V +E + m)
  * */
 class Solution
 {
-  private:
-    std::unordered_set<int> &dfs(const int &course, std::unordered_map<int, std::unordered_set<int>> &prereqMap,
-                                 const vector<vector<int>> &adjList)
-    {
-        // if already populate the current course just return it
-        if (prereqMap.count(course))
-            return prereqMap[course];
-
-        prereqMap[course] = std::unordered_set<int>();
-        for (const auto &preq : adjList[course])
-        {
-            auto &allpreqCourse = dfs(preq, prereqMap, adjList);
-            prereqMap[course].insert(allpreqCourse.begin(), allpreqCourse.end());
-        }
-
-        // need to include the current course because we return to the parent course
-        prereqMap[course].insert(course);
-        return prereqMap[course];
-    }
-
   public:
-    vector<bool> checkIfPrerequisite(int numCourses, vector<vector<int>> &prerequisites, vector<vector<int>> &queries)
+    std::vector<bool> checkIfPrerequisite(int numCourses, std::vector<std::vector<int>> &prerequisites,
+                                          std::vector<std::vector<int>> &queries)
     {
-        // build an adjList
-        vector<vector<int>> adjList(numCourses, std::vector<int>());
+        std::vector<std::vector<int>> adjList(numCourses);
+        std::unordered_map<int, std::unordered_set<int>> caching;
 
-        for (const auto &prerequisite : prerequisites)
-        {
-            auto course{prerequisite[1]};
-            auto prereqCourse{prerequisite[0]};
+        for (const auto &edge : prerequisites)
+            adjList[edge[0]].emplace_back(edge[1]);
 
-            adjList[course].emplace_back(prereqCourse);
-        }
+        std::vector<bool> answer;
 
-        std::unordered_map<int, std::unordered_set<int>> prereqMap;
+        // std::function<bool(const int &, const int &)> dfs = [&](const int &currCourse, const int &targetCourse) {
+        //     if (currCourse == targetCourse)
+        //         return true;
+        //
+        //     for (const auto &pre : adjList[currCourse])
+        //         if (dfs(pre, targetCourse))
+        //             return true;
+        //     return false;
+        // };
+
+        // for (const auto &query : queries)
+        //     answer.emplace_back(dfs(query[0], query[1]));
+
+        std::function<std::unordered_set<int>(const int &)> dfs = [&](const int &currCourse) {
+            // If already traverse before
+            if (caching.find(currCourse) != caching.end())
+                return caching[currCourse];
+
+            caching[currCourse] = std::unordered_set<int>();
+
+            for (const auto &course : adjList[currCourse])
+            {
+                auto allPreqCourses{dfs(course)};
+                caching[currCourse].insert(allPreqCourses.begin(), allPreqCourses.end());
+            }
+
+            // Include itself becaues we returning to the parent course
+            caching[currCourse].insert(currCourse);
+            return caching[currCourse];
+        };
         for (int i{}; i < numCourses; i++)
-            dfs(i, prereqMap, adjList);
-
-        vector<bool> answer;
-        for (int i{}; i < queries.size(); i++)
-            answer.emplace_back((prereqMap[queries[i][1]].count(queries[i][0])) ? true : false);
-
+            dfs(i);
+        for (const auto &query : queries)
+            answer.emplace_back(caching[query[0]].find(query[1]) != caching[query[0]].end());
         return answer;
     }
 };
