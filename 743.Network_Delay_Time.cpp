@@ -1,59 +1,59 @@
-#include <climits>
 #include <functional>
 #include <queue>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+using std::vector;
 
 /*
- * Goal: Find the minimum time where all the nodes receive signal
- * Intuition: We can use dijkstra algorithm and try to use every single node as
- * the starting source node. And then check whether the size of set
- * datastructure is equivalent to the nubmer of nodes exists in the graph
- * Time Complexity: O(ElgV) because at worst we will have V^2 of edges and it
- * each operation takes logV^2 which can be reduce to logV and the at worst we
- * do the operation E times. Space Compleixty: O(V + E)
+ * times[i] = (ui, vi, ti)
+ * ui - source source node
+ * vi - target node
+ * ti - time taken for a signal travel from source to target node
+ *
+ * Goal: Return the minimum time it takes for all of the n nodes to receive the signal otherwise return 0 if impossible
+ *
+ * Intuition:
+ * Question asking for the "minimum time" to reach and is also a graph problem.
+ * First intuition is use  dijkstra algorithm
+ * Time Complexity: O(ElgE)
  * */
+class Solution
+{
+  public:
+    int networkDelayTime(vector<vector<int>> &times, int n, int k)
+    {
+        // Build adjList
+        vector<vector<std::pair<int, int>>> adjList(n, vector<std::pair<int, int>>());
+        for (const auto &time : times)
+            adjList[time[0] - 1].emplace_back(time[1] - 1, time[2]);
 
-struct comparator {
-  bool operator()(const std::pair<int, int> &a, const std::pair<int, int> &b) {
-    return a.first > b.first;
-  }
-};
+        // Visited set to prevent cycle
+        std::unordered_set<int> visited;
 
-class Solution {
-public:
-  int networkDelayTime(std::vector<std::vector<int>> &times, int n, int k) {
-    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>,
-                        comparator>
-        minHeap;
+        std::priority_queue<std::pair<int, int>, vector<std::pair<int, int>>, std::greater<std::pair<int, int>>>
+            minHeap;
+        minHeap.emplace(0, k - 1);
 
-    std::vector<std::vector<std::pair<int, int>>> adjList(
-        n, std::vector<std::pair<int, int>>());
+        int answer{};
 
-    // building the adjList
-    for (const auto &time : times)
-      adjList[time[0] - 1].emplace_back(std::make_pair(time[1] - 1, time[2]));
+        while (!minHeap.empty())
+        {
+            auto [currWeight, currNode]{minHeap.top()};
+            minHeap.pop();
 
-    int minTime{};
-    std::unordered_set<int> visited;
+            if (visited.count(currNode))
+                continue;
 
-    minHeap.emplace(std::make_pair(0, k - 1));
+            // Put over here because the last node we visit will change this value
+            answer = currWeight;
+            visited.insert(currNode);
 
-    while (!minHeap.empty()) {
-      auto [currWeight, currNode] = minHeap.top();
-      minHeap.pop();
+            for (const auto &[neighNode, neighWeight] : adjList[currNode])
+                if (!visited.count(neighNode))
+                    minHeap.emplace(neighWeight + currWeight, neighNode);
+        }
 
-      if (visited.count(currNode))
-        continue;
-
-      visited.insert(currNode);
-      minTime = currWeight;
-
-      for (const auto &[neighNode, neighWeight] : adjList[currNode])
-        if (!visited.count(neighNode))
-          minHeap.emplace(std::make_pair(neighWeight + currWeight, neighNode));
+        return visited.size() == n ? answer : -1;
     }
-    return visited.size() == n ? minTime : -1;
-  }
 };
