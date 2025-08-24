@@ -16,7 +16,7 @@ using std::vector;
  * Intuition:
  * Question asking for the "minimum time" to reach and is also a graph problem.
  * First intuition is use  dijkstra algorithm
- * Time Complexity: O(ElgE)
+ * Time Complexity: O(ElgV)
  * */
 class Solution
 {
