@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <deque>
 #include <string>
 #include <unordered_map>
@@ -5,91 +6,87 @@
 #include <vector>
 
 /*
- * Goal: Derive the order of letters in this language, if order is invalid
-return empty string and if there are multiple of them return any
+ * Receive a list of non empty strings, words. The words are sorted lexcigoraphically based
+ * on the rules of new languages.
+ * Goal: Derive the order of letters in this new language.
  *
- * Intuition: This is actually a graph problem as one character will point to
-the next character and we also can observe
- * this is a topological sort graph, as a character must comes after another
-character Detect if there is any contradiction in the ordering rules, such as a
-cycle in the graph which would make it impossible to determine the order, or an
-improper ordering like a word being a prefix of a previous word but appearing
-later in the list. Assuming the ordering rules do not contain contradictions,
-perform a topological sort on the graph to find the alien language character
-order. If we can complete the topological sort with all characters accounted
-for, we have successfully identified a possible alien language order. Otherwise,
-we return an empty string.
- * Time Complexity: O(V + E + N)
- * Space Complexity: O(V + N) where V is the number of unique charaters & N is
-the number of word
- */
+ * NOTE: String a is lexcigoraphically smaller than string b if either of the following is true:
+ * i. First letter differ is smaller in a than b.
+ * ii. a is prefix of b and a.length < b.length
+ *
+ * Intuition:
+ * We can treat each character as a node in the graph. Then the edge will be the order of the new langauges.
+ * So basically we will form a graph of edges to find which word come after which word.
+ * We also need to use inDegree. This indegree can help us determine whether does any character come before this
+ * character or not
+ *
+ * Time Complexity: O(L + E + V)
+ * */
 class Solution
 {
   public:
     std::string foreignDictionary(std::vector<std::string> &words)
     {
-
-        // graph
+        std::string ans{};
         std::unordered_map<char, std::unordered_set<char>> graph;
         std::unordered_map<char, int> inDegree;
 
-        // initialize the graph
-        // O(N)
-        for (const std::string &word : words)
-            for (const char &ch : word)
+        // Initialize
+        // O(L)
+        for (const auto &word : words)
+            for (const auto &ch : word)
             {
                 graph[ch] = std::unordered_set<char>();
                 inDegree[ch] = 0;
             }
 
-        // character seen so for
-        int numCharacters{};
-        int wordCount(words.size());
-
-        // Building the graph
-        for (int i{}; i < wordCount - 1; i++)
+        // O(L)
+        for (int word{}; word < words.size() - 1; word++)
         {
-            std::string currentWord{words[i]}, nextWord{words[i + 1]};
-            int minLen = std::min(currentWord.length(), nextWord.length());
+            std::string currWord{words[word]}, nextWord{words[word + 1]};
+            int minLen(std::min(currWord.length(), nextWord.length()));
 
-            // nextWord cannot be the prefix of the currentWord
-            if (currentWord.length() > nextWord.length() && currentWord.substr(0, minLen) == nextWord.substr(0, minLen))
+            // Base Case Checking
+            if (currWord.length() > nextWord.length() && currWord.substr(0, minLen) == nextWord.substr(0, minLen))
                 return "";
 
-            for (int j{}; j < minLen; j++)
-                if (currentWord[j] != nextWord[j])
+            for (int i{}; i < minLen; i++)
+            {
+                // Check whether got same character or not
+                if (currWord[i] != nextWord[i])
                 {
-                    if (!graph[currentWord[j]].count(nextWord[j]))
+                    if (!graph[currWord[i]].count(nextWord[i]))
                     {
-                        graph[currentWord[j]].insert(nextWord[j]);
-                        inDegree[nextWord[j]]++;
+                        graph[currWord[i]].insert(nextWord[i]);
+                        inDegree[nextWord[i]]++;
                     }
                     break;
                 }
+            }
         }
 
-        // only push those with 0 indegree because they are the starting character
-        // in the dictionary
-        std::deque<char> q;
+        std::deque<char> queue;
+        // Push those with 0 degree, means no 1 is depends on it. Then
+        // it will be the first few character in the dictionary
         // O(V)
-        for (auto &[ch, deg] : inDegree)
-            if (deg == 0)
-                q.emplace_back(ch);
+        for (const auto &[ch, freq] : inDegree)
+            if (freq == 0)
+                queue.emplace_back(ch);
 
-        std::string ans{};
         // O(E)
-        while (!q.empty())
+        while (!queue.empty())
         {
-            char currentChar = q.front();
-            q.pop_front();
+            auto currChar{queue.front()};
+            queue.pop_front();
 
-            ans += currentChar;
+            ans += currChar;
 
-            for (char neighbourChar : graph[currentChar])
-                if (--inDegree[neighbourChar] == 0)
-                    q.emplace_back(neighbourChar);
+            for (const auto &neigh : graph[currChar])
+                // Only push when is equal to 0
+                // means no character comes before it
+                if (--inDegree[neigh] == 0)
+                    queue.emplace_back(neigh);
         }
-
-        return ans.size() < inDegree.size() ? "" : ans;
+        return inDegree.size() == ans.length() ? ans : "";
     }
 };
