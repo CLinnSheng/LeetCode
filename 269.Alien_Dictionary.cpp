@@ -8,11 +8,6 @@
  * Goal: Derive the order of letters in this language, if order is invalid
 return empty string and if there are multiple of them return any
  *
- *
- * string a is lexicographically smaller than a string b if either of the
-following is true: The first letter where they differ is smaller in a than in b.
-    There is no index i such that a[i] != b[i] and a.length < b.length.
- *
  * Intuition: This is actually a graph problem as one character will point to
 the next character and we also can observe
  * this is a topological sort graph, as a character must comes after another
