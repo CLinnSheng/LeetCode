@@ -20,43 +20,47 @@ Space Complexity: O(n)
 class Solution
 {
   private:
-    // dp[i] stands for at ith index, whats the maximum value that it has robbed until ith house by following the
-    // constraint
-    std::vector<int> dp;
-    int helper(const int &index, std::vector<int> &nums)
+    int helper(const std::vector<int> &nums, std::vector<int> &dp, int index)
     {
-        // base case
         if (index >= nums.size())
             return 0;
 
-        // memoziation
         if (dp[index] != -1)
             return dp[index];
 
-        return dp[index] = std::max(helper(index + 1, nums), nums[index] + helper(index + 2, nums));
+        // Choose or not choose to rob
+        dp[index] = std::max(nums[index] + helper(nums, dp, index + 2), helper(nums, dp, index + 1));
+
+        return dp[index];
     }
 
   public:
     int rob(std::vector<int> &nums)
     {
-        if (nums.size() == 1)
+        int n(nums.size());
+        // first approach brute force Recursion
+        // then optimize with caching
+        // so the information we need to pass down is just the index
+        // dp[i] is the maximum amount of money we can get from 0 to ith
+        // std::vector<int> dp(n, -1);
+        // helper(nums, dp, 0);
+        //
+        // // return by comparing first and second because we might start from second house
+        // return std::max(dp[0], dp[1]);
+
+        // Second Approach bottom up
+        if (n == 1)
             return nums[0];
-        if (nums.empty())
-            return 0;
+        if (n == 2)
+            return std::max(nums[0], nums[1]);
 
-        dp = std::vector<int>(nums.size(), -1);
-
-        // // top-down
-        // return helper(0, nums);
-
-        // bottom up
+        std::vector<int> dp(n, 0);
         dp[0] = nums[0];
         dp[1] = std::max(nums[0], nums[1]);
 
-        for (int i{2}; i < nums.size(); i++)
-            // at ith index whether i - 1 (not including the ith house) or i - 2 (include the current house)
-            dp[i] = std::max(dp[i - 1], dp[i - 2] + nums[i]);
+        for (int i{2}; i < n; i++)
+            dp[i] = std::max(nums[i] + dp[i - 2], dp[i - 1]);
 
-        return dp[nums.size() - 1];
+        return dp[n - 1];
     }
 };
