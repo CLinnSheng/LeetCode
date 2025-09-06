@@ -1,20 +1,18 @@
-#include <cstdint>
 #include <string>
 #include <vector>
 
 /*
  * Given a string & find the longest palindrome.
  *
- * Intuition: By using naive approach double for loop for every single possible
- * comibnation of string and then another for loop to check whether is this a
- * valid palindrome or not
- * Time Complexity: O(n^3)
+ * Intuition:
+ * The naive approach is actually trying out every single possible substring.
+ * And then check whether is it palindrome or not
+ * The time complexity will be O(N^3) --> N^2 (Double loop) + N (Checking palindrome)
  *
- * Actually we dont have to check the whole string whether is it a valid
- * palindrome, we can use a much more clever way if s[i] == s[y] and then check
- * whether s[i - 1] == s[y - 1] or not. We can use dp as there is overlapping
- * subproblem & memoziation is implemented Time Complexity: O(n^2) Space
- * Complexity: O(n^2)
+ * If you notice on how we check the substring is it a palindrome or not.
+ * We actually check from the first and last letter then slowly move towards the center.
+ * We can observe that if the previous substring of [i + 1, j - 1] is palindrome and then str[i] == str[j] then [i, j]
+ * definitely is a substring This reduce the time complexity to O(n^2) We can use dp/memoziation
  */
 class Solution
 {
@@ -22,25 +20,31 @@ class Solution
     std::string longestPalindrome(std::string s)
     {
         int len(s.length());
+
+        // Base Case
         if (len == 1)
             return s;
 
+        int maxLen{}, startingIndex{};
         std::vector<std::vector<bool>> dp(len, std::vector<bool>(len, false));
-        int startingIndex;
-        int longestLen{};
 
+        // Start from the back, is much more easier
         for (int i{len - 1}; i >= 0; i--)
             for (int j{i}; j < len; j++)
+            {
+                // Check the character
+                // Check the string [i + 1, j -1]
                 if (s[i] == s[j] && (j - i + 1 <= 2 || dp[i + 1][j - 1]))
                 {
                     dp[i][j] = true;
-                    if (j - i + 1 > longestLen)
+
+                    if (j - i + 1 > maxLen)
                     {
-                        longestLen = j - i + 1;
+                        maxLen = j - i + 1;
                         startingIndex = i;
                     }
                 }
-
-        return s.substr(startingIndex, longestLen);
+            }
+        return s.substr(startingIndex, maxLen);
     }
 };

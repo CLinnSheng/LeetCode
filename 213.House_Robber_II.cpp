@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <functional>
 #include <vector>
 
 /*
@@ -12,31 +11,33 @@
  * Time Complexity: O(n)
  * Space Complexity: O(n)
  * */
-class Solution {
-public:
-  int rob(std::vector<int> &nums) {
-    if (nums.size() == 1)
-      return nums[0];
+class Solution
+{
+  private:
+    int helper(const std::vector<int> &nums)
+    {
+        std::vector<int> dp(nums.size(), 0);
+        dp[0] = nums[0];
+        dp[1] = std::max(nums[0],
+                         nums[1]); // Because we might skip the third house, so is better to rob 2nd house if larger
 
-    std::function<int(const std::vector<int> &)> helper =
-        [](const std::vector<int> &n) {
-          if (n.empty())
-            return 0;
-          if (n.size() == 1)
-            return n[0];
+        for (int i{2}; i < nums.size(); i++)
+            dp[i] = std::max(dp[i - 1], nums[i] + dp[i - 2]);
 
-          std::vector<int> dp(n.size());
-          dp[0] = n[0];
-          dp[1] = std::max(n[0], n[1]);
+        return dp[nums.size() - 1];
+    }
 
-          for (int i{2}; i < n.size(); i++)
-            dp[i] = std::max(dp[i - 1], dp[i - 2] + n[i]);
+  public:
+    int rob(std::vector<int> &nums)
+    {
+        if (nums.size() == 1)
+            return nums[0];
 
-          return dp.back();
-        };
-    // either startin from the first 1 or the second 1
-    // first 1 is from [1, n - 1] while second is from [2, n]
-    return std::max(helper(std::vector<int>(nums.begin(), nums.end() - 1)),
-                    helper(std::vector<int>(nums.begin() + 1, nums.end())));
-  }
+        // 1st Approach
+        // Recursive --> Caching
+        // 2nd Appraoch
+        // Bottom Up
+        return std::max(helper(std::vector<int>(nums.begin(), nums.end() - 1)),
+                        helper(std::vector<int>(nums.begin() + 1, nums.end())));
+    }
 };
