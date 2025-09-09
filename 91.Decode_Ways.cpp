@@ -1,77 +1,70 @@
-#include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
-
 /*
- * Message is decoded through the following mapping:
- * 1 -> 'A'
- * ... 26 - > 'Z'
+ * 'A' -> 1
+ * 'B' -> 2
+ * 'Z' -> 26
  *
- * While decoding the message, there are many different way to decode it\
- * eg: 121 --> 1 21 or 12 1
- * Goal: Return the number of ways to decode it
+ * Goal: Decode the message and return the number of ways to decode it
  *
  * Intuition:
- * At every index there is 2 ways to decode it is either 1 digit or 2 digit
- *      121
- *      / \
- *     1  12
- *    / \   \
- *  2  21    1
- * /
- *1
- * Therefore by brute force dfs down the string.
- * The time complexity will be O(2^n)
- *
- * We can further optimize this by using dynamic programming
- * because we can see overlapping subproblem
- * Time Complexity: O(n)
- * Space Complexity: O(n)
+ * At every index we can either choose to decode as a single character or double character
+ * eg: 1012 -> 10 12 or 10 1 2
+ * So the brute force will just simply recursion.
+ * We can optimize it by using caching.
+ * Time Complexity: O(n^2)
  * */
-class Solution {
-public:
-  int numDecodings(std::string s) {
-    if (s[0] == '0')
-      return 0;
-    // top-down approach
-    // std::unordered_map<int, int> dp;
-    // std::function<int(const int &)> dfs = [&](const int &index) {
-    //   // memoziation
-    //   if (dp.count(index))
-    //     return dp[index];
-    //
-    //   // base-case
-    //   if (index == s.length())
-    //     return 1;
-    //   // return 0 because cannot start with 0 but can end with 0 for 10 & 20
-    //   if (s[index] == '0')
-    //     return 0;
-    //
-    //   // first decision
-    //   int res{dfs(index + 1)};
-    //   if (index + 1 < s.length() &&
-    //       (s[index] == '1' || s[index] == '2' && s[index + 1] < '7'))
-    //     res += dfs(index + 2);
-    //   dp[index] = res;
-    //   return res;
-    // };
-    // return dfs(0);
+class Solution
+{
+  private:
+    int dfs(const std::string &s, const int index, std::vector<int> &caching)
+    {
+        // Base Case
+        if (index == s.length())
+            return 1;
 
-    // bottom up approach
-    std::vector<int> dp(s.size() + 1);
-    dp[s.size()] = 1;
+        // No zero leading
+        if (s[index] == '0')
+            return 0;
 
-    // same concept with top down approach (2 branch, choosing 1 or 2 digit)
-    // and then at every new index it will depends on the preivous 2 or 1
-    for (int i(s.size() - 1); i >= 0; i--)
-      if (s[i] == '0')
-        dp[i] = 0;
-      else {
-        dp[i] = dp[i + 1];
-        if (i + 1 < s.size() && (s[i] == '1' || s[i] == '2' && s[i + 1] < '7'))
-          dp[i] += dp[i + 2];
-      }
-    return dp[0];
-  }
+        if (caching[index] != -1)
+            return caching[index];
+        // Only one character
+        int cnt{dfs(s, index + 1, caching)};
+
+        // Then check whether can do 2 character or not
+        if (index + 1 < s.length() && (s[index] == '1' || (s[index] == '2' && s[index + 1] < '7')))
+            cnt += dfs(s, index + 2, caching);
+
+        return caching[index] = cnt;
+    }
+
+  public:
+    int numDecodings(std::string s)
+    {
+        // Improve by caching
+        // caching[i] = number ways to decode at ith position to end of string
+        std::vector<int> caching(s.length(), -1);
+        return dfs(s, 0, caching);
+
+        // Bottom up approach
+        // std::vector<int> dp(s.length() + 1);
+        // dp[s.length()] = 1;
+        //
+        // for (int index(s.length() - 1); index >= 0; index--)
+        // {
+        //      if (s[index] == '0')
+        //          dp[index] = 0;
+        //      else
+        //      {
+        //          dp[index] = dp[index + 1];
+        //          // Check for can make it 2 characters or not
+        // if (index + 1 < s.length() && (s[index] == '1' || (s[index] == '2' && s[index + 1] < '7')))
+        //          {
+        //              dp[index] = dp[index + 2];
+        //          }
+        //      }
+        // }
+        // return dp[0];
+    }
 };
