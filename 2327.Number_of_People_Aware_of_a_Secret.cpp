@@ -39,7 +39,7 @@ class Solution
                 auto val{know.front()};
                 know.pop_front();
 
-                knwCnt = (knwCnt - val.second) % MOD;
+                knwCnt = (knwCnt - val.second + MOD) % MOD;
 
                 // Update the share cnt and push into the list
                 shrCnt = (shrCnt + val.second) % MOD;
@@ -53,7 +53,7 @@ class Solution
                 auto val{share.front()};
                 share.pop_front();
 
-                shrCnt = (shrCnt - val.second) % MOD;
+                shrCnt = (shrCnt - val.second + MOD) % MOD;
             }
 
             // Then make all the people in the share list to share
@@ -62,7 +62,7 @@ class Solution
                 knwCnt = (knwCnt + shrCnt) % MOD;
 
                 // Push all the people in the know list also
-                know.emplace_back(std::make_pair(i, shrCnt));
+                know.emplace_back(std::make_pair(i, shrCnt % MOD));
             }
         }
         return (knwCnt + shrCnt) % MOD;
