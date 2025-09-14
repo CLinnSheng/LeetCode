@@ -2,62 +2,59 @@
 #include <vector>
 
 /*
- * Goal: Find the contiguous subarray with an array (at least contain one element) which has the largest product
- * nums[i] can be negative / positive
+ * Goal: Find the subarray that has the largest product
  *
  * Intuition:
- * The brute force way will just simply loop through every single index to find all the possible subarray.
- * This will have a triple loop O(n^3)
+ * The brute force will be just simply try out all possible subarray combination
+ * but this will take O(N^2)
  *
- * We can optimze this to O(N^2)
- * by having a value to store all the product before the jth product (outer loop is ith and then to jth)
+ * How can we optimize it?
+ * The element in nums can be negative or positive, so this make the decision for inlcude the element become more
+ * complicated. As negative * negative -> positive And also greater negative element * negative -> much more greater
+ * positive element So this lead us to think about always include more element as much as possible Another key
+ * observation is traversing the array in different direction will result in different answer eg: -1 -2 -3 left: -1 -> 2
+ * -> -6 right: -3 -> 6 -> -1 maximum product from left is 2 where from right is 6 So we can actually maintain a prefix
+ * and suffix array Time Complexity: O(n)
  *
- * Can we further optimize this to maybe linear time or in log
- * since nums[i] can be negative / positive so we need to come out with an algo / solution to deal with
- * negative element. If the array only contain positive element, we need to include as much as possible.
- * In the other hand, we try to minimize the number of negative elmeent in our subarray but this is not always the case
- * because a negative element * negative element --> positive element. How do we deal with this
- * eg: [-1, -2, -3]
- * -1 -> 2 -> -6 (traverse from the left)
- *  but the maximum we can find here is -2 * -3 -> 6, how can we get this??
- *  we can solve this problem by keeping track by the min and max element at every index ith, so that when we encounter
- * nums[i] which is a negative element when it times with negative element it will become positive which is much greater
- * than max * nums[i]
- * Time Complexity: O(n)
- *
- * Another approach is actually by using prefix & suffix because both go in different direction
- * because we can try out more diff possibilities.
- * NOTE: IS BETTER TO INCLUDE MORE ELEMENTS
+ * Another approach is actually using kadane.
+ * First the question only ask us to find the maximum product from the subarray but not finding the subarray
+ * So, we only care about the end result. Since we mention we want try to include more element as possible and having
+ * very least negative value is not a bad thing. So we can actually maintain a current max value and curr min value
  * */
 class Solution
 {
   public:
     int maxProduct(std::vector<int> &nums)
     {
-        int maxProduct{}, n(nums.size());
+        int n(nums.size());
+
         if (n == 1)
             return nums[0];
 
+        int answer{};
+
+        // Approach 1
         // int prefix{}, suffix{};
         //
-        // for (int i{}; i < n; i++)
+        // for (int i{}; i < nums.size(); i++)
         // {
         //     prefix = nums[i] * (prefix == 0 ? 1 : prefix);
         //     suffix = nums[n - i - 1] * (suffix == 0 ? 1 : suffix);
         //
-        //     maxProduct = std::max(maxProduct, std::max(prefix, suffix));
+        //     answer = std::max(answer, std::max(prefix, suffix));
         // }
 
-        // approach 2
-        int curMin{1}, curMax{1};
-        for (int i{}; i < n; i++)
+        int maxVal{1}, minVal{1};
+        for (const auto num : nums)
         {
-            int temp{curMax * nums[i]};
-            curMax = std::max(nums[i] * curMin, std::max(curMax * nums[i], nums[i]));
-            curMin = std::min(temp, std::min(curMin * nums[i], nums[i]));
+            // Still need to compare with num in case both maxVal and minVal is negative
+            // so we have a new subarray starting from num
+            int temp{maxVal};
+            maxVal = std::max(num * maxVal, std::max(num, num * minVal));
+            minVal = std::min(num * temp, std::min(num, num * minVal));
 
-            maxProduct = std::max(curMax, maxProduct);
+            answer = std::max(maxVal, answer);
         }
-        return maxProduct;
+        return answer;
     }
 };
