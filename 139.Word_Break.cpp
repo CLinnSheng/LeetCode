@@ -1,4 +1,5 @@
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 /*
@@ -29,26 +30,52 @@
 class Solution
 {
   public:
+    // brute force
+    // Optimized through caching
+    std::unordered_map<int, bool> caching;
+    bool dfs(const std::string &s, const std::vector<std::string> &wordDict, const int index)
+    {
+        if (index == s.length())
+            return true;
+
+        if (caching.find(index) != caching.end())
+            return caching[index];
+
+        for (const auto &word : wordDict)
+        {
+            if (index + word.length() <= s.length() && s.substr(index, word.length()) == word)
+                if (dfs(s, wordDict, index + word.length()))
+                {
+                    caching[index] = true;
+                    return true;
+                }
+        }
+        caching[index] = false;
+        return false;
+    }
+
     bool wordBreak(std::string s, std::vector<std::string> &wordDict)
     {
-        int len(s.length());
-        std::vector<bool> dp(len + 1, false);
-        dp[len] = true;
-
-        // O(n)
-        for (int i{len - 1}; i >= 0; i--)
-            // O(m)
-            for (const auto &word : wordDict)
-            {
-                int len_dictWord(word.length());
-                // check whether does the string start from index i is from the dict or not
-                // O(L)
-                if (i + len_dictWord <= len && s.substr(i, len_dictWord) == word)
-                    dp[i] = dp[i + len_dictWord];
-                if (dp[i])
-                    break;
-            }
-
-        return dp[0];
+        // int len(s.length());
+        // std::vector<bool> dp(len + 1, false);
+        // dp[len] = true;
+        //
+        // // O(n)
+        // for (int i{len - 1}; i >= 0; i--)
+        //     // O(m)
+        //     for (const auto &word : wordDict)
+        //     {
+        //         int len_dictWord(word.length());
+        //         // check whether does the string start from index i is from the dict or not
+        //         // O(L)
+        //         if (i + len_dictWord <= len && s.substr(i, len_dictWord) == word)
+        //             // If [i,n) must be a word as well
+        //             dp[i] = dp[i + len_dictWord];
+        //         if (dp[i])
+        //             break;
+        //     }
+        //
+        // return dp[0];
+        return dfs(s, wordDict, 0);
     }
 };
