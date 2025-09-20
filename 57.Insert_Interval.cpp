@@ -20,31 +20,33 @@ class Solution
   public:
     vector<vector<int>> insert(vector<vector<int>> &intervals, vector<int> &newInterval)
     {
-        vector<vector<int>> answer;
-        int index{}, n(intervals.size());
+        std::vector<std::vector<int>> answer;
+        int n(intervals.size());
+        int index{};
 
-        // finding the first interval where overlapping happen
-        while (index < n && newInterval[0] > intervals[index][1])
+        // First find the first interval that overlapped with the newInterval
+        // Check through the startIndex of the newInterval whether is it smaller than the previous interval endtime
+        while (index < n && intervals[index][1] < newInterval[0])
         {
             answer.emplace_back(intervals[index]);
             index++;
         }
 
-        // finding the last interval
-        while (index < n && newInterval[1] >= intervals[index][0])
+        // OK now we know this current interval is overlapping with the newInterval
+        // Then we need to merge until the last interval that is overlap with the current interval
+        while (index < n && intervals[index][0] <= newInterval[1])
         {
-            newInterval[0] = std::min(newInterval[0], intervals[index][0]);
-            newInterval[1] = std::max(newInterval[1], intervals[index][1]);
+            newInterval[0] = std::min(intervals[index][0], newInterval[0]);
+            newInterval[1] = std::max(intervals[index][1], newInterval[1]);
             index++;
         }
 
+        // Now insert the newInterval that copmutes all the overlapping interals
         answer.emplace_back(newInterval);
 
+        // Then push every interval into the end that is not overlapped
         while (index < n)
-        {
-            answer.emplace_back(intervals[index]);
-            index++;
-        }
+            answer.emplace_back(intervals[index++]);
 
         return answer;
     };
