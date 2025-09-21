@@ -1,44 +1,56 @@
-#include <bits/stdc++.h>
-#include <ios>
-using namespace std;
+#include <vector>
 
 /*
-Each lemonade costs $5, Customer in a queue and order one at a time
-Customer pays either $5, $10 or $20
-Goal: Provide the correct change, Constraint: Dont have any change in hand at first
-Intuition: We need to keep track of the number of notes for $5 and $10
-we can igonre the $20 notes because we didnt need it to make changes as the maximum they can give is $20
-We prioritize to return the bigger notes
-*/
-class Solution{
-    public:
-        bool lemonadeChange(vector<int> &bills) {
+ * Each lemonade cost $5. Customer can either pay $5, $10, or $20.
+ * Then provide the correct change
+ *
+ * Goal: Check whether the change is correct for every customer?
+ * Intuition: We need to be greedy when returning the change, so we try to give back the change in the largest note
+ * possible
+ * */
+class Solution
+{
+  public:
+    bool lemonadeChange(std::vector<int> &bills)
+    {
+        int n5{}, n10{}, n20{};
 
-            ios_base :: sync_with_stdio(false);
-            cin.tie(nullptr);
-            cout.tie(nullptr);
-
-            int n_5 = 0, n_10 = 0;
-
-
-            for (const auto &bill : bills)
-                if (bill == 5)  n_5++;
-                else if (bill == 10) {
-                    if (n_5 > 0) {
-                        n_10++;
-                        n_5--;
-                    }
-                    else    return false;
+        for (int i{}; i < bills.size(); i++)
+        {
+            if (bills[i] == 5)
+            {
+                n5++;
+            }
+            else if (bills[i] == 10)
+            {
+                n10++;
+                if (n5 > 0)
+                {
+                    n5--;
                 }
-                else {
-                    if (n_5 < 3 && (n_5 < 1 || n_10 < 1))
-                        return false;
-                    if (n_10)   n_10--;
-                    else    n_5 -= 2;
-
-                    n_5--;
+                else
+                {
+                    return false;
                 }
-
-            return true;
+            }
+            else if (bills[i] == 20)
+            {
+                n20++;
+                if (n10 >= 1 && n5 >= 1)
+                {
+                    n10--;
+                    n5--;
+                }
+                else if (n5 >= 3)
+                {
+                    n5 -= 3;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
+        return true;
+    }
 };

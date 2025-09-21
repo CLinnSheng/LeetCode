@@ -6,43 +6,35 @@
  * Goal: Find the subarray with the largest sum and return its sum.
  *
  * Intuition:
- * By using brute force to find out every single possible subarray.
- * The time complexity is O(n^3) -> 3 for loops
+ * The brute force way will just simply be double loop to try out all every single possible subarray
+ * But if we notice from the brute force, we are doing some repetition work as the subarray are overlapping
  *
- * However if we see theres actually an overlapping of copmuting when trying out every single possible subarray.
- * eg: 2 1 4 3 5 6
- * subarray: [2], [2, 1], [2, 1, 4], [2, 1, 4, 3] ...
- * when we want to find out the sum of subarray [2, 1, 4] we dont actually has to reloop we just need to add the nums[i]
- * with the sum of the previous subarray. This will greatly reduced to O(n^2)
- *
- * Can we even further optimize this? yes
- * This intuition is come from the question which we trying to find the largest sum.
- * It can contain negatvie elements also.
- * What we gonna do is trying to be greedy, we try to avoid adding sum of negative element because it will make the sum
- * lesser. So everytime we compute a negative sum, we will recompute again from the current index. But how do we deal
- * with if every single element is negative? --> Then we just simply need to reset the sum every single time. So the
- * maximum size of the subarray only 1 which give the largest sum Time Complexity: O(n) Space Complexity: O(n)
+ * We can actually be greedy when finding the subarray, so we will have a variable to keep track of the currSum.
+ * So whenever the currSum is lesser than 0 we will just reset it back to 0, because is uesless to include previous
+ * elements that already make the subarray sum less than 0. So the sum of the subarray wont be larger than the subarray
+ * dont inlcude those Time Complexity: O(n^2)
  * */
 class Solution
 {
   public:
     int maxSubArray(std::vector<int> &nums)
     {
-        int size(nums.size());
-        if (size == 1)
+        int n(nums.size());
+        if (n == 1)
             return nums[0];
 
-        int currSum{}, maxSum{INT_MIN};
-        for (const int &num : nums)
+        int currSum{}, answer{INT_MIN};
+
+        for (const auto num : nums)
         {
-            // if the sum from the previous subarray is already smaller than 0, we restart it
-            // from the current element
+            // Reset back to 0 if the current subarray already has a negative sum,
+            // no point to continue and inlcude previous elements
             if (currSum < 0)
                 currSum = 0;
 
             currSum += num;
-            maxSum = std::max(maxSum, currSum);
+            answer = std::max(answer, currSum);
         }
-        return maxSum;
+        return answer;
     }
 };
