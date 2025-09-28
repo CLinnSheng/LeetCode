@@ -46,7 +46,7 @@ class Solution
 
         // Futher optimize
         // Use caching
-        std::vector<std::vector<int>> caching(nums.size(), std::vector<int>(sum / 2, -1));
+        std::vector<std::vector<int>> caching(nums.size(), std::vector<int>(sum / 2 + 1, -1));
         return dfs(0, nums, sum / 2, caching);
     }
 };
