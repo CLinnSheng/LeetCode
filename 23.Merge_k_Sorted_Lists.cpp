@@ -7,157 +7,77 @@
  *     ListNode(int x) : val(x), next(nullptr) {}
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
+ *
+ * Approach 1: Brute force instead of merge k lists at once, we can merge two list once at a time
+ * Time Complexity of sorting 2 linked list will be O(n)
+ * And then we need to sort k linked list will be O(k) --> O(n * k)
+ *
+ * Approach 2: Will be a little bit similar to this but with a little tweek which is use divide and conquer
+ * Time Complexity: O(nlgk)
  */
-
-#include <cmath>
-#include <ios>
-#include <iostream>
-#include <queue>
 #include <vector>
-
-/*
-Given an array of 'k' linked-lists, each linked-list is sorted in ascending order
-Intuition: We need to sort it in a order from a large bunch of data
-This will lead to think about a data structure that can store and sort it --> Heap/Priority Queue
-First iterate through every LL & push it into a minheap
-Then create a new linked list based on the minheap
-Time Complexity: O(k*n + k*n lg k*n)
-Space Complexity: O(k*n)
-
-Intution For Another: We can actually implement divide and conquer approach
-Where we keep merging two LL
-This will lead to produce lgK linked list beacuse of keep merigng two LL into 1
-and then for every LL we gonna sort n nodes
-so the time complexity is O(n * lgK) which is better than using a minheap
-Space Complexity: O(1)
-*/
-
-// struct Comparator
-// {
-//     bool operator()(const ListNode* Node1, const ListNode* Node2)
-//     {
-//         return Node1->val > Node2->val;
-//     }
-// };
-
-// class Solution
-// {
-// public:
-
-//     ListNode* mergeKLists(std::vector<ListNode*>& lists)
-//     {
-
-//         std::ios_base::sync_with_stdio(false);
-//         std::cin.tie(nullptr);
-//         std::cout.tie(nullptr);
-
-//         if (lists.empty()) return nullptr;
-
-//         std::priority_queue<ListNode*, std::vector<ListNode*>, Comparator> minHeap;
-
-//         for (auto& head : lists)
-//         {
-//             while (head)
-//             {
-//                 minHeap.emplace(head);
-//                 head = head->next;
-//             }
-//         }
-
-//         ListNode* ans = new ListNode();
-//         ListNode* temp = ans;
-
-//         while (!minHeap.empty())
-//         {
-//             auto top = minHeap.top();
-//             minHeap.pop();
-//             temp->next = top;
-//             temp = temp->next;
-//         }
-
-//         temp->next = nullptr;
-//         return ans->next;
-//     }
-// };
-//
-
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
 class Solution
 {
   public:
-    ListNode *mergeTwoLL(ListNode *l1, ListNode *l2)
+    ListNode *mergeKLists(std::vector<ListNode *> &lists)
     {
-        if (l1 == l2 && l2 == nullptr)
-            return nullptr;
-        if (l1 == nullptr && l2)
-            return l2;
-        if (l1 && l2 == nullptr)
-            return l1;
+        // int k(lists.size());
+        //
+        // if (k == 0)
+        //     return nullptr;
+        //
+        // for (int i{1}; i < k; i++)
+        //     lists[0] = helper(lists[0], lists[i]);
+        //
+        // return lists[0];
+        return divide(lists, 0, lists.size() - 1);
+    }
 
+    ListNode *divide(std::vector<ListNode *> &lists, int left, int right)
+    {
+        if (left > right)
+            return nullptr;
+
+        if (left == right)
+            return lists[left];
+
+        int middle = left + (right - left) / 2;
+        ListNode *leftLL = divide(lists, left, middle);
+        ListNode *rightLL = divide(lists, middle + 1, right);
+
+        return conquer(leftLL, rightLL);
+    }
+
+    ListNode *conquer(ListNode *list1, ListNode *list2)
+    {
         ListNode *merged = new ListNode();
         ListNode *temp = merged;
 
-        while (l1 && l2)
+        while (list1 && list2)
         {
-            if (l1->val > l2->val)
+            if (list1->val > list2->val)
             {
-                temp->next = l1;
-                l1 = l1->next;
+                temp->next = list2;
+                list2 = list2->next;
             }
             else
             {
-                temp->next = l2;
-                l2 = l2->next;
+                temp->next = list1;
+                list1 = list1->next;
             }
-
             temp = temp->next;
         }
 
-        while (l1)
+        // In case one of it havent end yet
+        // But only have one linked list that will face tihs issues so can straight away prune instead of keep looping
+        if (list1)
         {
-            temp->next = l1;
-            l1 = l1->next;
+            temp->next = list1;
         }
-
-        while (l2)
+        if (list2)
         {
-            temp->next = l2;
-            l2 = l2->next;
+            temp->next = list2;
         }
-
-        temp->next = nullptr;
         return merged->next;
-    }
-    ListNode *mergeKLists(vector<ListNode *> &lists)
-    {
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-
-        int k = lists.size();
-
-        if (k == 0)
-            return nullptr;
-
-        // iterate until left only 1 linked list
-        while (k > 1)
-        {
-            for (int i = 0; i < k / 2; i++)
-                lists[k] = mergeTwoLL(lists[i], lists[k - i - 1]);
-
-            // in case the initial number of LL is odd because got 1 LL will not merge with any other LL
-            k = (k + 1) / 2;
-        }
-
-        return lists[0];
     }
 };
