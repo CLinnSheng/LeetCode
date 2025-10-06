@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <queue>
 #include <utility>
 #include <vector>
@@ -29,12 +30,12 @@ class Solution
   public:
     int swimInWater(std::vector<std::vector<int>> &grid)
     {
-        int ROWS(grid.size()), COLS(grid[0].size());
-        std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
+        int n(grid.size());
 
-        std::priority_queue<std::vector<int>, std::vector<std::vector<int>>, comparator>
-            minHeap; // minHeap[0] -> t, minHeap[1] -> row, minHeap[2] -> col
-        // Start from (0, 0)
+        std::vector<std::vector<bool>> visited(n, std::vector<bool>(n, false));
+        std::priority_queue<std::vector<int>, std::vector<std::vector<int>>, comparator> minHeap;
+
+        // Time, Row, Column
         minHeap.emplace(std::vector<int>{grid[0][0], 0, 0});
 
         while (!minHeap.empty())
@@ -42,23 +43,22 @@ class Solution
             auto top{minHeap.top()};
             minHeap.pop();
 
-            auto time{top[0]}, row{top[1]}, col{top[2]};
+            int time{top[0]}, row{top[1]}, col{top[2]};
 
-            if (row == ROWS - 1 && col == COLS - 1)
+            if (row == n - 1 && col == n - 1)
                 return time;
 
-            for (const auto &direction : DIRECTIONS)
+            for (const auto &[dr, dc] : DIRECTIONS)
             {
-                int newRow{row + direction.first}, newCol{col + direction.second};
+                int newRow{row + dr}, newCol{col + dc};
 
-                if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || visited[newRow][newCol])
+                if (newRow < 0 || newRow >= n || newCol < 0 || newCol >= n || visited[newRow][newCol])
                     continue;
 
                 visited[newRow][newCol] = true;
                 minHeap.emplace(std::vector<int>{std::max(time, grid[newRow][newCol]), newRow, newCol});
             }
         }
-
         return -1;
     }
 };
