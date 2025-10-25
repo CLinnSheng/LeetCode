@@ -1,50 +1,45 @@
-/*
- * Given: Array of integers stones where stones[i] is the weight of the ith
- * stones Each turn we choose the heaviest 2 stones and smash them tgt. suppose
- * 2 stone weights x & y where x <= y 2 possibilites:
- * 1. x == y, both stones are destroyed
- * ii/ x != y, x is destroyed & y has new weight of y - x
- * At the end, at most 1 stone left
- * Goal: Return the weight of the last remianing stone else return 0 if no stone
- * left
- *
- * Intuition: We always choose the heaveist 2 stone therefore we need a data
- * structure that is easy to pick the 2 heaviest and need to put back into the
- * basket Ans is by using a maxHeap where the top is the heaveist
- *
- * Time Complexity: O(nlgn)
- * Space Complexity: O(n)
- *
- * */
 #include <cstdlib>
-#include <ios>
+#include <functional>
 #include <queue>
-class Solution {
-public:
-  int lastStoneWeight(vector<int> &stones) {
+#include <vector>
+/*
+ * Each turn choose the heaviest two stones and smash them together.
+ * 2 result:
+ * 1. x == y, both destroyed
+ * 2. x != y, store the remaining weight
+ *
+ * Goal: Return the last stone left or 0
+ *
+ * Intuition:
+ * At every single time we need to get the 2 heaviest stones, so we need to a data structure
+ * that can easily access. Max heap will be a good choice
+ * Time Complexity: O(nlgn)
+ * */
+class Solution
+{
+  public:
+    int lastStoneWeight(std::vector<int> &stones)
+    {
+        std::priority_queue<int, std::vector<int>, std::less<int>> max_heap;
+        for (int i = 0; i < stones.size(); i++)
+        {
+            max_heap.push(stones[i]);
+        }
 
-      std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
-    std::priority_queue<int, std::vector<int>> maxHeap;
+        while (!max_heap.empty() && max_heap.size() > 1)
+        {
+            int x = max_heap.top();
+            max_heap.pop();
+            int y = max_heap.top();
+            max_heap.pop();
 
-    for (const auto &stone : stones)
-      maxHeap.emplace(stone);
-
-    while (maxHeap.size() > 1) {
-
-      // Take out the 2 heaviest stone
-      auto stone1 = maxHeap.top();
-      maxHeap.pop();
-      auto stone2 = maxHeap.top();
-      maxHeap.pop();
-
-      if (stone1 == stone2)
-        continue;
-      else
-        maxHeap.emplace(std::abs(stone1 - stone2));
+            // 2 possibilities
+            if (x != y)
+            {
+                int diff = std::abs(x - y);
+                max_heap.push(diff);
+            }
+        }
+        return max_heap.empty() ? 0 : max_heap.top();
     }
-
-    return maxHeap.empty() ? 0 : maxHeap.top();
-  }
 };
