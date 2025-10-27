@@ -1,73 +1,63 @@
-#include <algorithm>
-#include <functional>
 #include <vector>
-
 /*
- * Given an array of coins of different denominiations and an integer amount representing a total amount of money
- * Goal: Return the number of combinations that make up that amount. If that amount of money cannot be make up by any
- * combinations return 0
+ * Goal: Find the total number of distinct combinations that total up to amount
+ * Assumption: Unlimited number of each coin that each value in coins is unique
  *
- * ASSUMPTION: INFIINITE number of each kind of coin
+ * Intuition:
+ * At every single amount, we can either to choose of the coin inside the coins array
+ * So is a decision tree problem
+ * Time Complexity: O(2^n)
  *
- * Intution:
- * This is actually a decision problem where at every amount we can choose to go with the same coin or try the next coin
- * So we can solve it naively through dfs & backtracking
- * However this will exceed the time limit & we can solve this by using caching or dp
- * so we can skip some of the amount that we already computed
- *
- *
+ * From the brute force approach, we can see some computation is repetitive for example at x sum we already got the
+ * number of combinatoin we can form for it but we still continue to compute it
+ * So what we can do is use caching
+ * Time Complexity: O(n^2)
  * */
 class Solution
 {
+  private:
+    int dfs(int currAmt, std::vector<int> &coins, int index, std::vector<std::vector<int>> &cache)
+    {
+        // Base case
+        // Possible combination
+        if (currAmt == 0)
+        {
+            return 1;
+        }
+
+        // Cannot form so return and try others
+        if (currAmt < 0 || index == coins.size())
+        {
+            return 0;
+        }
+
+        if (cache[currAmt][index] != -1)
+        {
+            return cache[currAmt][index];
+        }
+
+        int combination{};
+
+        // This implementation is wrong because we treating (2, 1) & (1 , 2) not the same
+        // but is the same combination
+        // for (const auto coin : coins)
+        // {
+        //     combination += dfs(currAmt - coin, coins, index + 1);
+        // }
+
+        // Skip this coin
+        int path1 = dfs(currAmt, coins, index + 1, cache);
+
+        // Include this coin
+        int path2 = dfs(currAmt - coins[index], coins, index + 1, cache);
+
+        return cache[currAmt][index] = path1 + path2;
+    }
+
   public:
     int change(int amount, std::vector<int> &coins)
     {
-        std::sort(coins.begin(), coins.end());
-        int n(coins.size());
-
-        // Top-down approach
-        // std::vector<std::vector<int>> dp(n + 1, std::vector<int>(amount + 1, -1));
-        // std::function<int(const int &, const int &)> dfs = [&](const int &coin_index, const int &amount) {
-        //     if (amount == 0)
-        //         return 1;
-        //     if (coin_index >= coins.size())
-        //         return 0;
-        //     if (dp[coin_index][amount] != -1)
-        //         return dp[coin_index][amount];
-        //
-        //     int res{};
-        //     // check whether can allocate the current coin or not
-        //     if (amount >= coins[coin_index])
-        //     {
-        //         // Choosing other coin
-        //         res = dfs(coin_index + 1, amount);
-        //         // Keep adding the same coin
-        //         res += dfs(coin_index, amount - coins[coin_index]);
-        //     }
-        //
-        //     dp[coin_index][amount] = res;
-        //     return res;
-        // };
-        // return dfs(0, amount);
-
-        // Bottom-up approach
-        // dp[i][j] means for the amount of combination to get j amount while just use until ith coin
-        std::vector<std::vector<int>> dp(n + 1, std::vector<int>(amount + 1, 0));
-        for (int i{}; i <= n; i++)
-            // for amount 0 we only have 1 way to get it
-            dp[i][0] = 1;
-
-        for (int i{n - 1}; i >= 0; i--)
-            for (int a{}; a <= amount; a++)
-                // check whether is enough to allocate the coin or not
-                if (a >= coins[i])
-                {
-                    // using the other coin
-                    dp[i][a] = dp[i + 1][a];
-                    // using the current coin
-                    dp[i][a] += dp[i][a - coins[i]];
-                }
-
-        return dp[0][amount];
+        std::vector<std::vector<int>> cache(amount + 1, std::vector<int>(coins.size() + 1, -1));
+        return dfs(amount, coins, 0, cache);
     }
 };
