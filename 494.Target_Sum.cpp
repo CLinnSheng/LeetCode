@@ -1,51 +1,43 @@
-#include <functional>
-#include <unordered_map>
+#include <numeric>
 #include <vector>
-
 /*
- * Build an expression out of nums by adding of the symbols '+' & '-' before each integer in nums and then concatenate
- * all the integers Goal: Return the number of different expression that you can build, which evaluates to target
- *
+ * Goal: find the number of ways to assign coins to get a total of target
  *
  * Intuition:
- * The brute force way is by using dfs & backtracking to try every single possible combinations
- * Time Complexity: O(2^n)
- * Space Complexity: O(n)
+ * This is a tree decision at every index we can choose to either add or minus
+ * So the brute force way will just simply use recursive to solve this problem
+ * Time Complexity: O(2^N)
  *
- * We can optimize this by using dynamic programming instead of using recursion method
- * We will be using a 2d array for memoziation and thus the time complexity is reduced to O(m*n)
- * Space Complexity: O(m*n)
- * the dp[i][j] means that the number of ways to get sum of j value and with i number of element from nums
+ * Actually if we observe from the brute force, we can see we actually doing some repetition computation
+ * We can use cache to optimize it which reduce it to O(n^2)
+ * 2 information is passed to the recursive function so the array will be 2d
  * */
 class Solution
 {
+  private:
+    int ttlSum;
+    int dfs(std::vector<int> &nums, int target, int index, int currSum, std::vector<std::vector<int>> &cache)
+    {
+        if (index == nums.size())
+        {
+            return target == currSum;
+        }
+
+        // ttlSum + currSum instead of currSum to avoid negative number
+        if (cache[index][ttlSum + currSum] != -1)
+        {
+            return cache[index][ttlSum + currSum];
+        }
+
+        return cache[index][ttlSum + currSum] = dfs(nums, target, index + 1, currSum + nums[index], cache) +
+                                                dfs(nums, target, index + 1, currSum - nums[index], cache);
+    }
+
   public:
     int findTargetSumWays(std::vector<int> &nums, int target)
     {
-        if (nums.size() == 1 & nums[0] == target)
-            return 1;
-
-        // dfs
-        // std::function<int(const int &, const int &)> dfs = [&](const int &sum, const int &index) {
-        //     if (index == nums.size())
-        //         return target == sum ? 1 : 0;
-        //     return dfs(sum + nums[index], index + 1) + dfs(sum - nums[index], index + 1);
-        // };
-        //
-        // return dfs(0, 0);
-
-        int n(nums.size());
-        std::vector<std::unordered_map<int, int>> dp(n + 1);
-        dp[0][0] = 1;
-
-        for (int i{}; i < nums.size(); i++)
-            // Iterate through all the possible sum from all the elements before ith element
-            for (const auto &sum : dp[i])
-            {
-                // 2 diff ways which is + & -
-                dp[i + 1][sum.first + nums[i]] += sum.second;
-                dp[i + 1][sum.first - nums[i]] += sum.second;
-            }
-        return dp[n][target];
+        ttlSum = std::accumulate(nums.begin(), nums.end(), 0);
+        std::vector<std::vector<int>> cache(nums.size() + 1, std::vector<int>(ttlSum * 2 + 1, -1));
+        return dfs(nums, target, 0, 0, cache);
     }
 };
