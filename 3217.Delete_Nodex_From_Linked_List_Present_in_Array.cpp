@@ -8,63 +8,63 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
-
-#include <iostream>
+/*
+ * Goal: Return the head of the modified linked list after removing all nodes from the linked list that have a value
+ * that exists in nums.
+ *
+ * Intuition:
+ * We jut neeed to iterate through the linked list then check whether the current element is inside the nums or not. If
+ * yes then remove it and link the linklist
+ * While checking the current val we need to iterate through the nums array which takes O(n), we can optimize it by
+ * using a set such that it only takes O(1)
+ * Time Complexity: O(n)
+ *
+ * */
 #include <unordered_set>
 #include <vector>
-/*
-Goal: Return the head of the modified linked list by removing all nodes from the linkedlist that have a value exists in the nums array
-
-Intuition: Use set data structure to store the array of nums so we have dont to iterate through the whole array everytime checking
-Have a pointer point to the prev node, so that we can always keep track of the prev node
-Time Complexity: O(N) -> Iterate through the nums & head (Time complexity for inserting element into the set is also O(n))
-Space Complexity: O(N) -> Storing the nums
-*/
-class Solution 
+class Solution
 {
-public:
-    ListNode* modifiedList(std::vector<int>& nums, ListNode* head) 
+  public:
+    ListNode *modifiedList(std::vector<int> &nums, ListNode *head)
     {
-        std::ios_base :: sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
+        if (!head)
+        {
+            return nullptr;
+        }
 
-        int n = nums.size();
-        
-        // nothing to remove
-        if (n == 0) return head; 
-        
-        // Set to store the nums
-        std::unordered_set<int> remove_numbers(nums.begin(), nums.end());
-        
-        ListNode *curr = head;
+        if (nums.size() == 0)
+        {
+            return head;
+        }
+
+        std::unordered_set<int> numsSet(nums.begin(), nums.end());
+        ListNode *temp = head;
         ListNode *prev = nullptr;
-        
-        while (curr)
-        {            
-            // need to handle special case for the head
-            if (remove_numbers.count(curr->val))
-            {    
-                if (curr == head)
+
+        while (temp)
+        {
+            if (numsSet.find(temp->val) != numsSet.end())
+            {
+                // If not the first node
+                if (prev)
                 {
-                    head = head->next;
-                    curr = head;
-                }    
+                    prev->next = temp->next;
+                    temp = prev->next;
+                }
                 else
                 {
-                    prev->next = curr->next;
-                    ListNode *delete_node = curr;
-                    curr = curr->next;
-                    delete delete_node;
+                    // First node
+                    // Need to update head
+                    head = head->next;
+                    temp = head;
                 }
             }
             else
             {
-                prev = curr;
-                curr = curr->next;  
+                prev = temp;
+                temp = temp->next;
             }
         }
-        
         return head;
     }
 };
