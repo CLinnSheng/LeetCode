@@ -14,8 +14,12 @@
  * Goal: Delete every node where its value is equal to target.
  *
  * Intuition:
- * We must start to delete from the leaf node & then go upwards.
- * Since need to start from the bottom, then we need to use postorder traversal
+ * We need to delete every leaf node where its value is equal to target. But how can we delete and traverse the tree?
+ * There is 4 ways to traverse, inorder, preorder, postorder, and level order.
+ * So is much more easier to build a tree that deleteing the node from the bottom
+ * Therefore, we need to use postorder traversal.
+ * Time Complexity: O(n)
+ * Space Complexity: O(n)
  * */
 class Solution
 {
@@ -23,15 +27,21 @@ class Solution
     TreeNode *removeLeafNodes(TreeNode *root, int target)
     {
         if (!root)
+        {
             return nullptr;
+        }
 
-        root->left = removeLeafNodes(root->left, target);
-        root->right = removeLeafNodes(root->right, target);
+        TreeNode *left = removeLeafNodes(root->left, target);
+        TreeNode *right = removeLeafNodes(root->right, target);
 
-        // Delete the node
-        // make sure is leaf
-        if (!root->left && !root->right && root->val == target)
+        // Make sure is a leaf node
+        if (left == nullptr && right == nullptr && root->val == target)
+        {
             return nullptr;
+        }
+
+        root->left = left;
+        root->right = right;
 
         return root;
     }
