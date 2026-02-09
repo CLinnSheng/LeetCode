@@ -21,20 +21,14 @@ class Solution
   public:
     std::vector<int> twoSum(std::vector<int> &nums, int target)
     {
+        // Storing the difference
+        std::unordered_map<int, int> map;
 
-        // 1. Brute force
-        // for (int i{}; i < nums.size(); i++)
-        //     for (int j{i + 1}; j < nums.size(); j++)
-        //         if (nums[i] + nums[j] == target)
-        //           return {i, j};
-
-        // 2. Optimized
-        std::unordered_map<int, int> ele_index;
-        for (int index{}; index < nums.size(); index++)
-            if (ele_index.count(target - nums[index]))
-                return {ele_index[target - nums[index]], index};
+        for (int i{}; i < nums.size(); i++)
+            if (map.count(target - nums[i]))
+                return {map[target - nums[i]], i};
             else
-                ele_index[nums[index]] = index;
+                map[nums[i]] = i;
 
         return {};
     }

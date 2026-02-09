@@ -11,10 +11,9 @@
 class Solution
 {
   public:
-    bool containsDuplicate(std::vector<int> &nums)
+    bool hasDuplicate(std::vector<int> &nums)
     {
         std::unordered_set<int> set;
-
         for (const auto &num : nums)
             if (set.count(num))
                 return true;

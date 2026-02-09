@@ -11,15 +11,9 @@ class Solution
   public:
     std::vector<int> getConcatenation(std::vector<int> &nums)
     {
-        int n(nums.size());
-        std::vector<int> answer(n);
-
-        for (int i{}; i < n; i++)
-        {
-            answer[i] = nums[i];
-            answer[i + n] = nums[i];
-        }
-
-        return answer;
+        int len(nums.size());
+        for (int i{}; i < len; i++)
+            nums.emplace_back(nums[i]);
+        return nums;
     }
 };

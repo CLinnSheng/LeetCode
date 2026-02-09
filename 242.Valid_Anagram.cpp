@@ -16,20 +16,17 @@ class Solution
   public:
     bool isAnagram(std::string s, std::string t)
     {
+        std::unordered_map<char, int> map_s, map_t;
+
+        // Base case
         if (s.length() != t.length())
             return false;
 
-        std::unordered_map<int, int> freq_s, freq_t;
+        for (const auto ch : s)
+            map_s[ch]++;
+        for (const auto ch : t)
+            map_t[ch]++;
 
-        for (int index{}; index < s.length(); index++)
-        {
-            freq_s[s[index]]++;
-            freq_t[t[index]]++;
-        }
-
-        if (freq_s != freq_t)
-            return false;
-
-        return true;
+        return map_s == map_t;
     }
 };

@@ -20,19 +20,20 @@ class Solution
   public:
     std::string longestCommonPrefix(std::vector<std::string> &strs)
     {
+        if (strs.size() == 1)
+            return strs[0];
+
+        int n(strs.size());
+
         std::sort(strs.begin(), strs.end());
+        std::string prefix{};
 
-        int shortestLen(strs[0].length()), longestLen(strs[strs.size() - 1].length());
-        int minLen(std::min(shortestLen, longestLen));
-
-        std::string ans{};
-
-        for (int index{}; index < minLen; index++)
-            if (strs[0][index] != strs[strs.size() - 1][index])
+        for (int i{}; i < strs[0].length(); i++)
+            if (strs[0][i] != strs[n - 1][i])
                 break;
             else
-                ans += strs[0][index];
+                prefix += strs[0][i];
 
-        return ans;
+        return prefix;
     }
 };
