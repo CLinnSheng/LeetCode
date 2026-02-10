@@ -10,39 +10,36 @@
  * Important things is "k most frequent". We can use a priority queue and the queue is based on the number of element
  * for each integer. Time Complexity: O(nlgn)
  * */
+struct Comparator
+{
+    bool operator()(const std::pair<int, int> &A, const std::pair<int, int> &B)
+    {
+        return A.second < B.second;
+    }
+};
 class Solution
 {
-  private:
-    struct Comparator
-    {
-        bool operator()(const std::pair<int, int> &a, const std::pair<int, int> &b)
-        {
-            return a.second < b.second;
-        }
-    };
-
   public:
     std::vector<int> topKFrequent(std::vector<int> &nums, int k)
     {
+        std::unordered_map<int, int> freq;
+        for (const auto num : nums)
+            freq[num]++;
+
+        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Comparator> maxHeap;
+        for (const auto &[val, cnt] : freq)
+        {
+            maxHeap.emplace(std::make_pair(val, cnt));
+        }
+
         std::vector<int> answer;
-
-        std::unordered_map<int, int> num_freq;
-        for (const int &num : nums)
-            num_freq[num]++;
-
-        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Comparator> pq;
-
-        for (const auto &[val, freq] : num_freq)
-            pq.push({val, freq});
-
         while (k > 0)
         {
-            auto top{pq.top()};
-            pq.pop();
-
-            answer.emplace_back(top.first);
+            answer.emplace_back(maxHeap.top().first);
+            maxHeap.pop();
             k--;
         }
+
         return answer;
     }
 };

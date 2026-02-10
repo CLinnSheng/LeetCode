@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <unordered_set>
 #include <vector>
 
 /*
@@ -24,25 +25,34 @@ class Solution
   public:
     int longestConsecutive(std::vector<int> &nums)
     {
-        if (nums.size() == 0)
-            return 0;
-        int maxLen{1};
-        int currLen{1};
-        std::sort(nums.begin(), nums.end());
+        // Most straight forward approach is just sort the array. Then have a pointer to go through the array and find
+        // the longest sequence
+        // Another more clever aprpaoch is actually just finding the starting point of the sequence. Which we can use a
+        // hash set to store it
 
-        for (int index{}; index < nums.size() - 1; index++)
+        std::unordered_set<int> set(nums.begin(), nums.end());
+        int answer{};
+        if (set.empty())
+            return answer;
+
+        for (auto num : nums)
         {
-            // handle same element
-            if (nums[index] == nums[index + 1])
-                continue;
-            else if (nums[index] + 1 == nums[index + 1])
-                currLen++;
-            else
+            // Check whether is this the first element or not
+            if (set.count(num - 1))
             {
-                maxLen = std::max(maxLen, currLen);
-                currLen = 1;
+                continue;
             }
+
+            // Once find the first element then find its length
+            int len{1};
+            while (set.count(num + 1))
+            {
+                len++;
+                num++;
+            }
+
+            answer = std::max(answer, len);
         }
-        return std::max(currLen, maxLen);
+        return answer;
     }
 };

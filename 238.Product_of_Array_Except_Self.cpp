@@ -21,38 +21,35 @@ class Solution
   public:
     std::vector<int> productExceptSelf(std::vector<int> &nums)
     {
-        // int n(nums.size());
-        // std::vector<int> answer(n);
-        // std::vector<int> prefix(n), suffix(n);
+        int n(nums.size());
+        std::vector<int> answer(n, 1);
+        // Prefix And Suffix
+        // std::vector<int> suffix(n), prefix(n);
+        // // Precompute these 2 and go through each array once
         //
-        // // Precompute
+        // // First element to be 1
         // prefix[0] = 1;
         // suffix[n - 1] = 1;
-        //
         // for (int i{1}; i < n; i++)
+        // {
         //     prefix[i] = prefix[i - 1] * nums[i - 1];
-        // for (int i{n - 2}; i >= 0; i--)
-        //     suffix[i] = suffix[i + 1] * nums[i + 1];
+        //     suffix[n - i - 1] = suffix[n - i] * nums[n - i];
+        // }
         //
         // for (int i{}; i < n; i++)
         //     answer[i] = prefix[i] * suffix[i];
-        //
-        // return answer;
 
-        // Optimze Space Complexity
-        int n(nums.size());
-        std::vector<int> answer(n, 1);
-
+        // Space Optimization with the exact same logic but without any allocation
         for (int i{1}; i < n; i++)
             answer[i] = answer[i - 1] * nums[i - 1];
 
-        int postfix{1};
+        // track the suffix
+        int suffix = 1;
         for (int i{n - 1}; i >= 0; i--)
         {
-            answer[i] = answer[i] * postfix;
-            postfix *= nums[i];
+            answer[i] *= suffix;
+            suffix *= nums[i];
         }
-
         return answer;
     }
 };

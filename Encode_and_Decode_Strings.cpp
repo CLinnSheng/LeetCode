@@ -21,37 +21,34 @@ class Solution
   public:
     std::string encode(std::vector<std::string> &strs)
     {
-        std::string encode_str;
+        std::string encode_str{};
 
-        for (int index{}; index < strs.size(); index++)
+        for (const auto &str : strs)
         {
-            int len(strs[index].length());
-
-            encode_str += std::to_string(len) + "#" + strs[index];
+            int len(str.length());
+            encode_str += std::to_string(len) + "#" + str;
         }
+
         return encode_str;
     }
 
     std::vector<std::string> decode(std::string s)
     {
-        std::vector<std::string> decode_str;
+        // Decode the string by first extract the length which is until '#'
+        // Then extract the string with the length
+        std::vector<std::string> decode_strs;
+        int ptr{};
 
-        for (int index{}; index < s.length(); index++)
+        while (ptr < s.length())
         {
-            int end_index{index};
+            // len
+            int len_ptr = s.find("#", ptr);
+            int len = std::stoi(s.substr(ptr, len_ptr - ptr));
 
-            // extract the len
-            while (s[end_index] != '#')
-                end_index++;
-
-            int len(std::stoi(s.substr(index, end_index - index)));
-
-            index = end_index + 1;
-            end_index += len;
-
-            decode_str.emplace_back(s.substr(index, end_index - index + 1));
-            index = end_index;
+            decode_strs.emplace_back(s.substr(len_ptr + 1, len));
+            ptr = len_ptr + 1 + len;
         }
-        return decode_str;
+
+        return decode_strs;
     }
 };
