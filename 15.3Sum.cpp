@@ -22,24 +22,28 @@ class Solution
   public:
     std::vector<std::vector<int>> threeSum(std::vector<int> &nums)
     {
-        std::vector<std::vector<int>> answer;
-        int n(nums.size());
+        // Fix 1 position then do 2sum operation
+        // Sort it first so we can return early
         std::sort(nums.begin(), nums.end());
+        int n(nums.size());
+        std::vector<std::vector<int>> answer;
 
         for (int i{}; i < n - 2; i++)
         {
-            // Dont have to consider element greater than 0
+            // Base Case
+            // Handle edge case where all 0 as well
             if (nums[i] > 0)
                 break;
 
-            // Handle duplicate
+            // Handle duplicate as well because the triplets must be unique
             if (i > 0 && nums[i] == nums[i - 1])
                 continue;
 
+            // 2 sum
             int left{i + 1}, right{n - 1};
             while (left < right)
             {
-                int sum{nums[left] + nums[right] + nums[i]};
+                int sum = nums[left] + nums[right] + nums[i];
 
                 if (sum > 0)
                     right--;
@@ -48,12 +52,10 @@ class Solution
                 else
                 {
                     answer.push_back({nums[i], nums[left], nums[right]});
-
-                    // need to change both left and right because if we only change one for example
-                    // left, the sum will definitely go higher so is impossible if we dont change right as well
                     left++;
                     right--;
-                    // Dont straight away break because there might be other way
+
+                    // Handle duplicate
                     while (left < right && nums[left] == nums[left - 1])
                         left++;
                 }

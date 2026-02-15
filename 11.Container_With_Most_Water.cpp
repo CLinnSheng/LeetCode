@@ -21,14 +21,17 @@ class Solution
   public:
     int maxArea(std::vector<int> &height)
     {
-
-        int maxArea{};
+        // Height matters and be greedy at the same time.
+        // And then for the height just use 2 pointer and be greedy
+        int ans{};
         int left{}, right(height.size() - 1);
 
         while (left < right)
         {
-            int area{std::min(height[left], height[right]) * (right - left)};
-            maxArea = std::max(area, maxArea);
+            int y = std::min(height[left], height[right]);
+            int x = right - left;
+
+            ans = std::max(ans, y * x);
 
             if (height[left] > height[right])
                 right--;
@@ -36,6 +39,6 @@ class Solution
                 left++;
         }
 
-        return maxArea;
+        return ans;
     }
 };
