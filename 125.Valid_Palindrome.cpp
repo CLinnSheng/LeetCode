@@ -15,22 +15,21 @@ class Solution
   public:
     bool isPalindrome(std::string s)
     {
+        // 2 pointer 1 from the front and 1 from the back
+        // skip blank spaces and also make sure to convert to either upper or lower case
         int left{}, right(s.length() - 1);
 
         while (left <= right)
         {
-            if (!std::isalnum(s[left]))
-            {
+            while (!std::isalnum(s[left]))
                 left++;
-                continue;
-            }
-            if (!std::isalnum(s[right]))
-            {
+            while (!std::isalnum(s[right]))
                 right--;
-                continue;
-            }
 
-            if (towlower(s[left]) != tolower(s[right]))
+            if (left > right)
+                break;
+
+            if (std::toupper(s[left]) != std::toupper(s[right]))
                 return false;
 
             left++;
