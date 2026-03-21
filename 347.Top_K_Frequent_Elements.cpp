@@ -22,24 +22,63 @@ class Solution
   public:
     std::vector<int> topKFrequent(std::vector<int> &nums, int k)
     {
+        // // collect the freq of each char
+        // std::unordered_map<int, int> freq;
+        // for (const auto num : nums)
+        // {
+        //     freq[num]++;
+        // }
+
+        // // Most direct way is straight away use a max heap
+        // // Push it into the heap
+        // // O(nlgn)
+        // std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Comparator> maxHeap;
+        // for (const auto &[num, cnt]: freq)
+        // {
+        //     maxHeap.push(std::make_pair(num, cnt));
+        // }
+
+        // std::vector<int> ans;
+        // while (k)
+        // {
+        //     ans.push_back(maxHeap.top().first);
+        //     maxHeap.pop();
+        //     k--;
+        // }
+
+        // return ans;
+
+        // We can further optimize it by jusing pure array instead of a priority queue/heap
+        // Edge Case where the ans only contains 1 element for any value of k if the entire arrays contains the same
+        // element We can have an array of freq with size of max possible freq where freq[i] = val i is the freq and val
+        // is the value that contains i times in the array
         std::unordered_map<int, int> freq;
         for (const auto num : nums)
+        {
             freq[num]++;
+        }
 
-        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Comparator> maxHeap;
+        // the indices is the length and the value will just simply be val that has appear i times
+        std::vector<std::vector<int>> freqArray(nums.size() + 1);
         for (const auto &[val, cnt] : freq)
         {
-            maxHeap.emplace(std::make_pair(val, cnt));
+            freqArray[cnt].push_back(val);
         }
 
-        std::vector<int> answer;
-        while (k > 0)
+        // Start from the back
+        std::vector<int> res;
+        for (int i(freqArray.size() - 1); i >= 0; i--)
         {
-            answer.emplace_back(maxHeap.top().first);
-            maxHeap.pop();
-            k--;
+            for (const auto val : freqArray[i])
+            {
+                if (k == 0)
+                {
+                    return res;
+                }
+                res.push_back(val);
+                k--;
+            }
         }
-
-        return answer;
+        return res;
     }
 };
