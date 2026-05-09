@@ -1,62 +1,57 @@
 #include <algorithm>
-#include <climits>
+#include <functional>
+#include <numeric>
 #include <vector>
-using std::vector;
-
-/*
- * Goal: Return the least weight capcity of the ship that will result in all the packages on the conveyor belt being
- * shipped within days days.
- *
- * Intuition:
- * Instead of saying how many days, maybe we can use how many ship instead. To find out the least weight capcity and
- * able to have least ships than the "days" The minimum weight capcity of a ship will be the min(weights) From getting
- * the minimum weight, it give me the instinct to use binary search where the maximum capcity is the sum(weights) where
- * u need only 1 ship to ship all weight
- *
- * Time Complexity: O(nlgs)
- *
- * */
 class Solution
 {
-  private:
-    bool helper(const int &capacity, const vector<int> &weights, const int &days)
-    {
-        int numShip{1};
-        int currCapacity{capacity};
-        for (const auto &weight : weights)
-        {
-            if (currCapacity - weight < 0)
-            {
-                numShip++;
-                currCapacity = capacity;
-            }
-            currCapacity -= weight;
-        }
-        return numShip <= days;
-    }
-
   public:
-    int shipWithinDays(vector<int> &weights, int days)
+    int shipWithinDays(std::vector<int> &weights, int days)
     {
-        int minWeight{INT_MIN}, maxWeight{};
-        for (const auto &weight : weights)
-        {
-            minWeight = std::max(minWeight, weight);
-            maxWeight += weight;
-        }
+        // Finding the least weight capacity so that can shipped within days
+        // Each day we can put as many weight as we want as long as it didnt exceed the weights
+        // So the worst case is just the sum of all the weights, so that we can ship it in 1 days
+        // But the min range not 1 instead, the maximum element in the range because each ship must able to carry 1
+        // weight So this hint that we actually trying to find the least within a `range`. Range --> We can use binary
+        // search instead of linear search O(nlgm)
 
-        int answer{maxWeight};
-        while (minWeight <= maxWeight)
-        {
-            int capacity(minWeight + (maxWeight - minWeight) / 2);
-            if (helper(capacity, weights, days))
+        int left = *std::max_element(weights.begin(), weights.end());
+        int right = std::accumulate(weights.begin(), weights.end(), 0);
+
+        // Helper function to check whether can we make it within days or not
+        std::function<bool(const int weight)> helper = [&](const int weight) {
+            int daysTaken{1};
+            int remainingWeight{weight};
+
+            for (auto const w : weights)
             {
-                answer = std::min(answer, capacity);
-                maxWeight = capacity - 1;
+                // Need another day
+                if (remainingWeight - w < 0)
+                {
+                    daysTaken++;
+                    remainingWeight = weight;
+                }
+
+                remainingWeight -= w;
+            }
+            return daysTaken <= days;
+        };
+
+        // Need to consider every possible range
+        while (left < right)
+        {
+            int middle = left + (right - left) / 2;
+
+            // Able to make it --> try finding smaller weight
+            if (helper(middle))
+            {
+                right = middle;
             }
             else
-                minWeight = capacity + 1;
+            {
+                left = middle + 1;
+            }
         }
-        return answer;
+
+        return left;
     }
 };

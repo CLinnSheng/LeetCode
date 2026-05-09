@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <vector>
 
 /*
@@ -21,35 +22,49 @@ class Solution
   public:
     std::vector<int> productExceptSelf(std::vector<int> &nums)
     {
-        int n(nums.size());
-        std::vector<int> answer(n, 1);
-        // Prefix And Suffix
-        // std::vector<int> suffix(n), prefix(n);
-        // // Precompute these 2 and go through each array once
-        //
-        // // First element to be 1
-        // prefix[0] = 1;
-        // suffix[n - 1] = 1;
-        // for (int i{1}; i < n; i++)
+        size_t size = nums.size();
+        std::vector<int> answer(size, 1);
+        // Brute Force
+        // for (int i{}; i < size; i++)
         // {
-        //     prefix[i] = prefix[i - 1] * nums[i - 1];
-        //     suffix[n - i - 1] = suffix[n - i] * nums[n - i];
+        //     for (int j{}; j < size; j++)
+        //     {
+        //         if (i == j)
+        //         {
+        //             continue;
+        //         }
+        //         answer[i] *= nums[j];
+        //     }
         // }
         //
-        // for (int i{}; i < n; i++)
+
+        // Prefix & Suffix O(n)
+        // std::vector<int> prefix(size, 1), suffix(size, 1);
+        // for (int i{1}; i < size; i++)
+        // {
+        //     prefix[i] = prefix[i - 1] * nums[i - 1];
+        //     suffix[size - i - 1] = suffix[size - i] * nums[size - i];
+        // }
+        //
+        // for (int i{}; i < size; i++)
+        // {
         //     answer[i] = prefix[i] * suffix[i];
+        // }
 
-        // Space Optimization with the exact same logic but without any allocation
-        for (int i{1}; i < n; i++)
-            answer[i] = answer[i - 1] * nums[i - 1];
-
-        // track the suffix
-        int suffix = 1;
-        for (int i{n - 1}; i >= 0; i--)
+        // Space Optimization O(1)
+        // Just iterate the array twice
+        for (int i{1}; i < size; i++)
         {
-            answer[i] *= suffix;
-            suffix *= nums[i];
+            answer[i] = answer[i - 1] * nums[i - 1];
         }
+
+        int suffix = 1; // Need to track
+        for (int i(size - 2); i >= 0; i--)
+        {
+            suffix *= nums[i + 1];
+            answer[i] *= suffix;
+        }
+
         return answer;
     }
 };
