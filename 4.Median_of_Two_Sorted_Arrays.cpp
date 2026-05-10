@@ -1,62 +1,72 @@
+#include <algorithm>
 #include <climits>
 #include <vector>
-
-/*
-Goal: Find the median of two sorted arrays after combining
-Intuition: Using the naive way is merge the two sorted array and then sort it -> find the median ---> This will result
-time complexity in (Onlgn)
-
-Intuition: Since both arrays are sorted we just need to find the first part of the merged array by doing binary search
-on both array
-1. Take half of the array from ArrayA(smaller)
-2. Then tke the remaining from ArrayB(half - size of half(ArrayA))
-3. Then make sure the leftA <= rightB && leftB <= rightA to ensure it is a corrected sorted merge array for the first
-half
-4. If wrong, we will reduce either from arrayA or arrayB through determining whether is it leftA > rightB or leftB >
-rightA
-
-Time Complexity: O(lgm + lgn)
-*/
-
 class Solution
 {
   public:
     double findMedianSortedArrays(std::vector<int> &nums1, std::vector<int> &nums2)
     {
+        //  Return the median value among all elements of the two arrays
+        //  brute force will just simply store both the arrays into 1 single arrays and sorted it to find the median
+        //  but this will O(m+n + mnlogmn)
+        //
+        //  But  we need to make it in O(lgmn)
+        //  So that means we need to do binary search in both array
 
-        if (nums1.size() > nums2.size())
-            return findMedianSortedArrays(nums2, nums1);
-
+        // So the problem is how do we split the merged array into half without merging it?
+        // We need to identify the elements from both arrays that belong to the left part
         int size1 = nums1.size(), size2 = nums2.size();
-        int half = (size1 + size2 + 1) / 2;
 
-        int left = 0, right = size1;
+        // IMPORTANT: We always want to search in thee shorter array such taht
+        // i & j is always valid adn never go out of scope
+        if (size1 > size2)
+        {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+
+        int half = (size1 + size2 + 1) / 2;
+        int left{}, right{size1};
 
         while (left <= right)
         {
-            int i = (left + right) / 2; // Size of Left partition in arrayA
-            int j = half - i;           // Size of Left partition in arrayB
+            // Position part at array1
+            int i = (left + right) / 2;
+            // Position part at array2
+            int j = half - i;
 
-            int Left_A = i > 0 ? nums1[i - 1] : INT_MIN;
-            int Right_A = i < size1 ? nums1[i] : INT_MAX;
-            int Left_B = j > 0 ? nums2[j - 1] : INT_MIN;
-            int Right_B = j < size2 ? nums2[j] : INT_MAX;
+            // Boundary Values
+            int left1 = (i > 0) ? nums1[i - 1] : INT_MIN;
+            int left2 = (j > 0) ? nums2[j - 1] : INT_MIN;
+            int right1 = (i < size1) ? nums1[i] : INT_MAX;
+            int right2 = (j < size2) ? nums2[j] : INT_MAX;
 
-            if (Left_A <= Right_B && Left_B <= Right_A)
+            // Checking Boundaries
+            if (left1 <= right2 && left2 <= right1)
             {
-                if ((size1 + size2) % 2) // Odd
-                    return std::max(Left_A, Left_B);
-                else
-                    return (std::max(Left_A, Left_B) + std::min(Right_A, Right_B)) / static_cast<double>(2);
+                // Odd Numbers
+                if ((size1 + size2) % 2)
+                {
+                    return std::max(left1, left2);
+                }
+
+                return (std::max(left1, left2) + std::min(right1, right2)) / 2.0;
             }
-
-            // we have to shrink the partition at A
-            if (Left_A > Right_B)
-                right = i - 1;
             else
-                left = i + 1;
+            {
+                if (left1 > right2)
+                {
+                    // Having too much element in array1
+                    // Move it to the left (array1)
+                    right = i - 1;
+                }
+                else
+                {
+                    // Having too much element in array2
+                    // Move it to the right (array2)
+                    left = i + 1;
+                }
+            }
         }
-
         return -1;
     }
 };

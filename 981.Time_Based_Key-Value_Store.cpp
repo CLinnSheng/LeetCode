@@ -1,56 +1,62 @@
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 /*
-Goal: design a time based key value data structure that can store multiple values
-for the same key at different time stamps and retrieve the key's value at a certain timestamp.
+ * Stores the key with the value at the given the timestamp --> Stored in a hashmp
+ * Get method, recent the most recent value of the key if set was previously called
+ * and the most recent timestamp for that key [prev_timestamp <= timestamp]
+ * */
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+using std::string;
 
-Intuition: We try to find a data structure that are able to store the timestamp (vector)
-Do binary saerch in the vector for the particular key
-Take note that the timestamp is increasing in time (which means the seocnd input has to be larger than the first input)
-We need some tweak on the binary search as it doesnt contain required the requested timestamp, we have to return the latest & closest timestamp (timestamp_prev <= timestamp)
-*/
-
-class TimeMap 
+class TimeMap
 {
-public:
-    std::unordered_map<std::string, std::vector<std::pair<int, std::string>>> storage{};
-    
-    TimeMap() { }    
-    void set(std::string key, std::string value, int timestamp) 
+    std::unordered_map<string, std::vector<std::pair<string, int>>> mp;
+
+  public:
+    TimeMap()
     {
-        storage[key].emplace_back(timestamp, value);
     }
-    
-    std::string get(std::string key, int timestamp) 
+
+    void set(string key, string value, int timestamp)
     {
-    
-        auto& arrays = storage[key];
-        std::string res = "";
-        
-        int left = 0, right = arrays.size();
-        
+        mp[key].push_back(std::make_pair(value, timestamp));
+    }
+
+    string get(string key, int timestamp)
+    {
+        // First check whether this key exist or not
+        if (mp.count(key) == 0)
+        {
+            return "";
+        }
+
+        const std::vector<std::pair<string, int>> &vec = mp.at(key);
+        int size = vec.size();
+
+        // Use binary search instead of linear search
+        int left{}, right{size - 1};
+        string res = "";
+
         while (left <= right)
         {
             int middle = left + (right - left) / 2;
-            
-            if (arrays[middle].first > timestamp)
-                right = middle - 1;
-            else
+
+            if (vec[middle].second == timestamp)
             {
-                res = arrays[middle].second;
+                return vec[middle].first;
+            }
+            else if (vec[middle].second <= timestamp)
+            {
+                res = vec[middle].first;
                 left = middle + 1;
             }
+            else
+            {
+                right = middle - 1;
+            }
         }
-        
+
         return res;
     }
 };
-
-/**
- * Your TimeMap object will be instantiated and called as such:
- * TimeMap* obj = new TimeMap();
- * obj->set(key,value,timestamp);
- * string param_2 = obj->get(key,timestamp);
- */
