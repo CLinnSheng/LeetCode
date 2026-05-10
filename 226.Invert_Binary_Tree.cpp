@@ -9,28 +9,24 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-/*
-Goal: Return the inverted tree
 
-Time Complexity: O(n) because we visiting every single node
-Space Complexity: O(n + logn) n is due to the number of node it created every time we visit a node
-logn is the height of tree because of the recursive call will create a stack with logn which is the height of the tree
-*/
-
-class Solution 
+#include <utility>
+class Solution
 {
-public:
-    TreeNode* invertTree(TreeNode* root)
+  public:
+    TreeNode *invertTree(TreeNode *root)
     {
-        if (root == nullptr) return nullptr;
-        
-        TreeNode* node = new TreeNode(root->val)
-        
-        node->left = inverTree(root->right);
-        node->right = inverTree(root->left);
-        
-        return node;
+        // Do it recursively nodes by nodes
+        if (root == nullptr)
+        {
+            return root;
+        }
+
+        std::swap(root->left, root->right);
+
+        invertTree(root->left);
+        invertTree(root->right);
+
+        return root;
     }
-        
-    
 };

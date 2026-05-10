@@ -8,51 +8,53 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
- 
+
 #include <vector>
-#include <iostream>
-#include <ios>
-
-class Solution 
+class Solution
 {
-public:
-    void reorderList(ListNode* head) 
+  public:
+    void reorderList(ListNode *head)
     {
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
+        // Reorder the LL into a specific order
+        // The order is just simply alternate element from both the front and end
+        // Just simply store all the nodes into an array and reconstruct
 
-        std::vector<ListNode*> nodes;
+        if (head == nullptr)
+        {
+            return;
+        }
+
+        // Store the nodes
         ListNode *temp = head;
+        std::vector<ListNode *> nodes;
         while (temp)
         {
-            nodes.emplace_back(temp);
+            nodes.push_back(temp);
             temp = temp->next;
-        }        
+        }
 
-        std::vector<ListNode*> reorder_nodes;
-        int left = 0, right = nodes.size() - 1;
+        // Reconstruct the LL
+        std::vector<ListNode *> new_order;
+        int left{}, right(nodes.size() - 1);
 
         while (left <= right)
         {
             if (left == right)
-            {    
-                reorder_nodes.emplace_back(nodes[left]);
+            {
+                new_order.push_back(nodes[left]);
                 break;
             }
-            
-            reorder_nodes.emplace_back(nodes[left++]);
-            reorder_nodes.emplace_back(nodes[right--]);
+
+            new_order.push_back(nodes[left++]);
+            new_order.push_back(nodes[right--]);
+        }
+
+        for (int i{1}; i < new_order.size(); i++)
+        {
+            head->next = new_order[i];
+            head = head->next;
         }
 
         head->next = nullptr;
-        temp = head;
-        for (int i = 1; i < reorder_nodes.size(); i++)
-        {
-            temp->next = reorder_nodes[i];
-            temp = temp->next;
-        }
-
-        temp->next = nullptr;
     }
 };

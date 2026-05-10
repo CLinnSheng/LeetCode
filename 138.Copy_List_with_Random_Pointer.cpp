@@ -5,7 +5,7 @@ public:
     int val;
     Node* next;
     Node* random;
-    
+
     Node(int _val) {
         val = _val;
         next = NULL;
@@ -13,45 +13,32 @@ public:
     }
 };
 */
-/*
-Goal: Return a copied linked list without reference to the original list
-Intuition: Since we have to keep track of every original node because we want to get the next & random node but at the same time cannot reference to the original node
-so what we can do is have hash map that map the old node to the new node. So the next & random node of the new node can be connected by using the hashmap.
-eg:
-map: Key     Val
-     OldNode NewNode
-map[OldNode]->next = map[OldNode->next]; so the newnode next is map to the newnode not the old node
-Time Complexity: O(n)
-Space Complexity: O(n)
-*/
 
-class Solution 
+#include <unordered_map>
+class Solution
 {
-public:
-    Node* copyRandomList(Node* head) 
+  public:
+    Node *copyRandomList(Node *head)
     {
-        if (head == nullptr) return nullptr;
+        // Just save the new node coresspond to the new node
+        // Cannot direct construct while traverse through it because of need to setting the next field
+        std::unordered_map<Node *, Node *> nodes;
 
-        std::unordered_map<Node*, Node*> mp;
-        // Initialize a old new link to new node which is null to null
-        // mp[nullptr] = nullptr;
-
-        Node* old_node = head;
-        while (old_node)
+        Node *temp = head;
+        while (temp)
         {
-            Node* new_node = new Node(old_node->val);
-            mp[old_node] = new_node;
-            old_node = old_node->next;
+            nodes[temp] = new Node(temp->val);
+            temp = temp->next;
         }
 
-        old_node = head;
-        while (old_node)
+        temp = head;
+        while (temp)
         {
-            mp[old_node]->next = mp[old_node->next];
-            mp[old_node]->random = mp[old_node->random];
-            old_node = old_node->next;
+            nodes[temp]->next = nodes[temp->next];
+            nodes[temp]->random = nodes[temp->random];
+            temp = temp->next;
         }
 
-        return mp[head];
+        return nodes[head];
     }
 };

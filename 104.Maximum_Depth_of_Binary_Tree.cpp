@@ -6,25 +6,23 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 
-/*
-Goal: Return the height of the tree
-Intuition: Recursively call on every single node and find out the maximum depth
-from each child child + 1 to its own level Time Complexity: O(n) Space
-Complexity: O(lgN) because of recursive call building a stack of pointer point
-to the last function call
-*/
-#include <algorithm>
-class Solution {
-public:
-  int maxDepth(TreeNode *root) {
-    if (root == nullptr)
-      return 0;
+class Solution
+{
+  public:
+    int maxDepth(TreeNode *root)
+    {
+        // Just do it recursively and search deep down until we hit the last node
+        // And only take the side with larger depth
+        if (root == nullptr)
+        {
+            return 0;
+        }
 
-    return 1 + std::max(maxDepth(root->left), maxDepth(root->right));
-  }
+        // Add 1 to depth because if you observe carefully we actually did the computation from the leaf node
+        return 1 + std::max(maxDepth(root->left), maxDepth(root->right));
+    }
 };

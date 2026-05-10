@@ -21,23 +21,22 @@ class Solution
   public:
     ListNode *reverseList(ListNode *head)
     {
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-
         if (head == nullptr)
-            return nullptr;
+        {
+            return head;
+        }
 
-        ListNode *prev_node = nullptr;
+        // Having another pointer tracking the last ptr
+        ListNode *prev{};
 
         while (head)
         {
-            ListNode *temp = head->next;
-            head->next = prev_node;
-            prev_node = head;
-            head = temp;
+            ListNode *next = head->next;
+            head->next = prev;
+            prev = head;
+            head = next;
         }
 
-        return prev_node;
+        return prev;
     }
 };

@@ -9,40 +9,36 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-/*
-Goal: Find the longest path between any two nodes in the tree
-Intuition: The distance between 2 nodes that go through the root node will be the largest rather than straight from root to the leave
-So we will dfs each root node from the left and right and sum it up and find the total distance from the max left and max right on each node (treat each node as the root)
 
-Time Complexity; O(n)
-Space Complexity: O(lgN)
-*/
 #include <functional>
-#include <ios>
-#include <iostream>
-class Solution {
-public:
-    int diameterOfBinaryTree(TreeNode* root) 
+class Solution
+{
+  public:
+    int diameterOfBinaryTree(TreeNode *root)
     {
-        std::ios_base::sync_with_stdio(false);
-        std::cin.tie(nullptr);
-        std::cout.tie(nullptr);
-        
-        int ans = 0;
+        // Finding the longest diameter  which is the connecting nodes of the tree
+        // So there is either 2 possible path, 1 will be connecting the nodes from both sides
+        // Another possible path just simply be 1 path from the root to the leaf
+        // So we can search through the tree from the leaf through recursive and get the maximum diameter at every
+        // single node
+        int ans{};
 
-        std::function<int(TreeNode*)> dfs = [&](TreeNode* root)
-        {
-            if (root == nullptr) return 0;
-            
-            int left = dfs(root->left);
-            int right = dfs(root->right);
-            
+        std::function<int(TreeNode *)> helper = [&](TreeNode *node) {
+            if (node == nullptr)
+            {
+                return 0;
+            }
+
+            int left = helper(node->left);
+            int right = helper(node->right);
+
             ans = std::max(ans, left + right);
 
+            // Return the deeper path
             return 1 + std::max(left, right);
         };
 
-        dfs(root);
+        helper(root);
         return ans;
     }
 };

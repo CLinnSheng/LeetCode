@@ -14,10 +14,8 @@
 class Solution
 {
   public:
-    std::vector<int> postorderTraversal(TreeNode *root)
+    std::vector<int> inorderTraversal(TreeNode *root)
     {
-        std::vector<int> ans;
-
         std::function<void(std::vector<int> &, TreeNode *)> helper = [&](std::vector<int> &ans, TreeNode *node) {
             if (node == nullptr)
             {
@@ -25,11 +23,13 @@ class Solution
             }
 
             helper(ans, node->left);
-            helper(ans, node->right);
             ans.push_back(node->val);
+            helper(ans, node->right);
         };
 
+        std::vector<int> ans;
         helper(ans, root);
+
         return ans;
     }
 };

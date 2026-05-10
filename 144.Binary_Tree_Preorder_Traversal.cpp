@@ -18,16 +18,20 @@ class Solution
   public:
     vector<int> preorderTraversal(TreeNode *root)
     {
-        std::vector<int> answer;
-        std::function<void(TreeNode *)> dfs = [&](TreeNode *node) {
-            if (!node)
-                return;
+        std::vector<int> ans;
 
-            answer.emplace_back(node->val);
-            dfs(node->left);
-            dfs(node->right);
+        std::function<void(std::vector<int> &, TreeNode *)> helper = [&](std::vector<int> &ans, TreeNode *node) {
+            if (node == nullptr)
+            {
+                return;
+            }
+
+            ans.push_back(node->val);
+            helper(ans, node->left);
+            helper(ans, node->right);
         };
-        dfs(root);
-        return answer;
+
+        helper(ans, root);
+        return ans;
     }
 };

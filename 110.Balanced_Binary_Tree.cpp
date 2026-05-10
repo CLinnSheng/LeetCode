@@ -10,36 +10,32 @@
  * };
  */
 
-/*
-Goal: Check whether the tree is balanced or not 
-A height-balanced binary tree is a binary tree in which the depth of the two subtrees of every node never differs by more than one.
-
-Intuition: At every node compare its left and right subtree height if one of the node violates then the whole tree is not balance
-
-Time Complexity: O(n lg n) Traverse single node and calling getHeight (lgn)
-Space Complexity: O(lgN) becasue of recursive call
-
-Another way to reduce time complexity is calculate the height and check balance in a single pass which reduce it to O(N)
-*/
-#include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include <utility>
-class Solution 
+class Solution
 {
-public:
-    bool isBalanced(TreeNode* root) 
+    std::pair<bool, int> helper(TreeNode *node)
     {
-        return checkBalance(root).first;
+        if (node == nullptr)
+        {
+            return {true, 0};
+        }
+
+        auto left = helper(node->left);
+        auto right = helper(node->right);
+
+        return {left.first && right.first && std::abs(left.second - right.second) <= 1,
+                1 + std::max(left.second, right.second)};
     }
-    
-    std::pair<bool, int> checkBalance(TreeNode* root)
+
+  public:
+    bool isBalanced(TreeNode *root)
     {
-        if (root == nullptr) return {true, 0};
-        
-        auto left = checkBalance(root->left);
-        auto right = checkBalance(root->right);
-        
-        return {left.first && right.first && std::abs(left.second - right.second) <= 1, 1 + std::max(left.second, right.second)};
+        // A tree is only balanced if the height differ for node at any level is differ not more than 1
+        // So we need to compare  level by level
+        // Information we need is just the level at each node, and whether the level the node at is balanced or not
+        // Can do it recursively from the bottom
+        return helper(root).first;
     }
-    
 };
