@@ -1,76 +1,130 @@
 /*
-Goal: Built a LRU Cache that are able to return the value of key and insert new key into it
-Constarint: If the key that we trying to insert exists, we replace the value of they. Otherwise, add the key-value into the cache.
-** If the nubmer of key exceeds the capcity from this operation, evict the least recently used key.
-Get & Put time complexity should be O(1)
+ * Put Method -> Update the value of the key if the key exists. Otherwise, add the key-value
+ * pair to the cache. If exceed capacity remove the least recently used key
+ *
+ * So we need to always keep track of which key is the least recently used
+ *
+ * And each operation must be in O(1)
+ *
+ * Since we need each operation in O(1), a hashmap must be used so that we can easily get the value given the key
+ * And also since the time where each key get access does matter, we can use LL because LL link all the nodes together
+ * So our hashmap will just simply map the key to the node
+ * */
 
-Intuition: We need to keep track of the least recently used key for us to remove it when we trying to add new key if the capacity is max
-Since need to get the value of the key --> Hashmap data structure
-Since need to know the order of th key-value --> LinkedList data struture
-
-The hashmap will have the key-value pair where the value is pointer that point to the specific node which stores the value in the linked list
-Linkedlist will just basically store all the value in nodes and to keep track of the order of execution for easy access to the LEAST use node
-*/
-#include <list>
 #include <unordered_map>
-class LRUCache 
+struct Node
 {
-public:
-    int capacity = 0;
-    std::list<std::pair<int, int>> DLL;
-    std::unordered_map<int, std::list<std::pair<int, int>> :: iterator> mp;
-    LRUCache(int capacity) : capacity{ capacity }
-    { }
-    
-    int get(int key) 
+    Node *next;
+    Node *prev;
+    int key;
+    int val;
+
+    Node(int key, int val) : key(key), val(val), next(nullptr), prev(nullptr)
     {
-        auto ptr = mp.find(key);
-        
-        // if no such key return -1
-        if (ptr == mp.end()) return -1;
-        
-        // if found this key we needed to update the linkedlist as this key just got access
-        // so we need to update the order
-        // Order: recently used ---> least recently used (front --> back)
-        
-        // moved this node to the front
-        DLL.splice(DLL.begin(), DLL, ptr->second);
-        
-        return ptr->second->second;
-    }
-    
-    void put(int key, int value) 
-    {
-        auto ptr = mp.find(key);
-        
-        // if the key exists in the linked list
-        // update the value
-        if (ptr != mp.end())
-        {
-            ptr->second->second = value;
-            DLL.splice(DLL.begin(), DLL, ptr->second);
-            return;
-        }
-        
-        // If the key didnt exists then will insert it into the LL
-        // but we need to check the capcity first
-        // if exceed we delete the least used key first then only insert
-        if (mp.size() == capacity)
-        {
-            auto deleted_key = DLL.back().first;
-            DLL.pop_back();
-            mp.erase(deleted_key);
-        }
-        
-        // Insert the new key-value pair
-        DLL.emplace_front(key, value);
-        mp[key] = DLL.begin();
     }
 };
 
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache* obj = new LRUCache(capacity);
- * int param_1 = obj->get(key);
- * obj->put(key,value);
- */
+class LRUCache
+{
+    std::unordered_map<int, Node *> mp;
+    // Have 2 nodes that act as boundary, so we can easily access the first and last element
+    Node *left;
+    Node *right;
+    int capacity;
+
+    void remove(Node *node)
+    {
+        // Then relink the LL
+        Node *prev = node->prev;
+        Node *next = node->next;
+        prev->next = next;
+        next->prev = prev;
+
+        // Remove the node
+        mp.erase(node->key);
+        delete node;
+    }
+
+    void insert(int key, int val)
+    {
+        mp[key] = new Node(key, val);
+
+        // Insert into the back of LL
+        Node *prev = right->prev;
+        prev->next = mp[key];
+        mp[key]->next = right;
+        mp[key]->prev = prev;
+        right->prev = mp[key];
+    }
+
+  public:
+    LRUCache(int capacity)
+    {
+        left = new Node(0, 0);
+        right = new Node(0, 0);
+
+        left->next = right;
+        right->prev = left;
+        this->capacity = capacity;
+    }
+
+    int get(int key)
+    {
+        // Definitely need to search from the map, so we can achieve O(1)
+        // Update the node to be most recently used
+        if (mp.find(key) != mp.end())
+        {
+            // Reorder the list so that this node is front or most recently used
+            Node *node = mp[key];
+            int _key = node->key, _val = node->val;
+
+            // 1. Remove it from the LL
+            remove(node);
+
+            // 2. Insert it to the back of the LL
+            insert(_key, _val);
+            // actually can make it always insert at the back, because 'put' method will insert in the front
+            // as well
+
+            return mp[key]->val;
+        }
+
+        return -1;
+    }
+
+    void put(int key, int value)
+    {
+        // First Case: Existing Key
+        if (mp.find(key) != mp.end())
+        {
+            // Update the value and move it to the back
+            Node *node = mp[key];
+
+            // Remove the node
+            remove(node);
+
+            // Update the map with the latest node and insert at the back
+            insert(key, value);
+            return;
+        }
+
+        // Second Case: No existing key but here need to take care of the size of the LL
+        int size = mp.size();
+
+        // 1. Enough Size
+        if (size < capacity)
+        {
+            // Straight away insert
+            insert(key, value);
+        }
+        else
+        {
+            // Remove the least recently used node
+            Node *node = left->next;
+            remove(node);
+
+            // Insert the new node
+            insert(key, value);
+        }
+    }
+};
