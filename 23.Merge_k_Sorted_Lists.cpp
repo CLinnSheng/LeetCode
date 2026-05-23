@@ -7,51 +7,38 @@
  *     ListNode(int x) : val(x), next(nullptr) {}
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
- *
- * Approach 1: Brute force instead of merge k lists at once, we can merge two list once at a time
- * Time Complexity of sorting 2 linked list will be O(n)
- * And then we need to sort k linked list will be O(k) --> O(n * k)
- *
- * Approach 2: Will be a little bit similar to this but with a little tweek which is use divide and conquer
- * Time Complexity: O(nlgk)
  */
+
+/*
+ * Each LL is sorted. How can we merge all of it together into 1?
+ * Merging n (where n > 2) is hard but we know that merging 2 linked list is easy
+ * So we can actually just keep merging 2 linked list
+ * Time Complexity: O(m*n)
+ * - m -> Length of lists
+ * - n -> Longest linked list
+ * Space Complexity: O(1)
+ * If notice from this approach, one of the linkedlist is actually keep growing larger and larger
+ *
+ * What if we can consecutively merging 2 smaller linked list or in this way
+ * a b c d --> a & b + c & d
+ * and then merged the 2 merged linked list
+ *
+ * This lead us to divide and conquer
+ * Just 2 operation
+ * 1. Divide
+ *  - Keep dividing it until only left 1 then slowly build up
+ * 2. Conquer
+ *  - Merging 2 sides together
+ * */
+
 #include <vector>
 class Solution
 {
-  public:
-    ListNode *mergeKLists(std::vector<ListNode *> &lists)
-    {
-        // int k(lists.size());
-        //
-        // if (k == 0)
-        //     return nullptr;
-        //
-        // for (int i{1}; i < k; i++)
-        //     lists[0] = helper(lists[0], lists[i]);
-        //
-        // return lists[0];
-        return divide(lists, 0, lists.size() - 1);
-    }
-
-    ListNode *divide(std::vector<ListNode *> &lists, int left, int right)
-    {
-        if (left > right)
-            return nullptr;
-
-        if (left == right)
-            return lists[left];
-
-        int middle = left + (right - left) / 2;
-        ListNode *leftLL = divide(lists, left, middle);
-        ListNode *rightLL = divide(lists, middle + 1, right);
-
-        return conquer(leftLL, rightLL);
-    }
-
+  private:
     ListNode *conquer(ListNode *list1, ListNode *list2)
     {
-        ListNode *merged = new ListNode();
-        ListNode *temp = merged;
+        ListNode *head = new ListNode();
+        ListNode *temp = head;
 
         while (list1 && list2)
         {
@@ -65,11 +52,11 @@ class Solution
                 temp->next = list1;
                 list1 = list1->next;
             }
+
             temp = temp->next;
         }
 
-        // In case one of it havent end yet
-        // But only have one linked list that will face tihs issues so can straight away prune instead of keep looping
+        // Append the longer LL which never traversed finish
         if (list1)
         {
             temp->next = list1;
@@ -78,6 +65,52 @@ class Solution
         {
             temp->next = list2;
         }
-        return merged->next;
+
+        return head->next;
+    }
+
+    ListNode *divide(const std::vector<ListNode *> &lists, int left, int right)
+    {
+        // Base Case
+        // Check whether the pointer crossed
+        if (left > right)
+        {
+            return nullptr;
+        }
+        // Divide until only left 1 element
+        if (left == right)
+        {
+            return lists[left];
+        }
+
+        // Keep dividing it
+        int middle = left + (right - left) / 2;
+        ListNode *leftSide = divide(lists, left, middle);
+        ListNode *rightSide = divide(lists, middle + 1, right);
+
+        return conquer(leftSide, rightSide);
+    }
+
+  public:
+    ListNode *mergeKLists(std::vector<ListNode *> &lists)
+    {
+        // Approach 1
+        // int n = lists.size();
+        //
+        // // Base Case
+        // if (n == 0)
+        // {
+        //     return nullptr;
+        // }
+        //
+        // for (int i{1}; i < n; i++)
+        // {
+        //     lists[0] = mergeLinkedList(lists[0], lists[i]);
+        // }
+        //
+        // return lists[0];
+
+        // Approach 2
+        return divide(lists, 0, lists.size() - 1);
     }
 };
