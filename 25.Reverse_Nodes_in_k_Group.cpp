@@ -1,6 +1,3 @@
-#include <ios>
-#include <iostream>
-
 /**
  * Definition for singly-linked list.
  * struct ListNode {
@@ -13,104 +10,113 @@
  */
 
 /*
-Given a linked list, reverse the nodes of a linked list k at a time and return its modified list.
-k is a positive integer and is less than or equal to the length of the linked list.
-Constraint: If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-
-Intuition:
-The number of reverse will be the length of LL / k
-So what we can do is iterate through LL & for every k we reverse it
-to check whether is it valid or not we have a helper function that return the last node for k nodes
-If is a null then we not gonna reverse it
-Solving it group by group and have track of the node before the group and after the group easy for connecting back to
-the LL Time Complexity: O(n*k) Space Complexity: O(n)
-
-A more optimized approach will be using recursion where we will be doing the reverse from the back
-Time Complexity: O(n)
-*/
-
+ * Reverse the nodes in groups of k size. Only reverse if it has exactly k size
+ * So the problem here is before reversing the nodes, we need to check whether can we have k nodes or not.
+ * If dont have we can just simply return it
+ * Otherwise we need to reverse it and relink the link list
+ * Brute force way will just simply check how many groups are inside, then we just iteratively reverse it and relink
+ * Need a helper method that can help us to get the kth node in every group
+ * Time Complexity: O(m * k) which can also be O(n)
+ * - m is the number of group
+ * - k
+ * Space Complexity: O(m / n)
+ *
+ * Further optimization
+ * If we observe from the brute force each node is being visited twice, one getting the kth node and another time is
+ * reversing it How can we do it in one pass and in memory?
+ * So we can just do it recursively and reverse from the back
+ * After each recusrion we return the new first node of that group
+ * Space Complexity: O(1)
+ * Time Complexity: O(n)
+ *
+ *
+ * */
 class Solution
 {
+    // Start searching from one node before the group
+    ListNode *getKthNode(ListNode *node, int k)
+    {
+        while (node && k)
+        {
+            node = node->next;
+            k--;
+        }
+
+        return node;
+    }
+
   public:
     ListNode *reverseKGroup(ListNode *head, int k)
     {
-        //
-        // // Lets clear the base case
-        // if (head == nullptr || k == 1)
-        //     return head;
-        //
+        // Approach 1
         // ListNode *ans = new ListNode(0, head);
-        // ListNode *groupPrev = ans;
+        // Base Case
+        // if (k == 1 || head == nullptr)
+        // {
+        //     return head;
+        // }
+        // ListNode *prevGrp = ans;
         //
+        // // The breaking point is when we couldnt get the kth node in the group
         // while (true)
         // {
-        //     auto kth_node = gettingLastNodeforKth(groupPrev, k);
+        //     ListNode *groupKthNode = getKthNode(prevGrp, k);
         //
-        //     if (kth_node == nullptr)
-        //         break;
-        //
-        //     // Set of LL after the kth node
-        //     ListNode *groupNext = kth_node->next;
-        //
-        //     // Reversing the LL
-        //     ListNode *curr = groupPrev->next;
-        //     ListNode *prev = groupNext;
-        //
-        //     while (curr != groupNext)
+        //     // Break when we out of group of k
+        //     if (groupKthNode == nullptr)
         //     {
-        //         ListNode *temp = curr->next;
-        //         curr->next = prev;
-        //         prev = curr;
-        //         curr = temp;
+        //         break;
         //     }
         //
-        //     // Before reversing it was the first node in the kth group
-        //     ListNode *temp = groupPrev->next;
-        //     // while kth_node initially was the last node but now become the first node
-        //     groupPrev->next = kth_node;
-        //     // Now update the groupPrev to the node before the next group
-        //     groupPrev = temp;
+        //     // Reverse the linked list
+        //     ListNode *currNode = prevGrp->next;
+        //     ListNode *nextGrpNode = groupKthNode->next;
+        //     ListNode *prev = nextGrpNode;
+        //
+        //     while (currNode != nextGrpNode)
+        //     {
+        //         ListNode *temp = currNode->next;
+        //         currNode->next = prev;
+        //         prev = currNode;
+        //         currNode = temp;
+        //     }
+        //
+        //     // Relink the group of k node with its prev and next group
+        //     ListNode *temp = prevGrp->next;
+        //     prevGrp->next = groupKthNode;
+        //     prevGrp = temp;
         // }
         //
         // return ans->next;
-        int grp{};
-        ListNode *currNode = head;
 
-        while (currNode && grp < k)
+        int cnt{};
+        ListNode *currNode = head;
+        // First we find have enough node or not
+        while (currNode && cnt < k)
         {
             currNode = currNode->next;
-            grp++;
+            cnt++;
         }
 
-        // only do the reverse if it has k nodes in the group
-        if (grp == k)
+        // Only reverse if we find enough node in this group
+        if (cnt == k)
         {
-            // recursive to find the next group
-            // currNode is point to the next node of the last node of current group
+            // Get the first node of the next group (reversed)
             currNode = reverseKGroup(currNode, k);
 
-            // Reverse
-            while (grp)
+            // Reverse it
+            while (cnt)
             {
                 ListNode *temp = head->next;
                 head->next = currNode;
                 currNode = head;
                 head = temp;
-                grp--;
+                cnt--;
             }
+
+            // Update the new first node
             head = currNode;
         }
         return head;
-    }
-
-    ListNode *gettingLastNodeforKth(ListNode *curr, int k)
-    {
-        while (curr && k > 0)
-        {
-            curr = curr->next;
-            k--;
-        }
-
-        return curr;
     }
 };
