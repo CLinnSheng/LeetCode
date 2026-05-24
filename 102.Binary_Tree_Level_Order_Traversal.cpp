@@ -6,60 +6,60 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+
 /*
-Given the root of a binary tree, return the level order traversal of its nodes'
-values. (i.e., from left to right, level by level).
-
-Constraint: level by level
-Intuition: Left to right --> Inorder traversal
-Can use queue data structure.
-How to make sure is from the same level?
-    Every time we insert the child node we keep track of the size, so the size
-indicate the number of nodes in the next level Time Complexity: O(n) traverse
-every single node Space Complexity: O(n)
-*/
-
+ * Level Tree Order Traversal
+ * So from left to right --> From this observation we can use FIFO which is queue
+ * For every  level we need to track its count as well, so that we know when to stop for this level
+ * as we will keep inserting new node in the queue
+ * Time Complexity: O(n)
+ * */
 #include <deque>
-#include <iostream>
 #include <vector>
+class Solution
+{
+  public:
+    std::vector<std::vector<int>> levelOrder(TreeNode *root)
+    {
+        // Base Case
+        if (root == nullptr)
+        {
+            return {};
+        }
 
-class Solution {
-public:
-  std::vector<std::vector<int>> levelOrder(TreeNode *root) {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        std::deque<TreeNode *> queue;
+        queue.push_back(root);
+        std::vector<std::vector<int>> ans{};
 
-    // Handling special case
-    if (!root)
-      return {};
+        while (!queue.empty())
+        {
+            std::vector<int> temp{};
+            int cnt = queue.size();
 
-    std::vector<std::vector<int>> ans;
-    std::deque<TreeNode *> queue;
-    queue.emplace_back(root);
+            while (cnt)
+            {
+                TreeNode *node = queue.front();
+                queue.pop_front();
 
-    while (!queue.empty()) {
-      int curr_level = queue.size();
-      std::vector<int> level_nodes;
+                temp.push_back(node->val);
 
-      while (curr_level > 0) {
-        auto front = queue.front();
-        queue.pop_front();
-        level_nodes.emplace_back(front->val);
+                if (node->left)
+                {
+                    queue.push_back(node->left);
+                }
+                if (node->right)
+                {
+                    queue.push_back(node->right);
+                }
 
-        if (front->left)
-          queue.emplace_back(front->left);
-        if (front->right)
-          queue.emplace_back(front->right);
+                cnt--;
+            }
 
-        curr_level--;
-      }
-      ans.emplace_back(level_nodes);
+            ans.push_back(temp);
+        }
+        return ans;
     }
-    return ans;
-  }
 };

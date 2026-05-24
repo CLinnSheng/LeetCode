@@ -6,62 +6,54 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+
 /*
-Imagine standing on the right of it return the values of the nodes from your
-side from top to bottom Intuition: we can use stack/queue data structure, so at
-every level we only add the first element in front of the data structure to our
-list and then dont consider about others, just add the child of every single
-node to it. So, how do we determine how many node we gonna remove every single
-time, we can tell by the size of the data structure
-
-Time Complexity: O(n) we just basically traverse every node
-Space Complexity: O(n)
-*/
+ * We can use level order traversal then only push into the ans vector
+ * when is the last node in the level
+ * */
 #include <deque>
-#include <ios>
-#include <iostream>
-class Solution {
-public:
-  std::vector<int> rightSideView(TreeNode *root) {
+#include <vector>
+class Solution
+{
+  public:
+    vector<int> rightSideView(TreeNode *root)
+    {
+        if (root == nullptr)
+        {
+            return {};
+        }
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        std::deque<TreeNode *> queue;
+        queue.push_back(root);
+        std::vector<int> ans;
 
-    if (!root)
-      return {};
+        while (!queue.empty())
+        {
+            int cnt = queue.size();
 
-    std::deque<TreeNode *> stack;
-    std::vector<int> ans;
+            while (cnt)
+            {
+                TreeNode *node = queue.front();
+                queue.pop_front();
 
-    stack.emplace_back(root);
+                if (node->left)
+                {
+                    queue.push_back(node->left);
+                }
+                if (node->right)
+                {
+                    queue.push_back(node->right);
+                }
 
-    while (!stack.empty()) {
-
-      int n_nodes = stack.size();
-      std::vector<int> current_lvl;
-
-      while (n_nodes > 0) {
-
-        auto top = stack.front();
-        stack.pop_front();
-
-        if (top->left)
-          stack.emplace_back(top->left);
-        if (top->right)
-          stack.emplace_back(top->right);
-
-        n_nodes--;
-        current_lvl.emplace_back(top->val);
-      }
-
-      ans.emplace_back(current_lvl.back());
+                if (--cnt == 0)
+                {
+                    ans.push_back(node->val);
+                }
+            }
+        }
+        return ans;
     }
-
-    return ans;
-  }
 };

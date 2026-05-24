@@ -11,52 +11,37 @@
  */
 
 /*
-Goal: Check whether subRoot is a subroot of root
-Intuition: First we need to find the root of subRoot in side the root first then we can only do traverse the tree to do checking
-Time Complexity: O(n*m) in worst case lets say have the same root val
-Space Complexity: O(lgnm)
-*/
-#include <deque>
-#include <iostream>
-#include <ios>
-
-class Solution 
+ * Need to check whether subtree exist or not
+ * then mean we only check when we find the root of the subtree
+ * */
+class Solution
 {
-public:
-    bool isSubtree(TreeNode* root, TreeNode* subRoot) 
+    bool sameTree(TreeNode *root, TreeNode *subRoot)
     {
-        // i. Stack approach
-        // std::deque<TreeNode*> stack;
-        // stack.push_back(root);
-        // bool ans = false;
+        if (root == nullptr || subRoot == nullptr)
+        {
+            return root == subRoot;
+        }
 
-        // while (!stack.empty())
-        // {
-        //     auto temp = stack.back();
-        //     stack.pop_back();
-            
-        //     if (temp->val == subRoot->val) ans = ans || helper(temp, subRoot);
-            
-        //     if (temp->right) stack.push_back(temp->right);
-        //     if (temp->left) stack.push_back(temp->left);
-        // }
-        
-        // return ans;
-
-        // ii. Recursive approach
-        if (!subRoot) return true; // empty subtree means is a subrtree of tree
-        if (!root) return false; // when root traverse down to nullptr means we could nt find the subtree in the main tree
-        if (subRoot->val == root->val && helper(root, subRoot)) return true; // Serach down this subtree to make sure they are equal
-
-        // Continue down to search the subtree
-        return isSubtree(root->left, subRoot) ||  isSubtree(root->right, subRoot);
+        return root->val == subRoot->val && sameTree(root->left, subRoot->left) &&
+               sameTree(root->right, subRoot->right);
     }
-    
-    bool helper(TreeNode* root, TreeNode* subRoot)
+
+  public:
+    bool isSubtree(TreeNode *root, TreeNode *subRoot)
     {
         // Base Case
-        if (!root || !subRoot) return root == subRoot;
+        if (root == nullptr)
+        {
+            return false;
+        }
 
-        return root->val == subRoot->val && helper(root->left, subRoot->left) && helper(root->right, subRoot->right);
+        // Check have we found the root node of the subRoot
+        if (root->val == subRoot->val && sameTree(root, subRoot))
+        {
+            return true;
+        }
+
+        return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
     }
 };
