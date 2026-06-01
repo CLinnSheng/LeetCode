@@ -6,53 +6,50 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+
 /*
- * Goal: Reeturn the kth smallest element in BST
- *
- * Intuition: Since return kth smallest element and the tree is a BST. Utilize
- * BST property where the smallest is in the most left So we just have to go all
- * the way down to the smallest node and search for kth smallest
+ * Finding the kth smallest node in a BST tree
+ * We need to make use of BST property to traverse the tree.
+ * Since we need to find the kth smallest, we need to store all the nodes we previously traversed and start
+ * counting from the smallest node
  *
  * Time Complexity: O(n)
- * Space Complexity: O(n) Because we searching all the node
+ * Space Complexity: O(h) --> h - Height of the tree
  * */
-#include <algorithm>
-#include <ios>
-class Solution {
-public:
-  int kthSmallest(TreeNode *root, int k) {
+#include <deque>
+class Solution
+{
+  public:
+    int kthSmallest(TreeNode *root, int k)
+    {
+        // Store in a queue
+        std::deque<TreeNode *> queue;
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        while (!queue.empty() || root)
+        {
+            // Keep Traverse to the left
+            while (root)
+            {
+                queue.emplace_back(root);
+                root = root->left;
+            }
 
-    if (root == nullptr)
-      return -1;
+            // Get the smallest node
+            root = queue.back();
+            queue.pop_back();
 
-    std::deque<TreeNode *> stack;
-    stack.emplace_back(root);
-    root = root->left;
+            if (--k == 0)
+            {
+                return root->val;
+            }
 
-    while (!stack.empty() || root) {
+            // Go the right subtree to continue to find the next smallest
+            root = root->right;
+        }
 
-      while (root) {
-        stack.emplace_back(root);
-        root = root->left;
-      }
-
-      root = stack.back();
-      stack.pop_back();
-
-      if (--k == 0)
-        return root->val;
-
-      root = root->right;
+        return -1;
     }
-
-    return -1;
-  }
 };

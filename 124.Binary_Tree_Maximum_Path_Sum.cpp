@@ -12,57 +12,61 @@
  */
 
 /*
- * Path is a sequence of nodes where each pair of adjacent nodes in the sequence has an
- * edge connecting them. A node can be appear only once in the sequence.
- * IMPORTANT: Not compulsory to pass through the root.
- * Goal: Find the maximum path sum
- *
- * Intuition:
- * There is no constraint on how to form the path as long as the node traverse once can already.
- * And another important thing is is not ncessarily to include the root node.
- * So we will basically compute the sum at avery node, which means we treat every node as the root node.
- * So we can solve it through recursively to compute the sum at evey single node.
- * Then another helper function to compute the maximum path sum for the left and right subtree
- */
+ * Finding the maximum path sum
+ * So is not compulsory to include all the nodes.
+ * But it must not be empty path
+ * There are 3 cases
+ * 1 is included the root and then both the left and subtree
+ * 2 is just one path from one of the subtree
+ * 3 is just root down to any intermediate or leaf node
+ * */
+
 #include <algorithm>
-#include <climits>
 class Solution
 {
   private:
-    int answer{INT_MIN};
-
-    int helperGetSubtreeMaxPath(TreeNode *node)
+    int maximumSubTreePath(TreeNode *node)
     {
         if (node == nullptr)
+        {
             return 0;
+        }
 
-        int left = helperGetSubtreeMaxPath(node->left);
-        int right = helperGetSubtreeMaxPath(node->right);
+        int left = node->val + maximumSubTreePath(node->left);
+        int right = node->val + maximumSubTreePath(node->right);
 
-        int pathSum = node->val + std::max(left, right);
+        // Get the maximum path
+        int pathSum = std::max(left, right);
 
-        // handle edge cases where it consists all negative nodes
+        // Be greedy dont include those less than 0
         return std::max(0, pathSum);
     }
 
-    void dfs(TreeNode *node)
+    void dfs(int &ans, TreeNode *node)
     {
+        // Base Case
         if (node == nullptr)
+        {
             return;
+        }
 
-        int left = helperGetSubtreeMaxPath(node->left);
-        int right = helperGetSubtreeMaxPath(node->right);
+        int leftSub = maximumSubTreePath(node->left);
+        int rightSub = maximumSubTreePath(node->right);
 
-        answer = std::max(answer, node->val + left + right);
+        ans = std::max(ans, node->val + leftSub + rightSub);
 
-        dfs(node->left);
-        dfs(node->right);
+        // Then try again at the left & right subtree because it is not neccessarily to start with this node
+        dfs(ans, node->left);
+        dfs(ans, node->right);
     }
 
   public:
     int maxPathSum(TreeNode *root)
     {
-        dfs(root);
-        return this->answer;
+        int ans{INT_MIN};
+
+        dfs(ans, root);
+
+        return ans;
     }
 };

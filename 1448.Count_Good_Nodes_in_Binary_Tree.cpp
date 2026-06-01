@@ -6,45 +6,50 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 
 /*
- * Goal: Return the number of good nodes
- * Good node: A node X is a good node if in the path from root to X there are no
- * nodes with a value greater than X.
+ * A node, x is consider good if it doenst contain any nodes from the root to the node x has value greater than its
  *
  * Intuition:
- * Use dfs or recursive and pass the current maximum value so that we know that whether the node we visited is it the
- * maximum or not in order to determine whether is it a good nodes or not. A root node is always a good node
+ * So tree can be either solve through bfs/dfs
+ * So over here both works. Key information that we need to pass down is the current maximum value from the node, so
+ * that we can compare to it
  *
+ * So we use dfs here and simply just travers the tree
  * Time Complexity: O(n)
- */
-#include <functional>
+ * Space Complexity: O(h) where h is the height of the tree
+ * */
 class Solution
 {
   public:
     int goodNodes(TreeNode *root)
     {
-        int answer{};
+        // Root node itself consider a good node
+        int cnt{1};
 
-        std::function<void(TreeNode *, int)> helper = [&](TreeNode *node, int maximumVal) {
+        auto dfs = [&](auto &self, TreeNode *node, int currMax) -> void {
             if (node == nullptr)
-                return;
-
-            if (node->val >= maximumVal)
             {
-                answer++;
-                maximumVal = node->val;
+                return;
             }
 
-            helper(node->left, maximumVal);
-            helper(node->right, maximumVal);
+            if (node->val >= currMax)
+            {
+                currMax = node->val;
+                cnt++;
+            }
+
+            // Traverse both side
+            self(self, node->left, currMax);
+            self(self, node->right, currMax);
         };
 
-        helper(root, root->val);
-        return answer;
+        dfs(dfs, root->left, root->val);
+        dfs(dfs, root->right, root->val);
+
+        return cnt;
     }
 };

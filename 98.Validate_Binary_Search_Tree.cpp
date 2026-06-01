@@ -6,43 +6,42 @@
  *     TreeNode *right;
  *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
  *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
- * right(right) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 
 /*
- * Goal: Determine if the tree is a valid BST or not
- * Intuition: Traverse through every node and check at every node
- * IMPORTANT: It must be consistent throughout the tree (BST property)
- * Time Complexity: O(n)
- * Space Complexity: O(lgn)
- */
-class Solution {
-public:
-  bool isValidBST(TreeNode *root) {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+ * Check whether a tree is a valid BST
+ * So tree problem either bfs/dfs
+ * DFS -> Recursive
+ * DFS will be much more simpler in this case
+ *
+ * So we just need to check the tree according to the BST property and check from the leaf up to the tree
+ * And also we need to pass down the information of the maxVal & minVal allow.
+ * For instance all the nodes in the left subtree must be smaller than the node and vice versa for the right subtree
+ * */
+#include <climits>
+class Solution
+{
+  public:
+    bool isValidBST(TreeNode *root)
+    {
+        auto dfs = [](this auto self, TreeNode *node, long minVal, long maxVal) {
+            // Base Case
+            if (node == nullptr)
+            {
+                return true;
+            }
 
-    if (!root)
-      return true;
+            // Check whether follow the BST property or not
+            if (node->val >= maxVal || node->val <= minVal)
+            {
+                return false;
+            }
 
-    std::function<bool(TreeNode *, long, long)> dfs =
-        [&](TreeNode *node, long left, long right) {
-          if (!node)
-            return true;
-
-          // for the left subtree, we only need to take care of the right
-          // maximum value because for the left is always negative inf same goes
-          // to the right in the opposite way
-          if (!(node->val > left && node->val < right))
-            return false;
-
-          return dfs(node->left, left, node->val) &&
-                 dfs(node->right, node->val, right);
+            return self(node->left, minVal, node->val) && self(node->right, node->val, maxVal);
         };
 
-    return dfs(root, LONG_MIN, LONG_MAX);
-  }
+        return dfs(root, LONG_MIN, LONG_MAX);
+    }
 };

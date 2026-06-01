@@ -1,36 +1,32 @@
 #include <functional>
-#include <ios>
-#include <iostream>
 #include <queue>
 #include <vector>
-
 /*
- * Goal: return the kth largest element in the arrray
- * Constraint: Solve it without sorting
+ * Find 'Kth' largest --> First intuition use a heap
+ * max or min heap? Since we getting the kth largest, so that mean we want to get it in O(1)
+ * Then the method will be accessing the top of the heap
+ * Then just use a minheap
  *
- * Intuition: Since we cannot sort the array, what we gonna do is put the
- * elements into a minHeap, when ever the heap size greater than k we pop it
- * Time Complexity: O(nlgk)
+ * Time Complexity: O(nlgn) --> Inserting/Deletion is O(lgn)
  * Space Complexity: O(k)
  * */
+class Solution
+{
+  public:
+    int findKthLargest(std::vector<int> &nums, int k)
+    {
+        std::priority_queue<int, std::vector<int>, std::greater<>> minHeap;
 
-class Solution {
-public:
-  int findKthLargest(std::vector<int> &nums, int k) {
+        for (const auto num : nums)
+        {
+            minHeap.push(num);
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+            if (minHeap.size() > k)
+            {
+                minHeap.pop();
+            }
+        }
 
-    std::priority_queue<int, std::vector<int>, std::greater<>> minHeap;
-
-    for (const auto &num : nums) {
-      if (minHeap.size() > k)
-        minHeap.pop();
-      minHeap.emplace(num);
+        return minHeap.top();
     }
-    if (minHeap.size() > k)
-      minHeap.pop();
-    return minHeap.top();
-  }
 };

@@ -11,37 +11,34 @@
  */
 
 /*
- * Goal: Delete every node where its value is equal to target.
+ * Delete every node where its value is equal to target and only able to delete the leaf node.
+ * And need to take care of the node whcih is initially not leaf node but once the leaf node get deleted it become the
+ * leaf node
  *
- * Intuition:
- * We need to delete every leaf node where its value is equal to target. But how can we delete and traverse the tree?
- * There is 4 ways to traverse, inorder, preorder, postorder, and level order.
- * So is much more easier to build a tree that deleteing the node from the bottom
- * Therefore, we need to use postorder traversal.
- * Time Complexity: O(n)
- * Space Complexity: O(n)
+ *  So what kind of order should we traverse the tree. Since we need to delete node and replace
+ *  It best to start from the bottom --> PostOrder
+ *  We will start from the bottom so we can handle all those ndoes who are initially not a leaf node
  * */
 class Solution
 {
   public:
     TreeNode *removeLeafNodes(TreeNode *root, int target)
     {
-        if (!root)
+        // Base Case
+        if (root == nullptr)
         {
             return nullptr;
         }
 
-        TreeNode *left = removeLeafNodes(root->left, target);
-        TreeNode *right = removeLeafNodes(root->right, target);
+        // Go to the leaf node first
+        root->left = removeLeafNodes(root->left, target);
+        root->right = removeLeafNodes(root->right, target);
 
-        // Make sure is a leaf node
-        if (left == nullptr && right == nullptr && root->val == target)
+        // Then only handle the leaf node, so initially non leaf node also can be handle
+        if (root->left == nullptr && root->right == nullptr && root->val == target)
         {
             return nullptr;
         }
-
-        root->left = left;
-        root->right = right;
 
         return root;
     }

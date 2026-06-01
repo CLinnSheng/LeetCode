@@ -1,39 +1,47 @@
 #include <cmath>
-#include <ios>
-#include <iostream>
+#include <queue>
 #include <vector>
+using std::vector;
 
 /*
- * Given an array of points
- * Goal: Return the k cloest points to the origin
- *
- * Intuition: Since we want to find the closst point to the origin and kth
- * smallest First we need to compute the distance from the point to the origin
- * Need a data structure that stored distance in ascending order
- * A clever way is to make use of the sort function, we can create our own
- * comparator function
+ * Getting k closest point.
+ * 'K' --> Can use a priority_queue or just sort it
  *
  * Time Complexity: O(nlgn)
- * Space Complexity: O(k)
- *
+ * Spaec Complexity: O(n)
  * */
-class Solution {
-public:
-  std::vector<std::vector<int>> kClosest(std::vector<std::vector<int>> &points,
-                                         int k) {
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+struct Comparator
+{
 
-    // sort it in ascending order
-    std::sort(points.begin(), points.end(), [](const auto &p1, const auto &p2) {
-      return (pow(p1[0], 2) + pow(p1[1], 2)) < (pow(p2[0], 2) + pow(p2[1], 2));
-    });
+    bool operator()(const vector<int> &A, const vector<int> &B)
+    {
+        double distance_a = std::sqrt(pow(A[0], 2) + pow(A[1], 2));
+        double distance_b = std::sqrt(pow(B[0], 2) + pow(B[1], 2));
 
-    // then resizes it because we only want k smallest
-    points.resize(k);
+        return distance_a > distance_b;
+    };
+};
+class Solution
+{
+  public:
+    vector<vector<int>> kClosest(vector<vector<int>> &points, int k)
+    {
+        std::priority_queue<vector<int>, vector<vector<int>>, Comparator> minHeap;
 
-    return points;
-  }
+        for (const auto &point : points)
+        {
+            minHeap.emplace(point);
+        }
+
+        vector<vector<int>> ans;
+
+        while (k-- != 0)
+        {
+            ans.push_back(minHeap.top());
+            minHeap.pop();
+        }
+
+        return ans;
+    }
 };

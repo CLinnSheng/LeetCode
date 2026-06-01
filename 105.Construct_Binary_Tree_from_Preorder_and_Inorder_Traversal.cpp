@@ -12,49 +12,63 @@
  */
 
 /*
-Given 2 array, 1 is inorder and another is preorder
-Preorder: We get the information of the first node,
-for example the first node is the root node and then the second node is another
-root node Inorder: We can get to know the left and right child of the rood node
-given that if we know the root node if root node at index 2 then left node will
-be 1 and right node will be index 3 & it also gives information for the size of
-the whole subtree
+ * Construct a tree based on Preorder Traversal & Inorder Traversal
+ * So the key will be make use of the property of preorder and inorder
+ * Preorder:
+ * - push
+ * - left
+ * - right
+ * So at any index within the preorder array, the node itself is the root of the subtree
+ *
+ * Inorder
+ * - left
+ * - push
+ * - right
+ * So at any index we can know the node of its left child & right child
+ * for instance for root at index 2 -> Index 1 will be the left child and index 3 will be the right child
+ *
+ * So what we can do is create the root node of a subtree from preorder array, then get the index of the node in the
+ * inorder array. So that we can get the left & right node from the inorder array
+ * We can use dfs/recursive to build the tree, since we need to create it from the array then we need to pass the index
+ * and also the range we can search through
+ * */
+#include <unordered_map>
+class Solution
+{
+  public:
+    TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder)
+    {
+        // Map to store the indices of the node
+        std::unordered_map<int, int> mp;
+        int index{};
 
-Intuition: After construct the root node from preorder then find its left and
-right child from inorder (checking left and right)
+        for (int i{}; i < inorder.size(); i++)
+        {
+            mp[inorder[i]] = i;
+        }
 
-Time Complexity: O(n)
-Space Complexity: O(lgn)
-*/
-class Solution {
-public:
-  TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder) {
+        return helper(mp, preorder, inorder, index, 0, preorder.size() - 1);
+    }
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+    TreeNode *helper(const std::unordered_map<int, int> &mp, std::vector<int> &preorder, std::vector<int> &inorder,
+                     int &index, int start, int end)
+    {
+        // Base Case
+        if (start > end)
+        {
+            return nullptr;
+        }
 
-    // Use a hash to store the index of the preorder number
-    std::unordered_map<int, int> map;
-    for (int i = 0; i < inorder.size(); i++)
-      map[inorder[i]] = i;
-    int index = 0;
-    return helper(map, preorder, inorder, index, 0, preorder.size() - 1);
-  }
+        // Create the rood node of the subtree from preorder
+        TreeNode *root = new TreeNode(preorder[index++]);
 
-  TreeNode *helper(std::unordered_map<int, int> &map,
-                   std::vector<int> &preorder, std::vector<int> &inorder,
-                   int &index, int start, int end) {
+        // Get the index of this node in inorder
+        // Becasue we can form the child node from inorder array
+        int root_index = mp.at(root->val);
 
-    if (start > end)
-      return nullptr;
+        root->left = helper(mp, preorder, inorder, index, start, root_index - 1);
+        root->right = helper(mp, preorder, inorder, index, root_index + 1, end);
 
-    TreeNode *node = new TreeNode(preorder[index++]);
-
-    int mid = map[node->val];
-    node->left = helper(map, preorder, inorder, index, start, mid - 1);
-    node->right = helper(map, preorder, inorder, index, mid + 1, end);
-
-    return node;
-  };
+        return root;
+    };
 };

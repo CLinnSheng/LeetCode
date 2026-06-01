@@ -1,55 +1,89 @@
-#include <ios>
-#include <iostream>
+#include <deque>
+#include <functional>
+#include <queue>
+#include <unordered_map>
+#include <utility>
 #include <vector>
-
 /*
-Goal: Return the minimum cpu run time
-Constraint: There is an idle time to run the same process
+ * identical tasks must be seperated by at least n cpu cycles
+ * return the minimum number of cpu cycles qre required to complete all tasks
+ *
+ * observation:
+ * "identical" --> counts/freq of the task matters
+ * want to return the minimum cycle so try to reduce as much idle time as possible
+ *
+ * intuition:
+ * always process the most frequent task as possible, then we can use the idle time to process other task to make use of
+ * the idle task
+ *
+ * since we want to always process the most frequent, then use a maxheap to get access to it in o(1)
+ * get the frequency of each task --> map
+ * and also need to handle task that gets into waiting queue. --> can use a queue to store the task and the time it gets
+ * available. So we dont really need to know which task is in the waiitng queue, just psuh the next available time is
+ * enough
+ * */
+class Solution
+{
+  public:
+    int leastInterval(std::vector<char> &tasks, int n)
+    {
+        int time{};
+        std::priority_queue<int, std::vector<int>, std::less<>> maxHeap;
+        std::unordered_map<int, int> mp;
 
-Intuition: We must process the process with the most frequent count
-This is because we can make use of the idle time to run other process that comes
-after x (in frequency) Through this we can minimize the least interval time we
-can make use of maxHeap data structure to get access the most frequent count use
-queue data structure to handle the idle processes or also can known as waiting
-queue. Once the process reach the desired amount of waiting time, we can send
-the process back to the ready queue. Time Complexity: O(n) Space Complexity:
-O(n)
-*/
-class Solution {
-public:
-  int leastInterval(vector<char> &tasks, int n) {
+        for (const auto task : tasks)
+        {
+            mp[task]++;
+        }
 
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
+        // push the freq into the heap
+        for (auto [_, freq] : mp)
+        {
+            maxHeap.push(freq);
+        }
 
-    std::unordered_map<int, int> map;
-    for (const auto &task : tasks)
-      map[task]++;
+        // Hold tasks that are cooling down
+        std::deque<std::pair<int, int>> queue;
 
-    // maxheap
-    std::priority_queue<int, std::vector<int>, less<>> maxHeap;
-    for (const auto &[_, freq] : map)
-      maxHeap.emplace(freq);
+        while (!queue.empty() || !maxHeap.empty())
+        {
+            // Always processed the most freq task first
+            if (!maxHeap.empty())
+            {
+                time++;
 
-    // to track the time and to know when to execute process back from idle
-    int time = 0;
-    std::deque<std::pair<int, int>> queue; // to store idle process;
-    while (!maxHeap.empty() || !queue.empty()) {
-      // idle process go back to the ready queue after waiting for n time
-      if (!queue.empty() && time >= queue.front().second) {
-        maxHeap.emplace(queue.front().first);
-        queue.pop_front();
-      }
+                // Need to handle tasks in the waiting queueu become available then only choose from all of it
+                if (queue.front().second == time)
+                {
+                    auto [freq, _] = queue.front();
+                    queue.pop_front();
 
-      if (!maxHeap.empty()) {
-        int process_freq = maxHeap.top() - 1;
-        maxHeap.pop();
-        if (process_freq > 0)
-          queue.emplace_back(process_freq, n + time + 1);
-      }
-      time++;
+                    maxHeap.push(freq);
+                }
+
+                int freq = maxHeap.top();
+                maxHeap.pop();
+
+                freq--;
+
+                // Then check whether do we still need to process this task again?
+                if (freq != 0)
+                {
+                    queue.emplace_back(std::pair{freq, time + n});
+                }
+            }
+            else
+            {
+                auto [freq, task_time] = queue.front();
+                queue.pop_front();
+
+                // Move forward the time
+                time = task_time;
+
+                maxHeap.push(freq);
+            }
+        }
+
+        return time;
     }
-    return time;
-  }
 };

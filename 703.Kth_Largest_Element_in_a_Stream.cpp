@@ -1,34 +1,37 @@
 /*
-Goal: Maintains a stream of test scores and continously return the kth highest
-test score Intuition: Since need to continously return the kth highest test
-score A data structure that always has the kth highest test score on the top of
-data structure
---> minHeap with size of k, so the top will be the kth highest test score
+ * Can use priority queue data structure to store it
+ * add -> return the kth largest after inserting the new element
+ * First intuition will be using a maxHeap but this is wrong, because we need iterate from the top to the kth element
+ * But using minHeap will be much more easier, because we acn make it alwayus contain only k element inside the heap, so
+ * the top will always be the kth largest element
+ * */
 
-Time Complexity: O(mlgk + nlgk) first we buld the heap and then add n times
-Space Complexity: O(k)
-*/
-class KthLargest {
-public:
-  std::priority_queue<int, std::vector<int>, greater<int>> minHeap;
-  int size;
-  KthLargest(int k, vector<int> &nums) : size(k) {
-    for (const auto &num : nums)
-      minHeap.emplace(num);
-  }
+#include <functional>
+#include <queue>
+#include <vector>
+class KthLargest
+{
+    int k;
+    std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;
 
-  int add(int val) {
-    minHeap.emplace(val);
+  public:
+    KthLargest(int k, std::vector<int> &nums) : k(k)
+    {
+        for (const auto &num : nums)
+        {
+            minHeap.emplace(num);
+        }
+    }
 
-    while (minHeap.size() > size)
-      minHeap.pop();
+    int add(int val)
+    {
+        minHeap.emplace(val);
 
-    return minHeap.top();
-  }
+        while (k < minHeap.size())
+        {
+            minHeap.pop();
+        }
+
+        return minHeap.top();
+    }
 };
-
-/**
- * Your KthLargest object will be instantiated and called as such:
- * KthLargest* obj = new KthLargest(k, nums);
- * int param_1 = obj->add(val);
- */
