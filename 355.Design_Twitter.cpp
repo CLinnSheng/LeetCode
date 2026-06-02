@@ -1,60 +1,95 @@
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+/*
+ * Each tweet comes with a unique tweetId
+ * Things we need to track:
+ * 1. The following of the users
+ *  - To easily access all the following of a user by its user id is using a hashmap
+ *  - And to get the following, we can store all of it under a hash set
+ * 2. The tweets from each users
+ *  - A hashmap map the user id to a list of tweets it posted
+ *  - For the tweet we store it as a pair of time & uniqueId because when we push into the heap, it can sort according
+ * to the time
+ * 3. We also need an internal counter to track the time where the tweet get created
+ * 4. Getting the 10 most recent we can store all the tweets inside a heap and just get 10 out of it
+ * */
+class Twitter
+{
+    std::unordered_map<int, std::unordered_set<int>> followingMap;
+    std::unordered_map<int, std::vector<std::pair<int, int>>> tweetsMap;
+    int time{};
 
-class Twitter {
-public:
-  std::unordered_map<int, std::unordered_set<int>> follows;
-  std::unordered_map<int, std::vector<std::pair<int, int>>> tweets;
-  int tweet_cnt = 0;
-
-  Twitter() : tweet_cnt{0} {}
-
-  // Use a hashmap for mapping the user to the list of tweet it had tweeted
-  void postTweet(int userId, int tweetId) {
-    tweets[userId].emplace_back(tweet_cnt++, tweetId);
-  }
-
-  // getting the tweets of the 10 most recent tweet.
-  // from all user including yourself
-  std::vector<int> getNewsFeed(int userId) {
-    std::vector<int> recent_tweets;
-
-    auto compare = [](const std::pair<int, int> &a,
-                      const std::pair<int, int> &b) {
-      return a.first < b.first;
-    };
-
-    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>,
-                        decltype(compare)>
-        maxHeap(compare);
-
-    // 10 most recent feed include its own post also
-    follows[userId].insert(userId);
-    for (const auto &followingId : follows[userId]) {
-      if (tweets.count(followingId)) {
-        for (const auto &_tweet : tweets[followingId])
-          maxHeap.emplace(_tweet);
-      }
+  public:
+    Twitter()
+    {
     }
 
-    while (!maxHeap.empty()) {
-      auto recent = maxHeap.top();
-      maxHeap.pop();
-      recent_tweets.emplace_back(recent.second);
-      if (recent_tweets.size() == 10)
-        break;
+    void postTweet(int userId, int tweetId)
+    {
+        // Insert into the user post tweet list
+        tweetsMap[userId].push_back(std::pair{time++, tweetId});
     }
-    return std::move(recent_tweets);
-  }
 
-  // the follower might follow more than 1 id
-  // so the data structure that will be use for easy to handler is
-  // a hashmap mapping to a set data structure
-  // this only take O(1) for finding
-  // this will be use for follow and unfollow
-  void follow(int followerId, int followeeId) {
-    follows[followerId].insert(followeeId);
-  }
+    std::vector<int> getNewsFeed(int userId)
+    {
+        // Time Complexity: O(nlgn)
+        // Space Complexity: O(N*M + N*m + n)
+        // N is the total number of users
+        // M is the maximum number of tweets by any user
+        // m is the total number of following user
 
-  void unfollow(int followerId, int followeeId) {
-    follows[followerId].erase(followeeId);
-  }
+        struct Comparator
+        {
+            bool operator()(const std::pair<int, int> &A, const std::pair<int, int> &B)
+            {
+                return A.first < B.first;
+            };
+        };
+
+        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Comparator> maxHeap;
+
+        // Show the user own post as well
+        // So we push it self into its own map
+        followingMap[userId].insert(userId);
+
+        // Push all the tweets into the heap
+        for (const auto following : followingMap[userId])
+        {
+            for (const auto &tweet : tweetsMap[following])
+            {
+                maxHeap.push(tweet);
+            }
+        }
+
+        std::vector<int> tweets;
+        while (!maxHeap.empty())
+        {
+            if (tweets.size() == 10)
+            {
+                break;
+            }
+
+            auto [_, id] = maxHeap.top();
+            maxHeap.pop();
+
+            tweets.push_back(id);
+        }
+
+        return tweets;
+    }
+
+    void follow(int followerId, int followeeId)
+    {
+        // Add into the following Map
+        followingMap[followerId].insert(followeeId);
+    }
+
+    void unfollow(int followerId, int followeeId)
+    {
+        // remove it from the map
+        followingMap[followerId].erase(followeeId);
+    }
 };
