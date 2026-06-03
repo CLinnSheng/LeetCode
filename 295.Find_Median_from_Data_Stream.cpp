@@ -1,69 +1,80 @@
 /*
- * Goal: Find the median of every single time we want to & the median changes
- * everytime we insert a new eleemt
+ * Brute force: Sort the arrays we stored every time a new value is added
+ * Time Complexity: O(nlgn)
  *
- * Intuition:
- * Brute force
- * Sort the element everytime we
- * want to find the median. And then get the middle element. Time Complexity:
- * O(nlgn) because of sorting Space Complexity: O(n)
- *
- * Theres a better way to optimize it for the sorting part instead of sorting it
- * every single time. Why dont we seperate the whole array into 2 parts by using
- * maxHeap & minHeap. To find the median just get the average of the top from
- * minHeap & maxHeap if even number or else get the 1 larget in size This will
- * reduce the timec complexity to O(lgn) because everytime insert and remove
- * will only cost logn Space Complexity: O(N)
+ * Median is actually the mean from the maximum of the left half and the minimum from the right half
+ * So we need to use a data strucutre we can easily add into the half, and easily access the minimum & maximum
+ * Or Odd number just get the min/max from the larger half
+ * Data Structure --> minheap & maxheap
+ * But the problem is how do we know which half should we add whenever a new data comes?
+ * One thing for sure is we need to make sure the size diff between these 2 heaps are always equal to 1
+ * The way to determine add into which half is through the min/max element from each half
+ * For instance, if greater than the min means must be at the right half which is larger
+ * otherwise at the left half which is smaller
+ * And also we need to always rebalance in order to keep it min size diff of 1
  * */
 
+#include <cstdlib>
 #include <functional>
 #include <queue>
+#include <vector>
 class MedianFinder
 {
-  public:
-    // minHeap storing the largete element which is on the right half
-    // maxHeap storing the smaller element which is on the left half
-    std::priority_queue<int, std::vector<int>> left_half;
-    std::priority_queue<int, std::vector<int>, std::greater<>> right_half;
+    std::priority_queue<int, std::vector<int>, std::greater<>> minHeap;
+    std::priority_queue<int, std::vector<int>, std::less<>> maxHeap;
 
+  public:
     MedianFinder()
     {
     }
 
+    // O(lgn)
     void addNum(int num)
     {
-        // we by default add number to minHeap first then only proceed to check
-        if (left_half.empty())
+        // Determine which half to add
+        if (minHeap.empty() || num > minHeap.top())
         {
-            left_half.emplace(num);
-            return;
+            minHeap.push(num);
+        }
+        else
+        {
+            maxHeap.push(num);
         }
 
-        left_half.emplace(num);
-        // Checking whether is it on the correct half or not
-        if (!left_half.empty() && !right_half.empty() && right_half.top() < left_half.top())
+        // Check the size, rebalance if needed
+        if (std::abs(int(minHeap.size() - maxHeap.size())) > 1)
         {
-            right_half.emplace(left_half.top());
-            left_half.pop();
-        }
+            // The difference is always either 1 or 2
+            // So we just need to pop one elmeent and add it to another half
+            // And the element should be the top of either heap because if left half is too big then definitely the
+            // maxElement should be decreased and vice versa
+            if (minHeap.size() > maxHeap.size())
+            {
+                int top = minHeap.top();
+                minHeap.pop();
 
-        // Make sure the size differences at max is 1
-        if (right_half.size() > left_half.size() + 1)
-        {
-            left_half.emplace(right_half.top());
-            right_half.pop();
-        }
-        if (left_half.size() > right_half.size() + 1)
-        {
-            right_half.emplace(left_half.top());
-            left_half.pop();
+                maxHeap.push(top);
+            }
+            else
+            {
+                int top = maxHeap.top();
+                maxHeap.pop();
+
+                minHeap.push(top);
+            }
         }
     }
 
+    // O(1)
     double findMedian()
     {
-        return (right_half.size() + left_half.size()) % 2
-                   ? (right_half.size() > left_half.size() ? right_half.top() : left_half.top())
-                   : (right_half.top() + left_half.top()) / (double)2;
+        int size = minHeap.size() + maxHeap.size();
+
+        if (size % 2 == 0)
+        {
+            return (minHeap.top() + maxHeap.top()) / 2.0;
+        }
+
+        return minHeap.size() > maxHeap.size() ? minHeap.top() : maxHeap.top();
     }
 };

@@ -1,88 +1,73 @@
 #include <algorithm>
-#include <climits>
 #include <functional>
 #include <queue>
 #include <utility>
 #include <vector>
+
 /*
- * trips[i] --> [numPassengers[i], from[i], to[i]]
- * Direction due east from car initial location
- * Goal: Determine is it possible to pick up and drop of all passengers for all the given trips
+ * The trips are not sorted at all
+ * We need to sort according to their starting point, so is must more easier for us to process the array
+ * Then just iterate through the array and check against the to & from time, to know when to add passenger and check the
+ * capacity after adding the pasenger
+ * But we need to take care when to minus and when to add
+ * We only drop the customer if the current trip starting is greater than the end of ongoing trip
+ * Time Complexity: O(nlgn)
+ * Space Complexity: O(n)
  *
- * Intuition:
- * So we need to make sure everytime we pick it wont exceed the available capacity if it exceeds then means
- * cannot prick and drop all passgeners
  *
- * We need to sort the trip according to the start time.
- * Then have a data structure that storing the current psasenger trip end time and num of passengers
- * This we can use a minHeap that can easily access the earliest trip end time
- * Time Complexity: O(Nlgn)
- *
- * Theres actually a more efficient way which is use line sweeping algorithm
- * because we can see at a specific time passenger will go up and a specific time a passenger will go down
- * So we just need to build a time array where passenger will go up and down and track the num of passenger on the bus
+ * So instead of tracking the trip, why not we track what changes at each position?
+ * Since we got the border of each trip, so simply just drop/add the cnt
+ * If at any point of time the cnt exceed the capacity then means fail
+ * Time Complexity: O(n)
  * */
+
 class Solution
 {
   public:
     bool carPooling(std::vector<std::vector<int>> &trips, int capacity)
     {
-        // Time Complexity: O(nlgn)
-        // std::sort(trips.begin(), trips.end(),
-        //           [](const std::vector<int> &A, const std::vector<int> &B) { return A[1] < B[1]; });
-        //
-        // std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>>
-        //     minHeap;
-        //
-        // int currPassenger{};
+        // Sort the trips
+        // O(nlgn)
+        // std::sort(trips.begin(), trips.end(), [](const auto &a, const auto &b) { return a[1] < b[1]; });
+        // std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> onGoing;
+        // int cnt{};
         //
         // for (const auto &trip : trips)
         // {
-        //     int numPassengers{trip[0]}, from{trip[1]}, to{trip[2]};
-        //
-        //     // Remove any end trip
-        //     while (!minHeap.empty() && minHeap.top().first <= from)
+        //     // Dropping the passenger
+        //     while (!onGoing.empty() && onGoing.top().first <= trip[1])
         //     {
-        //         currPassenger -= minHeap.top().second;
-        //         minHeap.pop();
+        //         cnt -= onGoing.top().second;
+        //         onGoing.pop();
         //     }
         //
-        //     // Fetch the current trip passenger
-        //     currPassenger += numPassengers;
+        //     // Adding the passenger
+        //     cnt += trip[0];
+        //     onGoing.emplace(trip[2], trip[0]);
         //
-        //     // Check whether exceed capacity or not
-        //     if (currPassenger > capacity)
+        //     if (cnt > capacity)
+        //     {
         //         return false;
-        //
-        //     // Push the ongoing trip
-        //     minHeap.emplace(to, numPassengers);
+        //     }
         // }
-        //
-        // return true;
 
-        // Line Sweeping Algorithm O(n)
-        int minTime{INT_MAX}, maxTime{INT_MIN};
+        // Scan through the event
+        int positions[1001] = {0};
         for (const auto &trip : trips)
         {
-            minTime = std::min(trip[1], minTime);
-            maxTime = std::max(trip[2], maxTime);
+            positions[trip[1]] += trip[0];
+            positions[trip[2]] -= trip[0];
         }
 
-        int N{maxTime - minTime + 1};
-        std::vector<int> timeline(N + 1, 0);
-        // Populate the timeline array
-        for (const auto &trip : trips)
+        int cnt{};
+        for (int i{}; i <= 1000; i++)
         {
-            timeline[trip[1] - minTime] += trip[0]; // Up
-            timeline[trip[2] - minTime] -= trip[0]; // Down
-        }
+            cnt += positions[i];
 
-        int passengers{};
-        for (const auto &passenger : timeline)
-        {
-            passengers += passenger;
-            if (passengers > capacity)
+            if (cnt > capacity)
+            {
                 return false;
+            }
         }
         return true;
     }

@@ -2,51 +2,62 @@
 #include <queue>
 #include <utility>
 #include <vector>
+using std::vector;
 
 /*
- * Can only finish at most 'k' distinct projects before the IPO
- * profits[i] -> pure profit of ith project
- * capital[i] -> minimum capital to start it
- * Initially have w capital
+ * Pick a list of at most k project to maximize final capital
+ * Initial capital w
  *
- * Goal: Design the best way to maximize its total capital after finishing at most 'k' distinct projects
- *
- * Intuition:
- * We initially has 'w' capital, so we actually can have 2 heaps that store the project with minCapital & project with
- * maxProfit. So we will first push whatever project that are within our capital to the project we can do, then only pop
- * the maximum profit project from the heap.
+ * The order of project get executed is totally random so that means we can pick any of it anytime we want
+ * So 2 thing to consider when we picking a project
+ * First it bring the most net profit -> maxHeap
+ * Second is within our capital capability --> minHeap
+ * So just loop until the our capital cant start any project
+ * Time Complexity: O(nlgn)
+ * Space Complexity: O(n)
  * */
 class Solution
 {
   public:
-    int findMaximizedCapital(int k, int w, std::vector<int> &profits, std::vector<int> &capital)
+    int findMaximizedCapital(int k, int w, vector<int> &profits, vector<int> &capital)
     {
         std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>>
-            minHeapCapital;
-        std::priority_queue<int, std::vector<int>, std::less<int>> maxHeapProfit;
+            minCapital;
+        std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::less<std::pair<int, int>>>
+            maxProfit;
+        int cnt{};
 
-        for (int i{}; i < capital.size(); i++)
-            minHeapCapital.emplace(capital[i], profits[i]);
-
-        // Up to K project
-        for (int i{}; i < k; i++)
+        for (int i{}; i < profits.size(); i++)
         {
-            // First check which project we have enough capital to start
-            // push it into the heap of project we can start
-            while (!minHeapCapital.empty() && minHeapCapital.top().first <= w)
+            minCapital.emplace(capital[i], i);
+            // maxProfit.emplace(profits[i], i);
+        }
+
+        // So we find the most profittable project within the project we can afford
+        while (cnt < k && (!minCapital.empty() || !maxProfit.empty()))
+        {
+            // Push all the projects into the max Heap
+            while (!minCapital.empty() && minCapital.top().first <= w)
             {
-                maxHeapProfit.emplace(minHeapCapital.top().second);
-                minHeapCapital.pop();
+                auto top = minCapital.top();
+                minCapital.pop();
+
+                maxProfit.emplace(profits[top.second], top.second);
             }
 
-            // Base Case no project
-            if (maxHeapProfit.empty())
+            // Base Case
+            if (maxProfit.empty())
+            {
                 break;
+            }
 
-            // Then take the maximum project from the heap
-            w += maxHeapProfit.top();
-            maxHeapProfit.pop();
+            // Take the most profitable project
+            auto project = maxProfit.top();
+            maxProfit.pop();
+            w += project.first;
+            cnt++;
         }
+
         return w;
     }
 };
