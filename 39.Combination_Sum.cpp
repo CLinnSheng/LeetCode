@@ -1,44 +1,49 @@
 #include <functional>
 #include <vector>
+using std::vector;
+
 /*
- * Goal: Return a list of combinations in any order that will achieve the target
- *
- * Intuition:
- * Same this is a tree decision problem at every index we can choose to include it or not.
- * But we also need to include all possible subset, so we need backtracking
- * The base case to end the recursion is when it reach the target or exceed
- *
- * Time Complexity: O(2^n)
+ * Find all the possible subset that sum up to target
+ * One thing to note over here is we can use the same index multiple time
+ * So the time complexity will be O(2^(t/m))
+ * t is the target and m is minumum element in the array
+ * The number of element get chosen is t/m
+ * Since finding all the subset --> Backtracking
  * */
 class Solution
 {
   public:
-    std::vector<std::vector<int>> combinationSum(std::vector<int> &candidates, int target)
+    vector<vector<int>> combinationSum(vector<int> &nums, int target)
     {
-        std::vector<int> currSubset;
-        std::vector<std::vector<int>> answer;
+        vector<vector<int>> ans;
+        vector<int> subset;
 
-        std::function<void(const int &, const int &)> backtracking = [&](const int &index, const int &currSum) {
+        std::function<void(const int, const int)> backtracking = [&](const int index, const int currSum) {
+            // Base case
             if (currSum == target)
             {
-                answer.emplace_back(currSubset);
+                ans.emplace_back(subset);
                 return;
             }
 
-            if (currSum > target)
-                return;
-
-            for (int i{index}; i < candidates.size(); i++)
+            if (currSum > target || index == nums.size())
             {
-                currSubset.emplace_back(candidates[i]);
-                backtracking(i, currSum + candidates[i]);
+                return;
+            }
 
-                // backtracking
-                currSubset.pop_back();
+            for (int i{index}; i < nums.size(); i++)
+            {
+                // Include the current element
+                subset.emplace_back(nums[i]);
+
+                // Pass the same index because we are allow to use the same element
+                backtracking(i, currSum + nums[i]);
+
+                subset.pop_back();
             }
         };
 
         backtracking(0, 0);
-        return answer;
+        return ans;
     }
 };

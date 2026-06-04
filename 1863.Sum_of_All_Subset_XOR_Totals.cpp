@@ -5,7 +5,7 @@
  * Hint: All possible subset --> Either choose or skip
  * So this is a backtracking problem
  *
- * Time Complexity: O(2^n)
+ * Time Complexity: O(2^n * n) --> Total Subset: O(2^n) & O(n) operation for each subset
  * Spaec Complexity: O(n)
  * */
 class Solution
@@ -19,6 +19,7 @@ class Solution
         std::function<void(std::vector<int> &, const int)> backtracking = [&](std::vector<int> &currSubset,
                                                                               const int index) {
             int sum{};
+            // O(n)
             for (const auto num : currSubset)
             {
                 sum ^= num;

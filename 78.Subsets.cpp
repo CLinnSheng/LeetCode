@@ -1,42 +1,55 @@
 #include <functional>
 #include <vector>
+using std::vector;
 
 /*
- * Find all the possible subsets
+ * Finding all the possible subset include empty 1
+ * At each index we either choose or not choose. O(2^n)
+ * Since we are getting all the possible subsset, backtracking will be the algo to solve this to get all the possible
+ * subset
  *
- * Intuition:
- * This is actually a tree decision problem, at every index we can choose to include it or not
- * Is also a so called backtracking
- *
- * Time Complexity: O(n * 2^n)
- * is n * 2^n because every new branch will has it own tree decision
+ * Time Complexity: O(2^n * n)
+ * Total Subset -> O(2^n) & Each subset tree do n operation O(n)
+ * Space Complexity: O(n)
  * */
+
 class Solution
 {
   public:
-    std::vector<std::vector<int>> subsets(std::vector<int> &nums)
+    vector<vector<int>> subsets(vector<int> &nums)
     {
-        if (nums.size() == 0)
+        if (nums.empty())
+        {
             return {};
+        }
 
-        std::vector<int> currSubset;
-        std::vector<std::vector<int>> answer;
-        std::function<void(const int &)> backtracking = [&](const int &index) {
-            answer.emplace_back(currSubset);
+        vector<int> subset;
+        vector<vector<int>> ans;
+        int index{};
 
-            // Base Case to stop the recursion
+        std::function<void(const int)> backtracking = [&](const int index) {
+            // Push the subset
+            ans.emplace_back(subset);
+
+            // Base Case
             if (index == nums.size())
+            {
                 return;
+            }
 
+            // O(n)
             for (int i{index}; i < nums.size(); i++)
             {
-                currSubset.emplace_back(nums[i]);
+                // New subset
+                subset.emplace_back(nums[i]);
                 backtracking(i + 1);
-                currSubset.pop_back();
+
+                // Backtrack
+                subset.pop_back();
             }
         };
 
-        backtracking(0);
-        return answer;
+        backtracking(index);
+        return ans;
     }
 };
