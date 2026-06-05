@@ -1,52 +1,49 @@
 #include <functional>
+#include <unordered_set>
 #include <vector>
-using std::vector;
-
 /*
- * Goal: Return all possible permuations
- *
- * Intuition:
- * Permutation means all the number must be in use but in any order
- * so we need an array to track whether this number is used or not
- * AS usual we can just use backtracking to try all possible combinations
- * Time Complexity: O(n! * n)
+ * Return all the permutation from an array of unique integers
+ * So the order doesnt matter, we need to return all possible sequence of array
+ * So we need a hashset to track which index of nums being used as we always start from index 0
+ * So at every index we still deciding include it or not
+ * Time Complexity: O(n * n!)
+ * Space Complexity: O(n)
  * */
 class Solution
 {
   public:
-    vector<vector<int>> permute(vector<int> &nums)
+    std::vector<std::vector<int>> permute(std::vector<int> &nums)
     {
-        int n(nums.size());
-
-        if (n == 0)
-            return {};
-
-        vector<vector<int>> answer;
-        vector<int> currSubset;
-        vector<int> used(n, false);
+        std::vector<int> subset;
+        std::vector<std::vector<int>> ans;
+        std::unordered_set<int> set;
 
         std::function<void()> backtracking = [&]() {
-            if (currSubset.size() == n)
+            // Base Case
+            if (subset.size() == nums.size())
             {
-                answer.emplace_back(currSubset);
+                ans.emplace_back(subset);
                 return;
             }
 
-            for (int i{}; i < n; i++)
+            for (int i{}; i < nums.size(); i++)
             {
-                if (used[i])
+                // only add if not in set
+                if (set.find(nums[i]) != set.end())
+                {
                     continue;
+                }
 
-                currSubset.emplace_back(nums[i]);
-                used[i] = true;
+                subset.emplace_back(nums[i]);
+                set.insert(nums[i]);
                 backtracking();
 
-                // backtracking
-                currSubset.pop_back();
-                used[i] = false;
+                set.erase(nums[i]);
+                subset.pop_back();
             }
         };
+
         backtracking();
-        return answer;
+        return ans;
     }
 };

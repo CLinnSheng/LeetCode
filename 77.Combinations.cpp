@@ -1,41 +1,40 @@
 #include <functional>
 #include <vector>
-using std::vector;
-
 /*
- * Goal: Return all possible combinations of k numbers chosen from the range [1, n]
- *
- * Intuition:
- * Just use recursive and backtrackking because we need to try all possible combination of k wihtin the range
+ * Find all the combination of k number
+ * So in simply words just from 1 to n we can either choose it or not
+ * Backtracking --> O(2^n)
  * */
 class Solution
 {
   public:
-    vector<vector<int>> combine(int n, int k)
+    std::vector<std::vector<int>> combine(int n, int k)
     {
-        vector<int> currSubset;
-        vector<vector<int>> answer;
+        std::vector<int> subset;
+        std::vector<std::vector<int>> ans;
 
-        std::function<void(const int &)> backtracking = [&](const int &val) {
-            if (currSubset.size() == k)
+        std::function<void(const int)> backtracking = [&](const int index) {
+            // Basecase
+            if (subset.size() == k)
             {
-                answer.emplace_back(currSubset);
+                ans.emplace_back(subset);
                 return;
             }
 
-            if (val > n)
-                return;
-
-            for (int i{val}; i <= n; i++)
+            if (index > n)
             {
-                currSubset.emplace_back(i);
-                backtracking(i + 1);
+                return;
+            }
 
-                // backtracking
-                currSubset.pop_back();
+            for (int i{index}; i <= n; i++)
+            {
+                subset.emplace_back(i);
+                backtracking(i + 1);
+                subset.pop_back();
             }
         };
+
         backtracking(1);
-        return answer;
+        return ans;
     }
 };
