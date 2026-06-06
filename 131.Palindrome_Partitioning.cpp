@@ -3,62 +3,67 @@
 #include <vector>
 
 /*
- * 's' can be split int osubstrings where every substring is a palindrome
- * Goal: Return all possible lists of palindromic substrings
+ * Given a string s, split s into substring where every substring is a palindrome
+ * Find out all the possible list of palindrome substrings
  *
- * Intuition:
- * We need a helper function to check Palindrome, and then we can just use dfs and backtracking to try all possible
- * palindrome substring Time Complexity: O(n * 2^n)
+ * So basically at each index, we can either partition it or not --> O(2^n)
+ * We can use backtracking to try all possible partition
+ * At each index we can only partition if the substring from i to j is a partition or choose to not partition
+ * - If partiiton we need to update the i --> j + 1
+ * - Then keep repeating until i == str.length()
  *
+ * Time Complexity: O(n * 2^n) 2^n possible permutation and each permutation has a O(n) of checkPalindrome
+ * Space Complexity: O(n)
  * */
+
 class Solution
 {
   private:
-    bool checkPalindrome(const std::string &str)
+    bool isPalindrome(const std::string &str)
     {
         int left{}, right(str.length() - 1);
 
-        while (left < right)
+        while (left <= right)
         {
             if (str[left] != str[right])
+            {
                 return false;
+            }
+
             left++;
             right--;
         }
+
         return true;
     }
 
   public:
     std::vector<std::vector<std::string>> partition(std::string s)
     {
-        if (s.length() == 0)
-            return {};
+        std::vector<std::vector<std::string>> ans;
+        std::vector<std::string> subset;
 
-        std::vector<std::vector<std::string>> answer;
-        std::vector<std::string> currSubset;
-
-        std::function<void(const int &)> dfs_backtracking = [&](const int &index) {
+        std::function<void(const int)> backtracking = [&](const int index) {
             // Base Case
             if (index == s.length())
             {
-                answer.emplace_back(currSubset);
+                ans.emplace_back(subset);
                 return;
             }
 
-            for (int i{index}; i < s.length(); i++)
+            for (int right{index}; right < s.length(); right++)
             {
-                std::string subStr{s.substr(index, i - index + 1)};
-                if (checkPalindrome(subStr))
+                // If from index to right is palindrome, then parition it and go down the tree
+                if (isPalindrome(s.substr(index, right - index + 1)))
                 {
-                    currSubset.emplace_back(subStr);
-                    dfs_backtracking(i + 1);
-
-                    // backtracking
-                    currSubset.pop_back();
+                    subset.emplace_back(s.substr(index, right - index + 1));
+                    backtracking(right + 1);
+                    subset.pop_back();
                 }
             }
         };
-        dfs_backtracking(0);
-        return answer;
+
+        backtracking(0);
+        return ans;
     }
 };
