@@ -1,54 +1,51 @@
 #include <functional>
 #include <set>
+#include <unordered_set>
 #include <vector>
-using std::vector;
 
 /*
- * Given an array nums that might contain duplicates
- * Goal: Return all possible unique permutation in any order
- *
- * Intuition:
- * Now the array contain duplcates how can we resolve this issues?
- * We can just use a hash set to track it
- * TIme Complexity: O()
+ * Get all the possible unqiue permutations of nums
+ * So need to handle duplicate elements in nums in order not to prodcue duplciate permutation
+ * So at every index is either choose or not choose --> Backtracking to find all possible permutations
+ * Time Complexity: O(n! * n) where n is the opetaion for each permutation
+ * Inserting invovle copying all the elmeent from the vector & also hashing
+ * Space Complexity: O(n! * n) n! permutations * n elmeents
  * */
+
 class Solution
 {
   public:
-    vector<vector<int>> permuteUnique(vector<int> &nums)
+    std::vector<std::vector<int>> permuteUnique(std::vector<int> &nums)
     {
-        int n(nums.size());
-
-        if (n == 0)
-            return {};
-
-        vector<int> currSubset;
-        vector<int> used(n, false);
-        std::set<vector<int>> answer;
+        std::set<std::vector<int>> ans;
+        std::vector<int> subset;
+        std::unordered_set<int> set; // Storing the index
 
         std::function<void()> backtracking = [&]() {
-            if (currSubset.size() == n)
+            if (subset.size() == nums.size())
             {
-                answer.insert(currSubset);
+                ans.insert(subset);
                 return;
             }
 
-            for (int i{}; i < n; i++)
+            // O(n)
+            for (int i{}; i < nums.size(); i++)
             {
-                if (used[i])
+                if (set.find(i) != set.end())
+                {
                     continue;
+                }
 
-                currSubset.emplace_back(nums[i]);
-                used[i] = true;
+                set.insert(i);
+                subset.emplace_back(nums[i]);
+
                 backtracking();
-
-                // backtracking
-                currSubset.pop_back();
-                used[i] = false;
+                subset.pop_back();
+                set.erase(i);
             }
         };
 
         backtracking();
-        return vector<vector<int>>(answer.begin(), answer.end());
+        return std::vector<std::vector<int>>(ans.begin(), ans.end());
     }
 };
