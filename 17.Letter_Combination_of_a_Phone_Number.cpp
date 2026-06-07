@@ -2,24 +2,25 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 /*
- * Each digit is mapped to a set of character as shown below
- * Goal: Return all possible letter combinations that digits could represent
- *
- * Intuition:
- * This is a decision tree problem where at every index we need to choose which character and also need to try all
- * possible combinations that means we need to back tracking
+ * Each digit is map to a set of characters
+ * So given a digit we want to find all possible letter combinations
+ * 1 important observation here
+ * - We need to find out all possible path
+ * This lead to backtracking algo
  * */
 class Solution
 {
-  private:
-    std::unordered_map<int, std::string> map;
-
-    void helper()
+  public:
+    std::vector<std::string> letterCombinations(std::string digits)
     {
-        map[0] = "+";
-        map[1] = "";
+        if (digits.empty())
+        {
+            return {};
+        }
+
+        // First build the mapping
+        std::unordered_map<int, std::string> map;
         map[2] = "abc";
         map[3] = "def";
         map[4] = "ghi";
@@ -28,42 +29,26 @@ class Solution
         map[7] = "pqrs";
         map[8] = "tuv";
         map[9] = "wxyz";
-    }
 
-  public:
-    Solution()
-    {
-        helper();
-    }
-
-    std::vector<std::string> letterCombinations(std::string digits)
-    {
-        std::vector<std::string> answer;
+        std::vector<std::string> ans;
         std::string str{};
 
-        if (digits.empty())
-            return {};
-
-        std::function<void(const int &)> dfs_backtracking = [&](const int &index) {
+        std::function<void(const int)> backtracking = [&](const int index) {
             if (index == digits.length())
             {
-                answer.emplace_back(str);
+                ans.push_back(str);
                 return;
             }
 
-            auto &mapStr{map[digits[index] - '0']};
-
-            for (const auto &ch : mapStr)
+            for (const auto ch : map[digits[index] - '0'])
             {
                 str += ch;
-                dfs_backtracking(index + 1);
-
-                // backtracking
+                backtracking(index + 1);
                 str.pop_back();
             }
         };
 
-        dfs_backtracking(0);
-        return answer;
+        backtracking(0);
+        return ans;
     }
 };

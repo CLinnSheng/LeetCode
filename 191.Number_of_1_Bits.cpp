@@ -1,20 +1,23 @@
+#include <cstdint>
 /*
- * Intuition: Just simply shift right and use 'and'
- * Time Complexity: O(N)
+ * Find out the number of 1 bits, simply just 'AND' with 1 & keep shifting to the right
  * */
 class Solution
 {
   public:
-    int hammingWeight(int n)
+    int hammingWeight(uint32_t n)
     {
-        int count{};
-
+        int ans{};
         while (n)
         {
-            count += n & 1;
+            if (n & 1)
+            {
+                ans++;
+            }
+
             n >>= 1;
         }
 
-        return count;
+        return ans;
     }
 };
