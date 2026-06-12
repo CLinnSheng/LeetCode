@@ -1,46 +1,44 @@
+/*
+ * Find the number of distinct solutions
+ * Similar to N_Queens. Similar approach to solve the solution
+ * Try all possible path/ways
+ * */
 #include <functional>
 #include <unordered_set>
-
 class Solution
 {
   public:
     int totalNQueens(int n)
     {
-        if (!n)
-            return 0;
+        int ans{};
+        std::unordered_set<int> cols, diagonal_1, diagonal_2;
 
-        // A hash set to track the placed and restricted region
-        std::unordered_set<int> cols, diagonal1, diagonal2;
-        int answer{};
-
-        std::function<void(const int &)> dfs_backtracking = [&](const int &row) {
+        std::function<void(const int)> backtracking = [&](const int row) {
             if (row == n)
             {
-                answer++;
+                ans++;
                 return;
             }
 
-            // Iterating through the columns of the specific row
-            for (int c{}; c < n; c++)
+            for (int col{}; col < n; col++)
             {
-                // Checking
-                if (cols.count(c) == 0 && diagonal1.count(c + row) == 0 && diagonal2.count(c - row) == 0)
+                // Check is this cell valid
+                if (!(cols.count(col) || diagonal_1.count(col + row) || diagonal_2.count(col - row)))
                 {
-                    cols.insert(c);
-                    // 2 direction of diagonal
-                    diagonal1.insert(c + row);
-                    diagonal2.insert(c - row);
+                    cols.insert(col);
+                    diagonal_1.insert(col + row);
+                    diagonal_2.insert(col - row);
 
-                    dfs_backtracking(row + 1);
+                    backtracking(row + 1);
 
-                    // backtracking
-                    cols.erase(c);
-                    diagonal1.erase(c + row);
-                    diagonal2.erase(c - row);
+                    // backtrack
+                    cols.erase(col);
+                    diagonal_1.erase(col + row);
+                    diagonal_2.erase(col - row);
                 }
             }
         };
-        dfs_backtracking(0);
-        return answer;
+        backtracking(0);
+        return ans;
     }
 };
