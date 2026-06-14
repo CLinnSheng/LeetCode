@@ -4,75 +4,90 @@
 #include <string>
 
 /*
- * Goal: Create a prefix tree class
+ * Trie Structure is a tree-like data structure where each node contains a hashmap to store references to its child
+ * nodes which represent characters. Each node also includes a boolean flag to indicate whether the current node marks
+ * the end of a valid word
  *
- * Intuition:
- * We can think of create a data structure wheere we can easily perform all the operations below
- * So the data structure will be a tree that linking all the words with the same prefix. For eg:
- * hot and hot dog. The tree will be h -> o -> t -> d -> o -> g So basically it will link at the back instead of having
- * another tree. We can have a flag to flag at t to tell us that this word exist
- * Time Complexity: O(m * n) --> all characters
+ * Trie starts with a root node that does not hold any character and just serve as the entry point
+ * Time Complexity: O(n)
+ * Space Complexity: O(t)
+ * t -> total number of node created
  * */
-using std::string;
-struct TrieNode
+
+struct TrieStruct
 {
-    std::array<std::shared_ptr<TrieNode>, 26> alphabets;
+    std::array<std::shared_ptr<TrieStruct>, 26> children;
     bool isWord{};
 
-    TrieNode() : isWord{false}
+    TrieStruct()
     {
-        std::fill(alphabets.begin(), alphabets.end(), nullptr);
+        std::fill(children.begin(), children.end(), nullptr);
     }
 };
 
 class PrefixTree
 {
-    std::shared_ptr<TrieNode> root;
+    std::shared_ptr<TrieStruct> root;
 
   public:
     PrefixTree()
     {
-        root = std::make_shared<TrieNode>();
+        root = std::make_shared<TrieStruct>();
     }
 
-    void insert(string word)
+    // Iterate through the characters starting from the root node of the trie tree.
+    // If word[i] is empty create a new node otherwise just continue point to it until end of the word and mark it as
+    // boolean
+    void insert(std::string word)
     {
-        auto temp{root};
-        for (const auto &c : word)
-        {
-            if (temp->alphabets[c - 'a'] == nullptr)
-                temp->alphabets[c - 'a'] = std::make_shared<TrieNode>();
+        auto currNode = root;
 
-            temp = temp->alphabets[c - 'a'];
+        for (const auto ch : word)
+        {
+            // Check whether the node exist or not
+            // Create it if not exist other continue iterate
+            if (currNode->children[ch - 'a'] == nullptr)
+            {
+                currNode->children[ch - 'a'] = std::make_shared<TrieStruct>();
+            }
+
+            currNode = currNode->children[ch - 'a'];
         }
 
-        // Mark it as a word
-        temp->isWord = true;
+        // Mark it as word
+        currNode->isWord = true;
     }
 
-    bool search(string word)
+    // Almost same operation as insert check whether the node is nullptr or a valid node or not, then check its flag
+    bool search(std::string word)
     {
-        auto temp{root};
+        auto currNode = root;
 
-        for (const auto &c : word)
+        for (const auto ch : word)
         {
-            if (temp->alphabets[c - 'a'] == nullptr)
+            if (currNode->children[ch - 'a'] == nullptr)
+            {
                 return false;
-            temp = temp->alphabets[c - 'a'];
+            }
+
+            currNode = currNode->children[ch - 'a'];
         }
 
-        return temp->isWord;
+        return currNode->isWord;
     }
 
-    bool startsWith(string prefix)
+    bool startsWith(std::string prefix)
     {
-        auto temp{root};
+        auto currNode = root;
 
-        for (const auto &c : prefix)
+        for (const auto ch : prefix)
         {
-            if (temp->alphabets[c - 'a'] == nullptr)
+            if (currNode->children[ch - 'a'] == nullptr)
+            {
                 return false;
-            temp = temp->alphabets[c - 'a'];
+            }
+
+            currNode = currNode->children[ch - 'a'];
         }
 
         return true;
