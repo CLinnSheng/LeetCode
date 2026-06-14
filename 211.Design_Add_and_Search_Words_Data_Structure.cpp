@@ -2,86 +2,96 @@
 #include <array>
 #include <memory>
 #include <string>
-using std::string;
 
 /*
- * Goal: Implement all data structure
- * search: return true if any string in the data structure that matches 'word'. 'word' may contain '.' where dots can be
- * matched with any letter
- *
- * Intuition:
- * We can use a trie tree data structure so we can easily store and search word with the same prefix
- * We just need to handle the search for the '.'. So we can use dfs to search through all possible combinations if
- * encounter '.' Time Complexity: O(m * n)
- *
+ * Brute force way is storing all the words in a list. Then just check through the list
+ * This will take O(m*n) where we iterate through the list then linearly scan through each string
+ * How can we optimize it? We can make it to O(n) by using trie structure. Since trie structure linked through the
+ * alphabet and has a flag to check whether the current node as the last character is it a word or not
+ * And also over here we need to take care of wildcard '.' where it can be any letter
  * */
-struct TrieNode
-{
-    std::array<std::shared_ptr<TrieNode>, 26> alphabets;
-    bool isWord;
 
-    TrieNode() : isWord(false)
+struct Trie
+{
+    std::array<std::shared_ptr<Trie>, 26> children;
+    bool isWord{};
+
+    Trie()
     {
-        std::fill(alphabets.begin(), alphabets.end(), nullptr);
+        std::fill(children.begin(), children.end(), nullptr);
     }
 };
 
 class WordDictionary
 {
   private:
-    std::shared_ptr<TrieNode> root;
+    std::shared_ptr<Trie> root;
 
-    bool dfs(const std::string &word, const int &index, std::shared_ptr<TrieNode> node)
+    bool dfs(const int index, const std::string &word, std::shared_ptr<Trie> node)
     {
-        auto currNode{node};
+        if (index == word.length())
+        {
+            return node->isWord;
+        }
 
+        // Check through each letter and find all possible path when we encounter '.'
         for (int i{index}; i < word.length(); i++)
         {
-            // not '.' then handle it like how we handle in trie data structure
             if (word[i] != '.')
             {
-                if (currNode->alphabets[word[i] - 'a'] == nullptr)
+                // Handle if the word is not register
+                if (node->children[word[i] - 'a'] == nullptr)
+                {
                     return false;
-                else
-                    currNode = currNode->alphabets[word[i] - 'a'];
+                }
+
+                // Continue search
+                node = node->children[word[i] - 'a'];
             }
             else
             {
-                // '.', try all possible word because is a wildcard
-                for (const auto &child : currNode->alphabets)
+                // Search all possible path
+                for (const auto &child : node->children)
                 {
-                    if (child != nullptr && dfs(word, i + 1, child))
+                    if (child != nullptr && dfs(i + 1, word, child))
+                    {
                         return true;
+                    }
                 }
+
+                // Handle when all of the children also couldnt find the word
                 return false;
             }
         }
-        return currNode->isWord;
+
+        return node->isWord;
     }
 
   public:
     WordDictionary()
     {
-        root = std::make_shared<TrieNode>();
+        root = std::make_shared<Trie>();
     }
 
-    void addWord(string word)
+    void addWord(std::string word)
     {
-        auto temp{root};
+        auto currNode = root;
 
-        for (const auto &c : word)
+        for (const auto ch : word)
         {
-            if (temp->alphabets[c - 'a'] == nullptr)
-                temp->alphabets[c - 'a'] = std::make_shared<TrieNode>();
+            if (currNode->children[ch - 'a'] == nullptr)
+            {
+                currNode->children[ch - 'a'] = std::make_shared<Trie>();
+            }
 
-            temp = temp->alphabets[c - 'a'];
+            currNode = currNode->children[ch - 'a'];
         }
 
-        temp->isWord = true;
+        currNode->isWord = true;
     }
 
-    bool search(string word)
+    bool search(std::string word)
     {
-        return dfs(word, 0, root);
+        return dfs(0, word, root);
     }
 };
