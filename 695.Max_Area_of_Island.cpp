@@ -1,41 +1,55 @@
 #include <functional>
+#include <utility>
 #include <vector>
-
 /*
- * Goal: Find the maximum area of island
+ * Find the maximum area of island
+ * Traverse the grid, and do dfs when we found land and mark visited to prevent revisit
+ * DFS/BFS for searching through grid --> Graph
+ * Use dfs much more simpler
  *
- * Intuition:
- * We can just simply traverse the graph and mark it so that we wont revisit again
  * Time Complexity: O(m * n)
  * */
 class Solution
 {
+    const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
   public:
-    const std::vector<std::pair<int, int>> DIRECTIONS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
     int maxAreaOfIsland(std::vector<std::vector<int>> &grid)
     {
-        int answer{};
-        int ROWS(grid.size()), COLS(grid[0].size());
-        std::vector<std::vector<bool>> visited(ROWS, std::vector<bool>(COLS, false));
+        int ans{};
+        int ROWS = grid.size(), COLS = grid[0].size();
 
-        std::function<int(const int &, const int &)> dfs = [&](const int &row, const int &col) {
-            if (row < 0 || col < 0 || row >= ROWS || col >= COLS || visited[row][col] || !grid[row][col])
-                return 0;
-
-            visited[row][col] = true;
+        std::function<int(const int, const int)> dfs = [&](const int row, const int col) {
+            // Mark visited
+            grid[row][col] = 0;
             int area{1};
 
-            for (const auto &direction : DIRECTIONS)
+            for (const auto &[y, x] : DIRECTIONS)
             {
-                int newRow{direction.first + row}, newCol{direction.second + col};
-                area += dfs(newRow, newCol);
+                int new_row = row + y;
+                int new_col = col + x;
+
+                if (new_row < 0 || new_col < 0 || new_row >= ROWS || new_col >= COLS || grid[new_row][new_col] == 0)
+                {
+                    continue;
+                }
+
+                area += dfs(new_row, new_col);
             }
             return area;
         };
+
         for (int row{}; row < ROWS; row++)
+        {
             for (int col{}; col < COLS; col++)
-                if (grid[row][col] && !visited[row][col])
-                    answer = std::max(answer, dfs(row, col));
-        return answer;
+            {
+                if (grid[row][col])
+                {
+                    ans = std::max(ans, dfs(row, col));
+                }
+            }
+        }
+
+        return ans;
     }
 };
