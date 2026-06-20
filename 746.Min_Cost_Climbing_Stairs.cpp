@@ -1,47 +1,41 @@
-#include <algorithm>
 #include <vector>
 
 /*
- * Goal: Return the minimum cost to reach the top of the floor.
- * TAKE NOTE: We can either start from the step with index 0 or the stop with
- * index 1 Each time you can either climb one or two steps
+ * Return the minimum cost to reach the top of the staircase
+ * We can either start from index 0 or index 1
+ * At each step we can either take 1 or 2 steps
  *
- * Intuition:
- * We can either start from step 0 or step 1
- * Using information from the past & repetitive subproblem.
- * Can solve it using dp. So instead of start from the start, we do it backwards
- * to make thing much more eaasier
+ * Brute force way will recursive try 2 possible steps and get the minimum
  *
- * Top Down Approach:
- * Recursive --> Caching
- * So at every index we can either jump once or twice, and then the information passing down is the index.
- * So the dp can just 1d array
+ * If you notice from the recursive function, sometime we are repeating doing the same thing
+ * So from here we can use cache
+ * Time Complexity: O(n)
  * */
+
 class Solution
 {
-  private:
-    int dfs(const int index, const std::vector<int> &cost, std::vector<int> &caching)
+    std::vector<int> cache;
+    int helper(const std::vector<int> &cost, int index)
     {
-        if (index == cost.size())
+        if (index >= cost.size())
+        {
             return 0;
+        }
 
-        if (caching[index] != -1)
-            return caching[index];
-        return caching[index] = cost[index] + std::min(dfs(index + 1, cost, caching), dfs(index + 2, cost, caching));
+        if (cache[index] != -1)
+        {
+            return cache[index];
+        }
+
+        int cst = cost[index];
+
+        return cache[index] = std::min(cst + helper(cost, index + 1), cst + helper(cost, index + 2));
     }
 
   public:
     int minCostClimbingStairs(std::vector<int> &cost)
     {
-        // Bottom Up Approach
-        // int n(cost.size());
-        //
-        // for (auto i{n - 3}; i >= 0; i--)
-        //     cost[i] += std::min(cost[i + 1], cost[i + 2]);
-        //
-        // return std::min(cost[0], cost[1]);
-
-        std::vector<int> caching(cost.size() + 1, -1);
-        return std::min(dfs(0, cost, caching), dfs(1, cost, caching));
+        cache = std::vector<int>(cost.size() + 1, -1);
+        return std::min(helper(cost, 0), helper(cost, 1));
     }
 };

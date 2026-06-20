@@ -20,42 +20,53 @@ public:
 */
 
 /*
- * Goal: Return a deep copy of the graph
+ * Return a deep copy of the graph
+ * This is a graph problem, so dfs/bfs
+ * DFS will be much more easier.
+ * A few things need during DFS which is visited set, so we wont revisit the same node
+ * We can just keep traversing from the parent node to its child node.
+ * And keep every visited node in a set or whatever that track its, so that we no longer need to traverse down
+ * Since we want the cloned nodes, we can map the original node to the clonned nodes
+ * The base case of stop searching will just does we reach the end?
  *
- * Intuition:
- * We need to clone every single node in the graph and also the relationship between nodes should be the same
- * We can dfs through the graph to find out all the nodes. We can use a hashmap to map the old node to the new node
- * We also can use the map to determine whether is the same node is being access or not, if is it then we simply just
- * return the newly created 1 instead of creating a new 1
- *
- * Time Complexity: O(n)
+ * Time Complexity: O(V + E)
+ * Visiting every nodes and edges in the graph
+ * Space Complexity: O(V)
+ * Worst case the recursive stack will just go through all the node
  * */
 
 #include <unordered_map>
 class Solution
 {
+    std::unordered_map<Node *, Node *> map;
+
+    Node *dfs(Node *node)
+    {
+        if (node == nullptr)
+        {
+            return nullptr;
+        }
+
+        // Check whether is it a visited node
+        if (map.find(node) != map.end())
+        {
+            return map[node];
+        }
+
+        map[node] = new Node(node->val);
+
+        // Visit all its neighbor
+        for (auto neigh : node->neighbors)
+        {
+            map[node]->neighbors.push_back(dfs(neigh));
+        }
+
+        return map[node];
+    }
+
   public:
     Node *cloneGraph(Node *node)
     {
-        std::unordered_map<Node *, Node *> mapping;
-        return dfs(mapping, node);
-    }
-
-    Node *dfs(std::unordered_map<Node *, Node *> &mapping, Node *currNode)
-    {
-        if (!currNode)
-            return nullptr;
-
-        // Check whether this node is visited or not
-        if (mapping.find(currNode) != mapping.end())
-            return mapping[currNode];
-
-        Node *cloneNode = new Node(currNode->val);
-        mapping[currNode] = cloneNode;
-
-        for (const auto &neigh : currNode->neighbors)
-            cloneNode->neighbors.emplace_back(dfs(mapping, neigh));
-
-        return cloneNode;
+        return dfs(node);
     }
 };

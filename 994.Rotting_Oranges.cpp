@@ -1,68 +1,79 @@
 #include <deque>
 #include <utility>
 #include <vector>
+
 /*
- * Goal: Return the minimum number of minutes that must elapse until there are zero fresh fruits remaining. If this
- * state is impossible within the grid, return -1.
- *
- * Intuition:
- * This is a graph problem. So if we compare bfs & dfs. BFS will be much more simplier.
- * We just have to bfs from the rotten fruits.
- * We also need to keep track of all the fruit as well because we only return the time if all fruit turn rotten
- *
- * Time Complexity: O(m * n)
+ * 2d matrix. Most likely a graph problem
+ * DFS/BFS
+ * Start from the rotten fruit
+ * BFS will be much more easier for this problem, as we can skip visiting the same cell
+ * Time Complexity: O(m*n)
  * */
+
 class Solution
 {
-  private:
-    std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
   public:
     int orangesRotting(std::vector<std::vector<int>> &grid)
     {
-        int ROWS(grid.size()), COLS(grid[0].size());
-        // Store all the rotten fruit that gonna spread on the next wave
+        int time{};
+        int rotten{}, fresh{};
+        int ROWS = grid.size(), COLS = grid[0].size();
+
+        // Store all the rotten fruit cell in a queue
         std::deque<std::pair<int, int>> queue;
 
-        int freshFruit{};
-        for (int i{}; i < ROWS; i++)
-            for (int j{}; j < COLS; j++)
-            {
-                if (grid[i][j] == 1)
-                    freshFruit++;
-                else if (grid[i][j] == 2)
-                    queue.emplace_back(i, j);
-            }
-
-        int time{};
-
-        while (!queue.empty() && freshFruit > 0)
+        for (int row{}; row < grid.size(); row++)
         {
-            // Take note at the same time, every rotten fruit spread at the same time for the same wave
-            int nRottenFruit(queue.size());
-
-            while (nRottenFruit)
+            for (int col{}; col < grid[0].size(); col++)
             {
-                auto currCell{queue.front()};
+                if (grid[row][col] == 1)
+                {
+                    fresh++;
+                }
+
+                if (grid[row][col] == 2)
+                {
+                    rotten++;
+                    queue.emplace_back(row, col);
+                }
+            }
+        }
+
+        while (!queue.empty())
+        {
+            int n_rotten = queue.size();
+
+            while (n_rotten)
+            {
+                auto currCell = queue.front();
                 queue.pop_front();
 
-                for (const auto &direction : DIRECTIONS)
+                for (const auto &[_row, _col] : DIRECTIONS)
                 {
-                    int newRow{direction.first + currCell.first}, newCol{direction.second + currCell.second};
+                    int new_row = _row + currCell.first;
+                    int new_col = _col + currCell.second;
 
-                    if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || grid[newRow][newCol] != 1)
+                    if (new_row < 0 || new_col < 0 || new_row >= ROWS || new_col >= COLS || grid[new_row][new_col] != 1)
+                    {
                         continue;
+                    }
 
-                    queue.emplace_back(newRow, newCol);
-                    // Mark it so that we wont revisit again
-                    grid[newRow][newCol] = 2;
-                    freshFruit--;
+                    grid[new_row][new_col] = 2;
+                    fresh--;
+                    queue.emplace_back(new_row, new_col);
                 }
-                nRottenFruit--;
+                n_rotten--;
             }
 
-            time++;
+            // Handle for edge cases where we dont have any more fresh orange left
+            if (!queue.empty())
+            {
+                time++;
+            }
         }
-        return freshFruit == 0 ? time : -1;
+
+        return fresh == 0 ? time : -1;
     }
 };
