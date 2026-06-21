@@ -1,52 +1,65 @@
 #include <functional>
 #include <utility>
 #include <vector>
-
 /*
- * Goal: Change all surrounded regions of '0' to 'x'
- *
- * Intuition:
- * Graph Problem --> DFS / BFS
- * DFS implementation will be much more simpler
- * One key important observation is only cell that are not sides can be surrounded.
- * So what we can do is we can find those cannot be surrounded. We will traverse the sides only where it is '0'
- *
- * Time Complexity: O(m * n)
+ * Replace all the surrounded 'O' cell to 'X'
+ * One important observation is the cell is surrounded if & only if none of the 'O' cells in that region are on the edge
+ * of the board And must be completely enclosed by 'X' cells
+ * Hence it is easier to saerch from the boundary, just dfs and replace all of it with a temp character to mark it not
+ * replacable
  * */
+
 class Solution
 {
-  private:
     const std::vector<std::pair<int, int>> DIRECTIONS{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
   public:
     void solve(std::vector<std::vector<char>> &board)
     {
-        int ROWS(board.size()), COLS(board[0].size());
+        int ROWS = board.size(), COLS = board[0].size();
 
-        std::function<void(const int &, const int &)> dfs = [&](const int &row, const int &col) {
+        std::function<void(const int, const int)> dfs = [&](const int row, const int col) {
             board[row][col] = 'A';
-            for (const auto &direction : DIRECTIONS)
+
+            for (const auto &[_row, _col] : DIRECTIONS)
             {
-                int newRow{direction.first + row}, newCol{direction.second + col};
+                int new_row = row + _row;
+                int new_col = col + _col;
 
-                if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || board[newRow][newCol] != 'O')
+                if (new_row < 0 || new_col < 0 || new_row >= ROWS || new_col >= COLS || board[new_row][new_col] != 'O')
+                {
                     continue;
+                }
 
-                dfs(newRow, newCol);
+                dfs(new_row, new_col);
             }
         };
-        for (int i{}; i < ROWS; i++)
-            for (int j{}; j < COLS; j++)
-                if (board[i][j] == 'O' && (i == 0 || i == ROWS - 1 || j == 0 || j == COLS - 1))
-                    dfs(i, j);
 
-        for (int i{}; i < ROWS; i++)
-            for (int j{}; j < COLS; j++)
+        // Search from the boundary
+        for (int row{}; row < ROWS; row++)
+        {
+            for (int col{}; col < COLS; col++)
             {
-                if (board[i][j] == 'O')
-                    board[i][j] = 'X';
-                else if (board[i][j] == 'A')
-                    board[i][j] = 'O';
+                if (board[row][col] == 'O' && ((row == 0 || row == ROWS - 1) || (col == 0 || col == COLS - 1)))
+                {
+                    dfs(row, col);
+                }
             }
+        }
+
+        for (int row{}; row < ROWS; row++)
+        {
+            for (int col{}; col < COLS; col++)
+            {
+                if (board[row][col] == 'O')
+                {
+                    board[row][col] = 'X';
+                }
+                if (board[row][col] == 'A')
+                {
+                    board[row][col] = 'O';
+                }
+            }
+        }
     }
 };

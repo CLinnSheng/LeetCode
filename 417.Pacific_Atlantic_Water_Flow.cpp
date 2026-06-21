@@ -3,19 +3,14 @@
 #include <vector>
 
 /*
- * Goal: Find all cells where water can flow from both ocean
- *
- * Intuition:
- * This is a graph problem. So is either using bfs or dfs.
- * Both traversing algorithm works but dfs will be much more easier.
- * So our goal is to find all those cell where water can flow into it. Water can only flow from high val cell to low val
- * cell
- * One key important observatoin is all the cells at the border sure can let water flow in.
- * So we can traverse from the border. Then we can have an array for each ocean to mark those cell that visited.
- * So we simply need to find those intersect cells
- *
- * Time Complexity: O(m * n)
- *
+ * Find all the cells that can flow to both pacific and atlantic
+ * Water can only flow into cell with height equal or lower
+ * One important observation here is the cell at the edge sure can let water flow in
+ * So each much more easier to start from the border
+ * use dfs, since this is a graph problem with dfs we need to prevent visiting the same cell again
+ * And how do we determine does the cell to both pacific and atlantic?
+ * Is just simply reverse the quest, does water from both pacific and atlantic can flow to this cell?
+ * Time Complexity: O(n*m)
  * */
 class Solution
 {
@@ -25,45 +20,54 @@ class Solution
   public:
     std::vector<std::vector<int>> pacificAtlantic(std::vector<std::vector<int>> &heights)
     {
-        int ROWS(heights.size()), COLS(heights[0].size());
-        std::vector<std::vector<int>> answer;
-
-        // Visited Cell
+        int ROWS = heights.size(), COLS = heights[0].size();
         std::vector<std::vector<bool>> pacific(ROWS, std::vector<bool>(COLS, false)),
             atlantic(ROWS, std::vector<bool>(COLS, false));
 
-        std::function<void(const int &, const int &, std::vector<std::vector<bool>> &)> dfs =
-            [&](const int &row, const int &col, std::vector<std::vector<bool>> &visited) {
+        std::function<void(const int, const int, std::vector<std::vector<bool>> &)> dfs =
+            [&](const int row, const int col, std::vector<std::vector<bool>> &visited) {
+                // Mark visited
                 visited[row][col] = true;
 
-                for (const auto &direction : DIRECTIONS)
+                for (const auto &[_row, _col] : DIRECTIONS)
                 {
-                    int newRow{direction.first + row}, newCol{direction.second + col};
+                    int new_row = _row + row;
+                    int new_col = _col + col;
 
-                    if (newRow < 0 || newCol < 0 || newRow >= ROWS || newCol >= COLS || visited[newRow][newCol] ||
-                        heights[newRow][newCol] < heights[row][col])
+                    if (new_row < 0 || new_col < 0 || new_row >= ROWS || new_col >= COLS || visited[new_row][new_col] ||
+                        heights[row][col] > heights[new_row][new_col])
+                    {
                         continue;
+                    }
 
-                    dfs(newRow, newCol, visited);
+                    dfs(new_row, new_col, visited);
                 }
             };
 
-        for (int i{}; i < COLS; i++)
+        for (int row{}; row < ROWS; row++)
         {
-            dfs(0, i, pacific);
-            dfs(ROWS - 1, i, atlantic);
-        }
-        for (int i{}; i < ROWS; i++)
-        {
-
-            dfs(i, 0, pacific);
-            dfs(i, COLS - 1, atlantic);
+            dfs(row, 0, pacific);
+            dfs(row, COLS - 1, atlantic);
         }
 
-        for (int i{}; i < ROWS; i++)
-            for (int j{}; j < COLS; j++)
-                if (atlantic[i][j] && pacific[i][j])
-                    answer.emplace_back(std::vector<int>{i, j});
-        return answer;
+        for (int col{}; col < COLS; col++)
+        {
+            dfs(0, col, pacific);
+            dfs(ROWS - 1, col, atlantic);
+        }
+
+        std::vector<std::vector<int>> ans;
+
+        for (int row{}; row < ROWS; row++)
+        {
+            for (int col{}; col < COLS; col++)
+            {
+                if (atlantic[row][col] && pacific[row][col])
+                {
+                    ans.push_back({row, col});
+                }
+            }
+        }
+        return ans;
     }
 };
