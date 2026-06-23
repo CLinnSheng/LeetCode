@@ -1,53 +1,64 @@
-#include <functional>
+#include <unordered_set>
 #include <vector>
-
 /*
- * prerequisites[i] = [ai, bi] where u must take course b before course a
- * Goal: Return true if possible to finish all course.
+ * Every course has a prequisite couse need to take
+ * eg: prequiesites[i] = [a, b]
+ * Course 'a' must be taken before 'b'
+ * So we need to make sure that for each course we want to take, we did take the prequisite as well
+ * In order to able to finish all courses means we dont have a dead lock where for instance
+ * [a,b] & [b,a] where b has to take before a and a has to take before b
+ * So this is a graph problem and we can just DFS every course and traverse down its prequisite and make sure there is
+ * no dead cycle inside it Can use a hashset to track the courses taht we had taken
  *
- * Intuition:
- * From one of the example [1, 0], [0, 1]. We can see this 2 course is depends on one another.
- * So we can treat each course as a node and build a graph on it.
- * So if we have cycle in a graph means that some of the courses are depends on one another. therefore
- * we cannot complete all the courses
+ * Time Complexity: O(V + E)
  * */
 class Solution
 {
+    bool dfs(std::unordered_set<int> courses, std::vector<std::vector<int>> &adjList, int courseIndex)
+    {
+        courses.insert(courseIndex);
+
+        for (const auto &prerequisite : adjList[courseIndex])
+        {
+            if (courses.find(prerequisite) != courses.end())
+            {
+                return false;
+            }
+
+            if (dfs(courses, adjList, prerequisite) == false)
+            {
+                return false;
+            }
+        }
+
+        // prune it means this course can be taken with all the prerequisites also taken
+        adjList[courseIndex].clear();
+        return true;
+    }
+
   public:
     bool canFinish(int numCourses, std::vector<std::vector<int>> &prerequisites)
     {
-        std::vector<std::vector<int>> adjList(numCourses);
-        for (const auto &prerequisite : prerequisites)
-            adjList[prerequisite[0]].emplace_back(prerequisite[1]);
+        std::vector<std::vector<int>> adjList(numCourses, std::vector<int>());
+        for (const auto &prequisite : prerequisites)
+        {
+            adjList[prequisite[0]].emplace_back(prequisite[1]);
+        }
 
-        std::vector<bool> visited(numCourses, false);
-
-        std::function<bool(const int &)> dfs = [&](const int &currCourse) {
-            if (visited[currCourse])
+        for (int course{}; course < numCourses; course++)
+        {
+            // Track the current path instead of current DFS
+            // Eg: [0, 1], [0, 2], [1, 2]
+            // 2 path
+            // Path 1 : 0->1->2
+            // Path 2: 0->2
+            // There is no cycle at all but if we track the current dfs then we will think theres a cycle which is wrong
+            std::unordered_set<int> courses;
+            if (dfs(courses, adjList, course) == false)
+            {
                 return false;
-
-            // if no more prerequisites for this course
-            if (adjList[currCourse].empty())
-                return true;
-
-            visited[currCourse] = true;
-
-            for (const auto &prerequisite : adjList[currCourse])
-                if (!dfs(prerequisite))
-                    return false;
-
-            // Pruning as the first time we visit this course and can complete it we can remove it from the graph
-            // as the second time traverse tothis node we already know we can done this course
-            adjList[currCourse].clear();
-            visited[currCourse] = false;
-
-            return true;
-        };
-
-        for (int i{}; i < numCourses; i++)
-            if (!dfs(i))
-                return false;
-
+            }
+        }
         return true;
     }
 };
