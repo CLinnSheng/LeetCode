@@ -5,72 +5,78 @@
 #include <vector>
 
 /*
- * Lock with 4 circular wheel. Each wheel has 10 slots
- * Wheel can rotate freely. Initially start at "0000"
- * Each move turning one wheel at one slot
- * Given a list of deadends, if lock displaying any of these number, wheel of lock will stop
- * Goal: Return the minimum number of turns to reach target otherwise -1
- *
- * Intuition:
- * We can treat each number as a node. So we think of it as a graph.
- * So is either DFS / BFS. Since the question is asking for finding the minimum number, so we can only use
- * BFS.
- *
- * Time Complexity: O(m)
+ * Start to search from 0000 to target
+ * So we can imagine each string is a node then each possible string is the child node
+ * So this can be solve with DFS/BFS --> Graph Problem
+ * Since finding minimum BFS will be much more easier
+ * We can store the list of deadends in a set, so we can check it with O(1)
+ * At every moment we have 8 choices where we can choose 1 of the 4 wheel to go up & down
+ * So basically we will try all possible choices
+ * Time Complexity: O(10^4)
  * */
+
 class Solution
 {
   private:
     std::vector<std::string> helper(const std::string &str)
     {
-        std::vector<std::string> possibleStr;
+        std::vector<std::string> strings;
 
+        // Try all 4 wheels
         for (int i{}; i < 4; i++)
         {
             std::string temp{str};
-
-            // + 1
-            temp[i] = ((temp[i] - '0' + 1) % 10) + '0';
-            possibleStr.emplace_back(temp);
+            // +1
+            temp[i] = ((temp[i] - '0' + 1) % 10 + '0');
+            strings.emplace_back(temp);
 
             // -1
             temp = str;
-            temp[i] = ((temp[i] - '0' + 9) % 10) + '0';
-            possibleStr.emplace_back(temp);
+            temp[i] = ((temp[i] - '0' + 9) % 10 + '0');
+            strings.emplace_back(temp);
         }
 
-        return possibleStr;
+        return strings;
     }
 
   public:
     int openLock(std::vector<std::string> &deadends, std::string target)
     {
-        std::unordered_set<std::string> visited(deadends.begin(), deadends.end());
-        // edge case
-        if (visited.find("0000") != visited.end())
+        std::unordered_set<std::string> set(deadends.begin(), deadends.end());
+
+        // Edge Case
+        if (set.find("0000") != set.end())
+        {
             return -1;
+        }
 
         std::deque<std::pair<std::string, int>> queue;
         queue.emplace_back("0000", 0);
-        visited.insert("0000");
+        set.insert("0000");
 
         while (!queue.empty())
         {
-            auto front{queue.front()};
+            auto currLock = queue.front();
             queue.pop_front();
 
-            if (front.first == target)
-                return front.second;
-
-            for (const auto &children : helper(front.first))
+            if (currLock.first == target)
             {
-                if (visited.find(children) == visited.end())
+                return currLock.second;
+            }
+
+            for (const auto &str : helper(currLock.first))
+            {
+                // Check is it in the dead end
+                if (set.find(str) != set.end())
                 {
-                    visited.insert(children);
-                    queue.emplace_back(children, front.second + 1);
+                    continue;
                 }
+
+                queue.emplace_back(str, currLock.second + 1);
+                set.insert(str);
             }
         }
+
         return -1;
     }
 };
