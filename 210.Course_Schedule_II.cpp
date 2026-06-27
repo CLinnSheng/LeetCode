@@ -1,58 +1,62 @@
-#include <functional>
+#include <deque>
 #include <vector>
 
 /*
- * prerequisites[i] = [ai, bi] take course ai, must take course bi first
- * Goal: Return a valid ordering of course you acn take all course.
- *
- * Intuition:
- * A bit similar to the first version of course_schedule. but just a little bit tweek.
- * We can make use of the first version to find whether is it possible to have all course or not
- * by just checking got cycle or not
- * Since this is finding the order of course taken, we need another array to keep track of all the course we taken. So
- * that we no need to go through the same prerequisiteCourse again
- * Time COmplexity: O(V + E)
+ * Find the order of courses need to taken
+ * So in order to take all courses --> Must have no cycle
+ * So we need to start from the root course which means the inDegree is 0
+ * Can think each course is a node and the edge is the prequiesites
+ * Can either use BFS/DFS, since we want to start from the course with no prequiesites use BFS will be much more easier
+ * Time Complexity: O(V + E)
  * */
 class Solution
 {
   public:
     std::vector<int> findOrder(int numCourses, std::vector<std::vector<int>> &prerequisites)
     {
-        std::vector<std::vector<int>> adjList(numCourses);
+        std::vector<std::vector<int>> adjLists(numCourses, std::vector<int>());
         for (const auto &prerequisite : prerequisites)
-            adjList[prerequisite[0]].emplace_back(prerequisite[1]);
+        {
+            adjLists[prerequisite[1]].emplace_back(prerequisite[0]);
+        }
 
-        std::vector<int> answer{};
-        std::vector<bool> cycles(numCourses, false), courseTaken(numCourses, false);
-
-        std::function<bool(const int &)> dfs = [&](const int &currCourse) {
-            if (cycles[currCourse])
-                return false;
-
-            // If already taken this course no need to put into the array again
-            // So means the this course is a prerequisiteCourse and already taken
-            if (courseTaken[currCourse])
-                return true;
-
-            // Mark this course as visited
-            cycles[currCourse] = true;
-
-            for (const auto &prerequisiteCourse : adjList[currCourse])
-                if (!dfs(prerequisiteCourse))
-                    return false;
-
-            answer.emplace_back(currCourse);
-            courseTaken[currCourse] = true;
-
-            // Unmark in case other course need this as prerequisite as well
-            cycles[currCourse] = false;
-            adjList[currCourse].clear();
-            return true;
-        };
+        std::deque<int> queue;
+        std::vector<int> inDegree(numCourses, 0);
+        for (const auto &course : prerequisites)
+        {
+            inDegree[course[0]]++;
+        }
         for (int i{}; i < numCourses; i++)
-            if (!dfs(i))
-                return {};
+        {
+            if (inDegree[i] == 0)
+            {
+                queue.emplace_back(i);
+            }
+        }
 
-        return answer;
+        std::vector<int> ans;
+
+        // The queue only contains course that is `ready` which means all of its prequiesites courses are cleared
+        while (!queue.empty())
+        {
+            auto currCourse = queue.front();
+            queue.pop_front();
+            ans.emplace_back(currCourse);
+
+            // Remove the inDegree Count of the course that needed this `currCourse` as prerequisite
+            for (int nextCourse : adjLists[currCourse])
+            {
+                inDegree[nextCourse]--;
+
+                if (inDegree[nextCourse] == 0)
+                {
+                    queue.emplace_back(nextCourse);
+                }
+            }
+        }
+
+        // Cycle detection, if ans doesnt include all means some course cannot be taken because it depends on another
+        // course that also depend on itself
+        return ans.size() == numCourses ? ans : std::vector<int>();
     }
 };
