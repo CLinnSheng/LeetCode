@@ -1,44 +1,69 @@
+#include <functional>
 #include <vector>
-
 /*
- * Goal: Check whether is it a valid tree or not
- *
- * Intuition:
- * A valid tree is a graph without cycle. So we just need to find whether there is a cycle.
- * The easiest algorithm to find whether a graph contain a cycle or not is thru Union Find algo
- * Time Complexity: O(m*n)
+ * Check whether a tree is valid or not
+ * A tree doesnt has a cycle, so what we can do is checking whether can we find a cycle
+ * And also all the nodes must be connected
+ * Just dfs the tree
  * */
 class Solution
 {
-  private:
-    // Time Complexity: O(m)
-    int findParent(int i, std::vector<int> &parents)
-    {
-        if (parents[i] != i)
-            parents[i] = findParent(parents[parents[i]], parents);
-
-        return parents[i];
-    }
+    std::vector<bool> visited;
 
   public:
     bool validTree(int n, std::vector<std::vector<int>> &edges)
     {
-        std::vector<int> parents(n);
-        // Initially each node is own parent
-        for (int i{}; i < n; i++)
-            parents[i] = i;
-
-        for (const auto &edge : edges)
+        if (edges.size() != n - 1)
         {
-            if (findParent(edge[0], parents) == findParent(edge[1], parents))
-                return false;
-
-            // Since different parent then join them together
-            parents[findParent(edge[0], parents)] = findParent(edge[1], parents);
-
-            n--;
+            return false;
         }
 
-        return n == 1;
+        visited = std::vector<bool>(n, false);
+        std::vector<std::vector<int>> adjList(n, std::vector<int>());
+        for (const auto &edge : edges)
+        {
+            // Edges are undirected so add both direction
+            adjList[edge[0]].emplace_back(edge[1]);
+            adjList[edge[1]].emplace_back(edge[0]);
+        }
+
+        std::function<bool(const int, const int)> dfs = [&](const int currNode, const int parentNode) {
+            if (visited[currNode])
+            {
+                return false;
+            }
+
+            // Mark visited
+            visited[currNode] = true;
+            for (const auto &child : adjList[currNode])
+            {
+                // Make sure the node is not parentNode because the adjList is bidrectional
+                if (child != parentNode && dfs(child, currNode) == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        for (int i{}; i < n; i++)
+        {
+
+            if (visited[i] == false && dfs(i, -1) == false)
+            {
+                return false;
+            }
+        }
+
+        // Final checking on whether all the nodes are connected or not
+        for (const auto &visit : visited)
+        {
+            if (!visit)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
